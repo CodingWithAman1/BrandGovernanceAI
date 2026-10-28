@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}BrandGuard AI — Pre-Publication Governance{% endblock %}</title>
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Custom Design System CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="d-flex flex-column min-vh-100" data-user-role="{% if current_user.is_authenticated %}{% if current_user.is_admin %}ADMIN{% elif current_user.role in ['REVIEWER', 'MANAGER'] %}REVIEWER{% else %}CLIENT{% endif %}{% else %}ANON{% endif %}">
+
+  <!-- Interactive Cyber Cursor (Dual Dot + Lagging Magnetic Ring) -->
+  <div id="cursor-dot" class="cursor-dot" aria-hidden="true"></div>
+  <div id="cursor-ring" class="cursor-glow-ring" aria-hidden="true"></div>
+
+  <!-- Ambient Atmospheric Floating Orbs & Dynamic Particle Canvas -->
+  <div class="ambient-background-layer" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+    <div class="ambient-orb orb-4"></div>
+    <canvas id="ambient-particles" class="ambient-particle-canvas"></canvas>
+    <div class="cyber-grid-overlay"></div>
+  </div>
+
+  <!-- Futuristic Animated Start Sequence (Entrance Splash) -->
+  <div id="bg-splash-screen" class="bg-splash-overlay" title="Click anywhere to skip">
+    <div class="splash-content text-center">
+      <div class="splash-shield-box mb-3">
+        <div class="splash-ring"></div>
+        <div class="splash-shield-inner">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <div class="splash-scan-line"></div>
+      </div>
+      <div class="splash-brand-text mb-1">
+        BrandGuard<span class="text-cyan">AI</span>
+      </div>
+      <div class="splash-tagline mb-3">
+        Pre-Publication Brand Governance & Stage-Gate
+      </div>
+      <div class="splash-progress-track">
+        <div class="splash-progress-bar"></div>
+      </div>
+      <div class="splash-status-text">
+        <span class="pulse-dot pulse-dot-green me-2"></span> Calibrating Compliance Engines...
+      </div>
+    </div>
+  </div>
+
+  <!-- Extraordinary Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-brandguard sticky-top">
+    <div class="container-fluid px-lg-4">
+      
+      <!-- Role-Aware Dynamic Logo -->
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white fs-5 py-0" 
+         href="{% if current_user.is_authenticated %}{% if current_user.is_admin %}{{ url_for('portal.admin_portal') }}{% elif current_user.role in ['REVIEWER', 'MANAGER'] %}{{ url_for('portal.reviewer_portal') }}{% else %}{{ url_for('portal.client_portal') }}{% endif %}{% else %}{{ url_for('auth.portal_select') }}{% endif %}">
+        <div class="brand-logo-icon" style="background: {% if current_user.is_authenticated %}{% if current_user.is_admin %}#dc2626{% elif current_user.role in ['REVIEWER', 'MANAGER'] %}#f59e0b{% else %}#4f46e5{% endif %}{% else %}#6366f1{% endif %};">
+          <i class="bi {% if current_user.is_authenticated and current_user.is_admin %}bi-shield-lock-fill{% else %}bi-shield-check{% endif %}"></i>
+        </div>
+        <div class="d-flex flex-column">
+          <span style="letter-spacing: -0.03em;">
+            BrandGuard<span class="{% if current_user.is_authenticated and current_user.is_admin %}text-danger{% elif current_user.is_authenticated and current_user.role in ['REVIEWER', 'MANAGER'] %}text-warning{% else %}text-info{% endif %} ms-1">AI</span>
+          </span>
+          <span class="text-light text-uppercase fw-semibold" style="font-size: 0.62rem; letter-spacing: 0.10em; opacity: 0.85;">
+            {% if current_user.is_authenticated %}
+              {% if current_user.is_admin %}
+                <span class="text-danger fw-bold">&bull; ADMIN CONTROL PLANE</span>
+              {% elif current_user.role in ['REVIEWER', 'MANAGER'] %}
+                <span class="text-warning fw-bold">&bull; REVIEWER & LEGAL DESK</span>
+              {% else %}
+                <span class="text-info fw-bold">&bull; CLIENT WORKSPACE</span>
+              {% endif %}
+            {% else %}
+              Pre-Publish Governance
+            {% endif %}
+          </span>
+        </div>
+      </a>
+
+      <button class="navbar-toggler border-0 shadow-none text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+        <i class="bi bi-list fs-4"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        {% if current_user.is_authenticated %}
+
+          {% if current_user.is_admin %}
+          <!-- ==================== ADMIN EXECUTIVE NAVIGATION ==================== -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
+            <li class="nav-item">
+              <a class="nav-link-custom text-danger fw-bold {% if request.endpoint == 'portal.admin_portal' %}active{% endif %}" href="{{ url_for('portal.admin_portal') }}">
+                <i class="bi bi-shield-lock-fill text-danger me-1"></i> Admin Command
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'guidelines' in request.endpoint %}active{% endif %}" href="{{ url_for('guidelines.list_all') }}">
+                <i class="bi bi-journal-text me-1"></i> Brand Rulebook
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom" href="{{ url_for('guidelines.list_all') }}#truth-bank">
+                <i class="bi bi-database-check me-1"></i> Truth Bank
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'analytics' in request.endpoint %}active{% endif %}" href="{{ url_for('analytics.index') }}">
+                <i class="bi bi-graph-up-arrow me-1"></i> Clarity Analytics
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'reviews' in request.endpoint %}active{% endif %}" href="{{ url_for('reviews.queue') }}">
+                <i class="bi bi-check2-all me-1"></i> Review Queue
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'scanner' in request.endpoint %}active{% endif %}" href="{{ url_for('scanner.studio') }}">
+                <i class="bi bi-magic me-1"></i> Studio
+              </a>
+            </li>
+          </ul>
+
+          {% elif current_user.role in ['REVIEWER', 'MANAGER'] %}
+          <!-- ==================== REVIEWER & LEGAL DESK NAVIGATION ==================== -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
+            <li class="nav-item">
+              <a class="nav-link-custom text-warning fw-bold {% if request.endpoint == 'portal.reviewer_portal' %}active{% endif %}" href="{{ url_for('portal.reviewer_portal') }}">
+                <i class="bi bi-shield-check text-warning me-1"></i> Reviewer Desk
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'reviews' in request.endpoint %}active{% endif %}" href="{{ url_for('reviews.queue') }}">
+                <i class="bi bi-inbox-fill me-1"></i> Stage-Gate Queue
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom" href="{{ url_for('guidelines.list_all') }}#truth-bank">
+                <i class="bi bi-check-circle me-1"></i> Truth Bank Claims
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'analytics' in request.endpoint %}active{% endif %}" href="{{ url_for('analytics.index') }}">
+                <i class="bi bi-bar-chart-line me-1"></i> Clarity Index
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'guidelines' in request.endpoint %}active{% endif %}" href="{{ url_for('guidelines.list_all') }}">
+                <i class="bi bi-journal-bookmark me-1"></i> Guidelines
+              </a>
+            </li>
+          </ul>
+
+          {% else %}
+          <!-- ==================== CLIENT & CREATOR NAVIGATION ==================== -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1">
+            <li class="nav-item">
+              <a class="nav-link-custom text-info fw-bold {% if request.endpoint == 'portal.client_portal' %}active{% endif %}" href="{{ url_for('portal.client_portal') }}">
+                <i class="bi bi-person-workspace text-info me-1"></i> My Client Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'scanner' in request.endpoint %}active{% endif %}" href="{{ url_for('scanner.studio') }}">
+                <i class="bi bi-magic me-1"></i> Pre-Publish Studio
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom" href="{{ url_for('portal.client_portal') }}#pipeline">
+                <i class="bi bi-collection me-1"></i> My Submissions & Certs
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if 'guidelines' in request.endpoint %}active{% endif %}" href="{{ url_for('guidelines.list_all') }}">
+                <i class="bi bi-book me-1"></i> Brand Rules
+              </a>
+            </li>
+          </ul>
+          {% endif %}
+
+        <!-- Right Side: 1-Click Role Switcher & User Profile -->
+        <div class="d-flex align-items-center gap-3">
+          
+          <!-- One-Click Persona Quick-Switcher for Evaluators -->
+          <div class="dropdown">
+            <button class="btn btn-sm btn-dark border border-secondary border-opacity-50 text-light rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-2 shadow-sm" type="button" data-bs-toggle="dropdown">
+              <span class="pulse-dot {% if current_user.is_admin %}pulse-dot-red{% elif current_user.role in ['REVIEWER', 'MANAGER'] %}pulse-dot-amber{% else %}pulse-dot-green{% endif %}"></span>
+              <span class="text-muted small">Portal:</span>
+              <strong class="text-white small">{{ current_user.name.split()[0] }}</strong>
+              <span class="badge {% if current_user.is_admin %}bg-danger{% elif current_user.role in ['REVIEWER', 'MANAGER'] %}bg-warning text-dark{% else %}bg-primary{% endif %}" style="font-size: 0.65rem;">
+                {% if current_user.is_admin %}ADMIN{% elif current_user.role in ['REVIEWER', 'MANAGER'] %}REVIEWER{% else %}CLIENT{% endif %}
+              </span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-2" style="width: 290px; border-radius: 12px;">
+              <li class="dropdown-header text-uppercase small fw-bold text-muted px-2 py-1">
+                <i class="bi bi-lightning-charge text-warning me-1"></i> Switch Demo Persona Portal
+              </li>
+              {% for u in all_demo_users %}
+              <li>
+                <a class="dropdown-item rounded-3 py-2 px-2 d-flex align-items-center justify-content-between {% if u.id == current_user.id %}active bg-primary text-white{% endif %}" href="{{ url_for('auth.quick_switch', user_id=u.id) }}">
+                  <div>
+                    <div class="fw-bold small">{{ u.name }}</div>
+                    <div class="text-muted small {% if u.id == current_user.id %}text-white-50{% endif %}" style="font-size: 0.72rem;">{{ u.organization }} &bull; {{ u.department }}</div>
+                  </div>
+                  <span class="badge {% if u.is_admin %}bg-danger{% elif u.role in ['REVIEWER', 'MANAGER'] %}bg-warning text-dark{% else %}bg-primary{% endif %}" style="font-size: 0.65rem;">
+                    {% if u.is_admin %}ADMIN{% elif u.role in ['REVIEWER', 'MANAGER'] %}REVIEWER{% else %}CLIENT{% endif %}
+                  </span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <!-- Sign Out Icon with role-appropriate target -->
+          <a href="{% if current_user.is_admin %}{{ url_for('auth.admin_logout') }}{% elif current_user.role in ['REVIEWER', 'MANAGER'] %}{{ url_for('auth.reviewer_logout') }}{% else %}{{ url_for('auth.client_logout') }}{% endif %}" class="btn btn-sm btn-outline-danger border-0 rounded-circle p-2" title="Sign Out">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
+
+        </div>
+        {% else %}
+        <!-- Unauthenticated Public Top Navigation -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-2">
+          <li class="nav-item">
+            <a class="nav-link-custom text-info fw-semibold" href="{{ url_for('auth.client_login') }}">
+              <i class="bi bi-person-workspace text-info me-1"></i> Client Portal
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-custom text-warning fw-semibold" href="{{ url_for('auth.reviewer_login') }}">
+              <i class="bi bi-shield-check text-warning me-1"></i> Reviewer Desk
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-custom text-danger fw-semibold" href="{{ url_for('auth.admin_login') }}">
+              <i class="bi bi-shield-lock-fill text-danger me-1"></i> Admin Access
+            </a>
+          </li>
+        </ul>
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+          <a href="{{ url_for('auth.portal_select') }}" class="btn btn-sm btn-outline-light rounded-pill px-3">
+            <i class="bi bi-grid-fill me-1"></i> Choose Portal
+          </a>
+          <a href="{{ url_for('auth.client_login') }}" class="btn btn-sm btn-gradient-primary rounded-pill px-3 fw-bold">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <div class="container-fluid px-lg-4 mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0 rounded-3 py-2 px-3 small d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle-fill me-2 fs-6"></i>
+            <div class="flex-grow-1">{{ message }}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content Container with Smooth Fade-In -->
+  <main class="flex-grow-1 container-fluid px-lg-4 py-3 fade-in-up">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Extraordinary Footer -->
+  <footer class="footer-brandguard border-top py-3 mt-auto">
+    <div class="container-fluid px-lg-4 d-flex flex-column flex-md-row justify-content-between align-items-center small text-muted">
+      <div>
+        <strong class="text-dark">BrandGuard AI</strong> &bull; Crafted with precision by <strong>Team Synapse</strong> (Aman Sharma & Janhavi Kanojia).
+      </div>
+      <div class="d-flex align-items-center gap-3 mt-2 mt-md-0">
+        <span class="d-inline-flex align-items-center gap-1"><span class="pulse-dot pulse-dot-green"></span> Engine Online</span>
+        <span>&bull;</span>
+        <span>Python 3.11</span>
+        <span>&bull;</span>
+        <span>Flask & Werkzeug</span>
+        <span>&bull;</span>
+        <span>SQL ORM</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Scanner JS -->
+  <script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
+  <!-- Cyber Effects (Interactive Cursor, Constellation Canvas, Ambient Feedback) -->
+  <script src="{{ url_for('static', filename='js/cyber-effects.js') }}"></script>
+  
+  <!-- Splash Screen Dismissal Animation Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const splash = document.getElementById('bg-splash-screen');
+      if (splash) {
+        // Fast, satisfying 600ms intro, then dissolve smoothly
+        setTimeout(function() {
+          splash.classList.add('splash-hide');
+        }, 650);
+
+        // Immediate dismiss if clicked
+        splash.addEventListener('click', function() {
+          splash.classList.add('splash-hide');
+        });
+      }
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

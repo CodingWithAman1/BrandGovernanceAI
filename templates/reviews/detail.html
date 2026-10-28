@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Stage-Gate Review: {{ sub.title }} — BrandGuard AI{% endblock %}
+
+{% block content %}
+<!-- Top Header & Status -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <a href="{{ url_for('reviews.queue') }}" class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.75rem;">
+        <i class="bi bi-chevron-left"></i> Queue
+      </a>
+      <span class="badge {% if sub.status == 'APPROVED' %}bg-success{% elif sub.status == 'PENDING' %}bg-warning text-dark{% elif sub.status == 'CHANGES_REQUESTED' %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill px-2 py-1">
+        {{ sub.status }}
+      </span>
+      <span class="text-muted small">&bull; Submission ID #{{ sub.id }} &bull; Format: {{ sub.content_type }}</span>
+    </div>
+    <h3 class="fw-bold mb-0" style="letter-spacing: -0.025em;">{{ sub.title }}</h3>
+    <small class="text-muted">Submitted by <strong>{{ sub.creator.name }}</strong> ({{ sub.creator.department }}) &bull; Score: <strong class="text-dark">{{ sub.compliance_score }}%</strong></small>
+  </div>
+
+  <div class="d-flex gap-2">
+    {% if sub.status == 'APPROVED' %}
+    <a href="{{ url_for('reviews.download_certificate', submission_id=sub.id) }}" class="btn btn-primary fw-bold rounded-pill px-4 shadow">
+      <i class="bi bi-file-earmark-pdf me-2"></i> Download Compliance Certificate (PDF)
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Decision Console for Authorized Managers & Reviewers -->
+{% if current_user.role in ['MANAGER', 'REVIEWER', 'ADMIN'] and sub.status != 'APPROVED' %}
+<div class="bg-card card-glow-shimmer border-cyber-glow p-4 mb-4 border-start border-4 border-primary shadow-sm" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 58, 138, 0.3) 100%);">
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <div class="icon-box icon-box-primary" style="width: 32px; height: 32px; font-size: 1rem;">
+      <i class="bi bi-award"></i>
+    </div>
+    <h6 class="fw-bold mb-0 text-dark">Stage-Gate Decision Console</h6>
+  </div>
+  <p class="text-muted small mb-3">Review unresolved flags, verify exceptions, and issue formal release clearance or change requests.</p>
+  
+  <form method="POST" action="{{ url_for('reviews.take_action', submission_id=sub.id) }}">
+    <div class="mb-3">
+      <textarea name="comment" class="form-control" rows="2" placeholder="Add decision remarks, guidance, or conditional release notes..."></textarea>
+    </div>
+    <div class="d-flex flex-wrap gap-2 justify-content-end">
+      <button type="submit" name="action" value="REJECT" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">
+        <i class="bi bi-x-circle me-1"></i> Reject Draft
+      </button>
+      <button type="submit" name="action" value="REQUEST_CHANGES" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">
+        <i class="bi bi-arrow-repeat me-1"></i> Request Changes
+      </button>
+      <button type="submit" name="action" value="APPROVE" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm">
+        <i class="bi bi-shield-check me-2"></i> Approve & Generate Compliance Certificate
+      </button>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  
+  <!-- Left Column: Content & Side-by-Side Diff -->
+  <div class="col-lg-7">
+    <div class="bg-card p-4 mb-4 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-text text-primary me-2"></i>Submitted Working Copy</h5>
+        <span class="badge bg-light text-dark border">Version Audited</span>
+      </div>
+      
+      <div class="diff-container diff-updated mb-4">
+        {{ sub.raw_content }}
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="small fw-bold text-muted">Initial Draft (Before Remediation):</span>
+        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size: 0.65rem;">ORIGINAL</span>
+      </div>
+      <div class="diff-container diff-original small">
+        {{ sub.original_content }}
+      </div>
+    </div>
+
+    <!-- Reviewer Collaboration & Comments -->
+    <div class="bg-card p-4 shadow-sm">
+      <h5 class="fw-bold mb-3"><i class="bi bi-chat-left-text text-info me-2"></i>Reviewer Collaboration & Comments</h5>
+      
+      <div class="d-flex flex-column gap-2 mb-3">
+        {% for c in comments %}
+        <div class="p-3 border rounded-3 bg-light">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <strong class="text-dark small">{{ c.author.name }} <span class="badge bg-secondary rounded-pill" style="font-size: 0.65rem;">{{ c.author.role }}</span></strong>
+            <small class="text-muted" style="font-size: 0.72rem;">{{ c.created_at.strftime('%b %d, %H:%M') }}</small>
+          </div>
+          <div class="small text-muted" style="line-height: 1.5;">{{ c.message }}</div>
+        </div>
+        {% else %}
+        <div class="text-muted small py-2">No comments posted yet.</div>
+        {% endfor %}
+      </div>
+
+      <!-- Add Comment Form -->
+      <form method="POST" action="{{ url_for('reviews.post_comment', submission_id=sub.id) }}">
+        <div class="input-group">
+          <input type="text" name="message" class="form-control" placeholder="Write a note or comment for the author..." required>
+          <button type="submit" class="btn btn-primary fw-bold">Post Comment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Right Column: Findings Checklist & Audit History -->
+  <div class="col-lg-5">
+    
+    <!-- Findings Summary Card -->
+    <div class="bg-card p-4 mb-4 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-list-check text-warning me-2"></i>Findings Summary ({{ flags|length }})</h6>
+        <span class="badge bg-light text-dark border">{{ sub.compliance_score }}% Health</span>
+      </div>
+      
+      <div class="d-flex flex-column gap-2">
+        {% for f in flags %}
+        <div class="p-3 border rounded-3 small bg-light">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="badge {% if f.severity == 'CRITICAL' %}badge-critical{% elif f.severity == 'WARNING' %}badge-warning{% else %}badge-suggestion{% endif %}">
+              {{ f.severity }}
+            </span>
+            <span class="badge {% if f.status == 'ACCEPTED' %}badge-success-glow{% elif f.status == 'DISMISSED' %}bg-secondary{% else %}badge-warning{% endif %}">
+              {{ f.status }}
+            </span>
+          </div>
+          <div class="fw-bold text-dark mt-1">"{{ f.flagged_snippet }}"</div>
+          <small class="text-muted d-block mt-1">{{ f.explanation }}</small>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Immutable Audit History Card -->
+    <div class="bg-card p-4 shadow-sm">
+      <h6 class="fw-bold mb-3"><i class="bi bi-shield-check text-secondary me-2"></i>Immutable Audit Trail</h6>
+      <div class="d-flex flex-column gap-3 small">
+        {% for l in logs %}
+        <div class="d-flex gap-2">
+          <div class="mt-1">
+            <span class="pulse-dot {% if l.action == 'APPROVED' %}pulse-dot-green{% else %}pulse-dot-amber{% endif %}"></span>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between">
+              <strong class="text-dark">{{ l.actor.name }}</strong>
+              <span class="text-muted" style="font-size: 0.72rem;">{{ l.timestamp.strftime('%H:%M:%S') }}</span>
+            </div>
+            <div class="text-muted" style="font-size: 0.8rem;">{{ l.comment }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

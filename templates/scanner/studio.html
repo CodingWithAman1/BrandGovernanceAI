@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% block title %}Pre-Publication Studio — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-9 col-lg-10">
+
+    <!-- Studio Header -->
+    <div class="text-center mb-4 fade-in-down">
+      <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-magic"></i> PRE-PUBLISH GOVERNANCE STUDIO
+      </div>
+      <h2 class="fw-bold mb-1" style="letter-spacing: -0.03em;">What are you publishing today?</h2>
+      <p class="text-muted small">Screen marketing copy, display banners, and collateral before public deployment</p>
+    </div>
+
+    <!-- Quick Sample Chips for Immediate 1-Click Testing -->
+    <div class="bg-card card-glow-shimmer p-3 mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 shadow-sm border-cyber-glow fade-in-up stagger-1">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+        <div>
+          <strong class="d-block small text-dark">Instant Test Samples:</strong>
+          <span class="text-muted small" style="font-size: 0.75rem;">Click any sample below to populate the studio with 1 click:</span>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn-sample-chip" onclick="loadPreset('hyperbolic')">
+          <span>🔥</span> Risky Promotional Ad
+        </button>
+        <button type="button" class="btn-sample-chip" onclick="loadPreset('jargon')">
+          <span>⚠️</span> Deprecated Jargon & Slurs
+        </button>
+        <button type="button" class="btn-sample-chip" onclick="loadPreset('compliant')">
+          <span>✅</span> Fully Compliant Whitepaper
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Studio Card -->
+    <div class="bg-card card-glow-shimmer p-4 p-md-5 shadow-sm border-cyber-glow fade-in-up stagger-2">
+      <form id="auditForm" method="POST" action="{{ url_for('scanner.analyze') }}" enctype="multipart/form-data">
+        
+        <!-- Title Input -->
+        <div class="mb-4">
+          <label class="form-label fw-bold text-dark mb-1">Campaign or Content Title</label>
+          <input type="text" name="title" id="inputTitle" class="form-control form-control-lg fs-6" placeholder="e.g. Q4 Cloud Product Announcement" required>
+        </div>
+
+        <!-- Text Input -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label fw-bold text-dark mb-0">Textual Copy (Articles, Social Posts, Ad Copy, Emails)</label>
+            <span class="text-muted small" id="wordCountBadge">0 characters</span>
+          </div>
+          <textarea name="content" id="inputContent" rows="8" class="form-control font-monospace p-3" style="font-size: 0.9rem; line-height: 1.6;" placeholder="Paste draft content here for multi-modal evaluation..." oninput="updateCharCount()"></textarea>
+        </div>
+
+        <!-- Visual Asset / Graphic Upload -->
+        <div class="mb-4">
+          <label class="form-label fw-bold text-dark mb-1">Visual Asset / Graphic Banner (Optional)</label>
+          <div class="dropzone-container" onclick="document.getElementById('fileInput').click()">
+            <div id="dropzoneContent">
+              <i class="bi bi-cloud-arrow-up text-primary fs-1 d-block mb-2"></i>
+              <strong class="d-block text-dark small mb-1">Click to Upload Marketing Graphic or Banner</strong>
+              <span class="text-muted small d-block mb-2">Supports .png, .jpg, .webp, .pdf</span>
+              <span class="badge bg-light text-dark border px-2 py-1">OpenCV K-Means Palette &bull; WCAG 2.1 (4.5:1) Contrast &bull; OCR Text</span>
+            </div>
+            <div id="imagePreviewContainer" class="d-none mt-2">
+              <img id="imagePreview" src="" class="img-fluid rounded border shadow-sm" style="max-height: 180px;" alt="Asset Preview">
+              <div class="mt-2 text-primary small fw-bold" id="fileNamePreview"></div>
+            </div>
+            <input type="file" name="asset_file" id="fileInput" class="d-none" accept="image/*,.pdf" onchange="previewImage(event)">
+          </div>
+        </div>
+
+        <!-- Submit Button & Confidentiality Seal -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center pt-3 border-top gap-3">
+          <div class="d-flex align-items-center gap-2 text-muted small">
+            <i class="bi bi-shield-check text-success fs-5"></i>
+            <div>
+              <strong class="d-block text-dark" style="font-size: 0.78rem;">Air-Gapped Confidentiality</strong>
+              <span style="font-size: 0.72rem;">Zero public model training retention on enterprise drafts</span>
+            </div>
+          </div>
+          
+          <button type="submit" id="btnRunAudit" class="btn btn-gradient-primary px-5 py-3 fw-bold rounded-pill fs-6 shadow">
+            <i class="bi bi-play-circle-fill me-2"></i> Run Pre-Publication Audit
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<!-- Futuristic Scanner HUD Modal Overlay -->
+<div id="scannerHudOverlay" class="scanner-hud-overlay" aria-hidden="true">
+  <div class="scanner-hud-box text-start">
+    <div class="scanner-beam-line"></div>
+    
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pulse-dot pulse-dot-green"></span>
+        <strong class="text-white fs-6 font-monospace" style="letter-spacing: 0.04em;">BRANDGUARD CORE &bull; MULTI-MODAL AUDIT</strong>
+      </div>
+      <span class="badge bg-dark border text-cyan font-monospace px-2 py-1" id="hudProgressPercent">0%</span>
+    </div>
+
+    <!-- Progress Track -->
+    <div class="hud-progress-track">
+      <div id="hudProgressBar" class="hud-progress-fill"></div>
+    </div>
+
+    <!-- Pipeline Stages -->
+    <div class="d-flex flex-column" id="hudStepsList">
+      <div class="hud-step-item active" id="hudStep1">
+        <span class="step-icon"><i class="bi bi-gear-wide-connected"></i></span>
+        <span>Extracting token structure & NLP polarity vectors...</span>
+      </div>
+      <div class="hud-step-item" id="hudStep2">
+        <span class="step-icon"><i class="bi bi-database-check"></i></span>
+        <span>Scanning SQL Truth Bank & FTC Section 5 claims...</span>
+      </div>
+      <div class="hud-step-item" id="hudStep3">
+        <span class="step-icon"><i class="bi bi-palette2"></i></span>
+        <span>Running OpenCV K-Means palette & WCAG 2.1 contrast...</span>
+      </div>
+      <div class="hud-step-item" id="hudStep4">
+        <span class="step-icon"><i class="bi bi-stars"></i></span>
+        <span>Synthesizing Brand Health Scorecard & 1-click rewrites...</span>
+      </div>
+    </div>
+
+    <div class="mt-3 text-center small text-muted font-monospace" style="font-size: 0.72rem;">
+      <i class="bi bi-cpu text-cyan me-1"></i> Stage-Gate Pre-Flight Verification Active
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateCharCount() {
+  const text = document.getElementById('inputContent').value;
+  document.getElementById('wordCountBadge').innerText = `${text.length} characters`;
+}
+
+function previewImage(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('imagePreview').src = e.target.result;
+      document.getElementById('fileNamePreview').innerText = file.name;
+      document.getElementById('dropzoneContent').classList.add('d-none');
+      document.getElementById('imagePreviewContainer').classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Intercept form submission to play the futuristic HUD audit sequence
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('auditForm');
+  const overlay = document.getElementById('scannerHudOverlay');
+  const progressBar = document.getElementById('hudProgressBar');
+  const progressPercent = document.getElementById('hudProgressPercent');
+  const step1 = document.getElementById('hudStep1');
+  const step2 = document.getElementById('hudStep2');
+  const step3 = document.getElementById('hudStep3');
+  const step4 = document.getElementById('hudStep4');
+
+  if (form && overlay) {
+    form.addEventListener('submit', function(e) {
+      // If validation fails, let native browser validation trigger
+      if (!form.checkValidity()) return;
+
+      e.preventDefault();
+
+      // Show HUD overlay
+      overlay.classList.add('active');
+
+      // Sequence timeline (~1.3s total)
+      // Step 1: 0ms -> 25%
+      progressBar.style.width = '28%';
+      progressPercent.innerText = '28%';
+
+      setTimeout(() => {
+        // Step 2: 350ms -> 58%
+        step1.classList.remove('active');
+        step1.classList.add('done');
+        step1.querySelector('.step-icon').innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+        
+        step2.classList.add('active');
+        progressBar.style.width = '58%';
+        progressPercent.innerText = '58%';
+      }, 350);
+
+      setTimeout(() => {
+        // Step 3: 700ms -> 84%
+        step2.classList.remove('active');
+        step2.classList.add('done');
+        step2.querySelector('.step-icon').innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+
+        step3.classList.add('active');
+        progressBar.style.width = '84%';
+        progressPercent.innerText = '84%';
+      }, 700);
+
+      setTimeout(() => {
+        // Step 4: 1050ms -> 100%
+        step3.classList.remove('active');
+        step3.classList.add('done');
+        step3.querySelector('.step-icon').innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+
+        step4.classList.add('active');
+        progressBar.style.width = '100%';
+        progressPercent.innerText = '100%';
+      }, 1050);
+
+      setTimeout(() => {
+        step4.classList.remove('active');
+        step4.classList.add('done');
+        step4.querySelector('.step-icon').innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+        // Submit the form
+        form.submit();
+      }, 1350);
+    });
+  }
+});
+</script>
+{% endblock %}

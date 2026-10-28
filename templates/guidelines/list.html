@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% block title %}Brand Rulebook & Assets — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold mb-1">Brand Rulebook & Governance Assets</h3>
+    <p class="text-muted small mb-0">Manage tone guidelines, verified claims bank, terminology rules, and brand design tokens</p>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addRuleModal">
+      <i class="bi bi-plus-circle me-1"></i> Add Brand Rule
+    </button>
+    <button class="btn btn-outline-success fw-bold" data-bs-toggle="modal" data-bs-target="#addFactModal">
+      <i class="bi bi-patch-check me-1"></i> Add Approved Claim
+    </button>
+  </div>
+</div>
+
+<!-- Tabs for Categories -->
+<ul class="nav nav-pills mb-4 gap-2" id="ruleTabs" role="tablist">
+  <li class="nav-item">
+    <button class="nav-link active fw-bold" data-bs-toggle="pill" data-bs-target="#tab-rules">
+      <i class="bi bi-journal-bookmark me-1"></i> Guidelines ({{ guidelines|length }})
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link fw-bold" data-bs-toggle="pill" data-bs-target="#tab-facts">
+      <i class="bi bi-database-check me-1"></i> Approved Facts Bank ({{ approved_facts|length }})
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link fw-bold" data-bs-toggle="pill" data-bs-target="#tab-assets">
+      <i class="bi bi-palette me-1"></i> Design Tokens & Palettes ({{ brand_assets|length }})
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content">
+  
+  <!-- Tab 1: Guidelines List -->
+  <div class="tab-pane fade show active" id="tab-rules">
+    <div class="bg-card card-glow-shimmer border-cyber-glow p-4">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small text-muted text-uppercase">
+            <tr>
+              <th>Rule Code</th>
+              <th>Category</th>
+              <th>Rule Title & Description</th>
+              <th>Severity</th>
+              <th>Forbidden Patterns</th>
+              <th>Legal / Brand Citation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for g in guidelines %}
+            <tr>
+              <td>
+                <span class="badge bg-dark font-monospace">{{ g.rule_code }}</span>
+              </td>
+              <td>
+                <span class="badge {% if g.category == 'CLAIM' %}bg-danger{% elif g.category == 'TONE' %}bg-primary{% elif g.category == 'TERMINOLOGY' %}bg-warning text-dark{% elif g.category == 'ACCESSIBILITY' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                  {{ g.category }}
+                </span>
+              </td>
+              <td>
+                <div class="fw-bold text-dark">{{ g.rule_title }}</div>
+                <small class="text-muted">{{ g.rule_description }}</small>
+              </td>
+              <td>
+                <span class="badge {% if g.severity == 'CRITICAL' %}badge-critical{% elif g.severity == 'WARNING' %}badge-warning{% else %}badge-suggestion{% endif %}">
+                  {{ g.severity }}
+                </span>
+              </td>
+              <td>
+                <code class="small text-danger">{{ g.forbidden_patterns }}</code>
+              </td>
+              <td>
+                <small class="text-muted"><i class="bi bi-bookmark me-1"></i>{{ g.citation_ref or 'Internal Standard' }}</small>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Approved Facts Bank -->
+  <div class="tab-pane fade" id="tab-facts">
+    <div class="bg-card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Verified Claim Evidence Repository</h5>
+        <small class="text-muted">FTC Section 5 evidentiary verification bank</small>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small text-muted text-uppercase">
+            <tr>
+              <th>Topic</th>
+              <th>Verified Claim Statement</th>
+              <th>Evidence Excerpt / Audit Source</th>
+              <th>Source Link</th>
+              <th>Expiration Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in approved_facts %}
+            <tr>
+              <td class="fw-bold text-dark">{{ f.topic }}</td>
+              <td>
+                <div class="small fw-semibold text-primary">"{{ f.claim_statement }}"</div>
+              </td>
+              <td>
+                <small class="text-muted">{{ f.evidence_excerpt }}</small>
+              </td>
+              <td>
+                {% if f.approved_source_link %}
+                <a href="{{ f.approved_source_link }}" target="_blank" class="small text-decoration-none">
+                  <i class="bi bi-link-45deg"></i> Audit Source
+                </a>
+                {% else %}
+                <span class="text-muted small">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if f.expiration_date and f.expiration_date < '2026-10-01' %}
+                <span class="badge bg-danger">Expired: {{ f.expiration_date }}</span>
+                {% else %}
+                <span class="badge bg-success">Valid: {{ f.expiration_date or 'No Expiry' }}</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Design Tokens -->
+  <div class="tab-pane fade" id="tab-assets">
+    <div class="bg-card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Approved Brand Design Tokens</h5>
+        <small class="text-muted">Validated against WCAG AA 4.5:1 relative contrast ratios</small>
+      </div>
+
+      <div class="row g-3">
+        {% for a in brand_assets %}
+        <div class="col-md-4">
+          <div class="p-3 border rounded bg-light d-flex align-items-center gap-3">
+            {% if a.asset_type == 'PALETTE' %}
+            <div class="color-swatch shadow-sm" style="background-color: {{ a.asset_value }};"></div>
+            {% else %}
+            <div class="rounded bg-secondary text-white p-2"><i class="bi bi-file-earmark-font"></i></div>
+            {% endif %}
+            <div>
+              <div class="fw-bold text-dark">{{ a.name }}</div>
+              <code class="small text-muted">{{ a.asset_value }}</code>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal 1: Add Rule -->
+<div class="modal fade" id="addRuleModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('guidelines.add_rule') }}">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Add Brand Guideline Rule</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Rule Code</label>
+              <input type="text" name="rule_code" class="form-control" placeholder="e.g. BG-CLAIM-03" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Category</label>
+              <select name="category" class="form-select">
+                <option value="TONE">TONE (Voice & Polarity)</option>
+                <option value="CLAIM">CLAIM (Regulatory & Evidence)</option>
+                <option value="TERMINOLOGY">TERMINOLOGY (Naming & Lexicon)</option>
+                <option value="VISUAL">VISUAL (Design Tokens)</option>
+                <option value="ACCESSIBILITY">ACCESSIBILITY (WCAG)</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Severity</label>
+              <select name="severity" class="form-select">
+                <option value="CRITICAL">CRITICAL (Blocks release)</option>
+                <option value="WARNING">WARNING (Review required)</option>
+                <option value="SUGGESTION">SUGGESTION (Advisory fix)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Rule Title</label>
+            <input type="text" name="rule_title" class="form-control" placeholder="e.g. Prohibit Unsubstantiated Market Dominance Claims" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Detailed Rule Description & Rationale</label>
+            <textarea name="rule_description" class="form-control" rows="3" placeholder="Explain the governance or regulatory reason for this guideline..." required></textarea>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Forbidden Keywords / Patterns (comma separated)</label>
+              <input type="text" name="forbidden_patterns" class="form-control" placeholder="e.g. #1 in market, best ever, foolproof">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Recommended Tone-Preserving Replacement</label>
+              <input type="text" name="recommended_replacement" class="form-control" placeholder="e.g. leading industry benchmark">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Statutory or Brand Book Citation Reference</label>
+            <input type="text" name="citation_ref" class="form-control" placeholder="e.g. FTC Act § 5 / Brand Voice Guide § 3.2">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary fw-bold">Save Brand Rule</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Add Approved Fact -->
+<div class="modal fade" id="addFactModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('guidelines.add_fact') }}">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Add Verified Fact to Truth Bank</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Topic / Metric Category</label>
+            <input type="text" name="topic" class="form-control" placeholder="e.g. Enterprise Cloud Security Audit" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Verified Claim Statement</label>
+            <textarea name="claim_statement" class="form-control" rows="2" placeholder="e.g. Over 50,000 active enterprises trust our certified infrastructure..." required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Audit Evidence Excerpt / Reference Documentation</label>
+            <textarea name="evidence_excerpt" class="form-control" rows="2" placeholder="e.g. Audited by Schellman Compliance in annual SOC 2 Type II audit report..."></textarea>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Audit Source URL</label>
+              <input type="url" name="approved_source_link" class="form-control" placeholder="https://company.ai/trust-center">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Expiration Date (YYYY-MM-DD)</label>
+              <input type="date" name="expiration_date" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success fw-bold">Save to Truth Bank</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

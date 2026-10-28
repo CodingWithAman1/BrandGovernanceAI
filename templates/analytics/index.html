@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block title %}Guideline Clarity Index & Governance Analytics — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold mb-1">Guideline Clarity Index & Analytics</h3>
+    <p class="text-muted small mb-0">Empirical insights into recurring creator mistakes, rule disputes, and guideline ambiguity</p>
+  </div>
+  <div>
+    <span class="badge bg-primary fs-6 px-3 py-2">
+      <i class="bi bi-lightbulb me-1"></i> Executive Feedback Loop
+    </span>
+  </div>
+</div>
+
+<!-- Clarity Index Overview Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="bg-card p-3 d-flex align-items-center gap-3">
+      <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-3">
+        <i class="bi bi-bullseye"></i>
+      </div>
+      <div>
+        <div class="metric-val text-primary">88.4%</div>
+        <div class="text-muted small fw-bold">Overall System Rule Adherence</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="bg-card p-3 d-flex align-items-center gap-3">
+      <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-3">
+        <i class="bi bi-patch-check"></i>
+      </div>
+      <div>
+        <div class="metric-val text-success">92%</div>
+        <div class="text-muted small fw-bold">1-Click Fix Acceptance Rate</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="bg-card p-3 d-flex align-items-center gap-3">
+      <div class="rounded-3 bg-danger bg-opacity-10 text-danger p-3 fs-3">
+        <i class="bi bi-shield-exclamation"></i>
+      </div>
+      <div>
+        <div class="metric-val text-danger">0%</div>
+        <div class="text-muted small fw-bold">FTC Section 5 Escapes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Table: Guideline Clarity Table (Friction Heatmap) -->
+<div class="bg-card card-glow-shimmer border-cyber-glow p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h5 class="fw-bold mb-1"><i class="bi bi-heat-map text-warning me-2"></i>Guideline Clarity & Friction Index</h5>
+      <p class="text-muted small mb-0">Rules with high dispute or override rates indicate ambiguity or outdated corporate policies needing revision.</p>
+    </div>
+    <span class="badge bg-light text-dark border">Continuous Improvement</span>
+  </div>
+
+  {% if clarity_insights %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small text-muted text-uppercase">
+        <tr>
+          <th>Rule Code</th>
+          <th>Category</th>
+          <th>Guideline Title</th>
+          <th>Total Flags</th>
+          <th>Accepted</th>
+          <th>Disputed / Overridden</th>
+          <th>Friction %</th>
+          <th>Clarity Score</th>
+          <th>Governance Recommendation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in clarity_insights %}
+        <tr>
+          <td>
+            <span class="badge bg-dark font-monospace">{{ item.rule_code }}</span>
+          </td>
+          <td>
+            <span class="badge {% if item.category == 'CLAIM' %}bg-danger{% elif item.category == 'TONE' %}bg-primary{% elif item.category == 'TERMINOLOGY' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
+              {{ item.category }}
+            </span>
+          </td>
+          <td class="fw-bold text-dark">{{ item.title }}</td>
+          <td>{{ item.total_flags }}</td>
+          <td>
+            <span class="badge bg-success">{{ item.accepted }}</span>
+          </td>
+          <td>
+            <span class="badge {% if item.disputed > 0 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+              {{ item.disputed }}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <span class="small fw-bold">{{ item.friction_pct }}%</span>
+              <div class="progress flex-grow-1" style="height: 6px; width: 60px;">
+                <div class="progress-bar {% if item.friction_pct > 30 %}bg-danger{% elif item.friction_pct > 15 %}bg-warning{% else %}bg-success{% endif %}" style="width: {{ item.friction_pct }}%;"></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <strong class="{% if item.clarity_score >= 80 %}text-success{% elif item.clarity_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+              {{ item.clarity_score }}/100
+            </strong>
+          </td>
+          <td>
+            <span class="badge {% if 'Review' in item.recommendation %}bg-danger{% elif 'High' in item.recommendation %}bg-success{% else %}bg-secondary{% endif %}">
+              {{ item.recommendation }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">No flag dispute data recorded yet.</div>
+  {% endif %}
+</div>
+
+<!-- Category Distribution Cards -->
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="bg-card p-4 h-100">
+      <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart text-primary me-2"></i>Flagged Infractions by Engine Category</h6>
+      <div class="d-flex flex-column gap-3">
+        {% for cat, cnt in category_totals %}
+        <div>
+          <div class="d-flex justify-content-between small fw-bold mb-1">
+            <span>{{ cat }}</span>
+            <span>{{ cnt }} Flags</span>
+          </div>
+          <div class="progress" style="height: 10px;">
+            <div class="progress-bar {% if cat == 'CLAIM' %}bg-danger{% elif cat == 'TONE' %}bg-primary{% elif cat == 'TERMINOLOGY' %}bg-warning{% else %}bg-info{% endif %}" style="width: {{ (cnt / 10 * 100)|int if cnt < 10 else 100 }}%;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="bg-card p-4 h-100">
+      <h6 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-success me-2"></i>Stage-Gate Pipeline Velocity</h6>
+      <div class="d-flex flex-column gap-3">
+        {% for stat, cnt in status_counts %}
+        <div>
+          <div class="d-flex justify-content-between small fw-bold mb-1">
+            <span>Stage: {{ stat }}</span>
+            <span>{{ cnt }} Submissions</span>
+          </div>
+          <div class="progress" style="height: 10px;">
+            <div class="progress-bar {% if stat == 'APPROVED' %}bg-success{% elif stat == 'PENDING' %}bg-warning{% else %}bg-secondary{% endif %}" style="width: {{ (cnt / 5 * 100)|int if cnt < 5 else 100 }}%;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Select Portal — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+  <div class="col-xl-10 col-lg-11">
+
+    <!-- Header -->
+    <div class="text-center mb-5 fade-in-down">
+      <div class="brand-logo-icon mx-auto mb-3 floating-anim" style="width: 52px; height: 52px; font-size: 1.6rem; border-radius: 16px;">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <h2 class="fw-bold mb-1" style="letter-spacing: -0.03em;">BrandGuard AI Governance Portal</h2>
+      <p class="text-muted small">Select your designated workspace portal to authenticate via Firebase Auth or corporate credentials</p>
+    </div>
+
+    <!-- 3 Distinct Role Portal Cards -->
+    <div class="row g-4 mb-5">
+      
+      <!-- 1. Client / Creator Portal -->
+      <div class="col-md-4 fade-in-up stagger-1">
+        <div class="bg-card bg-card-hover card-glow-shimmer border-cyber-glow portal-card-client p-4 h-100 d-flex flex-column justify-content-between border-top border-4 border-primary shadow-sm">
+          <div>
+            <div class="icon-box icon-box-primary mb-3">
+              <i class="bi bi-pencil-square"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">Client & Creator Portal</h5>
+            <div class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 small mb-3">Content Creators & Agencies</div>
+            <p class="text-muted small mb-4" style="line-height: 1.5;">
+              Submit marketing copy and graphic banners, receive instant diagnostic scorecards, accept 1-click tone-preserving rewrites, and track approvals.
+            </p>
+          </div>
+
+          <div class="d-flex flex-column gap-2 pt-3 border-top">
+            <a href="{{ url_for('auth.client_login') }}" class="btn btn-primary fw-bold py-2 rounded-pill shadow-sm">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Client Sign In
+            </a>
+            <a href="{{ url_for('auth.client_signup') }}" class="btn btn-outline-secondary btn-sm rounded-pill fw-semibold py-2">
+              Create Client Account
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Reviewer / Manager Portal -->
+      <div class="col-md-4 fade-in-up stagger-2">
+        <div class="bg-card bg-card-hover card-glow-shimmer border-cyber-glow portal-card-reviewer p-4 h-100 d-flex flex-column justify-content-between border-top border-4 border-warning shadow-sm">
+          <div>
+            <div class="icon-box icon-box-warning mb-3">
+              <i class="bi bi-check2-circle"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">Reviewer & Manager Desk</h5>
+            <div class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 text-dark small mb-3">Brand & Legal Governance</div>
+            <p class="text-muted small mb-4" style="line-height: 1.5;">
+              Authorized review queue for Brand Managers and Legal Counsel. Inspect side-by-side diffs, post feedback, approve releases, and issue PDF certificates.
+            </p>
+          </div>
+
+          <div class="d-flex flex-column gap-2 pt-3 border-top">
+            <a href="{{ url_for('auth.reviewer_login') }}" class="btn btn-warning fw-bold py-2 rounded-pill text-dark shadow-sm">
+              <i class="bi bi-inbox me-1"></i> Reviewer Sign In
+            </a>
+            <a href="{{ url_for('auth.reviewer_signup') }}" class="btn btn-outline-secondary btn-sm rounded-pill fw-semibold py-2">
+              Join as Reviewer
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Sole Admin Control Plane -->
+      <div class="col-md-4 fade-in-up stagger-3">
+        <div class="bg-card bg-card-hover card-glow-shimmer border-cyber-glow portal-card-admin p-4 h-100 d-flex flex-column justify-content-between border-top border-4 border-danger shadow-sm" style="background: linear-gradient(180deg, rgba(30, 41, 59, 0.65) 0%, rgba(239, 68, 68, 0.12) 100%);">
+          <div>
+            <div class="icon-box" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;" class="mb-3">
+              <i class="bi bi-shield-lock"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">Executive Admin Portal</h5>
+            <div class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 small mb-3">Sole Administrator Access</div>
+            <p class="text-muted small mb-4" style="line-height: 1.5;">
+              <strong>Restricted to Aman Sharma:</strong> Manage all registered users, configure corporate brand guidelines, govern the Truth Bank, and inspect system audit trails.
+            </p>
+          </div>
+
+          <div class="d-flex flex-column gap-2 pt-3 border-top">
+            <a href="{{ url_for('auth.admin_login') }}" class="btn btn-danger fw-bold py-2 rounded-pill shadow-sm">
+              <i class="bi bi-lock-fill me-1"></i> Admin Master Login
+            </a>
+            <div class="text-center small text-muted" style="font-size: 0.72rem;">Public registration closed (Sole Admin)</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 1-Click Demo Persona Bar for Hackathon Evaluators -->
+    <div class="bg-card p-4 rounded-4 shadow-sm border-0 fade-in-up stagger-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff;">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+          <div class="small fw-bold text-info text-uppercase mb-1" style="letter-spacing: 0.1em;">
+            ⚡ Hackathon Instant Evaluator Quick-Logins
+          </div>
+          <div class="text-light opacity-75 small">
+            Click any persona below to authenticate instantly and test that role's dedicated portal:
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+          {% for u in all_demo_users %}
+          <a href="{{ url_for('auth.quick_switch', user_id=u.id) }}" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2">
+            <strong style="font-size: 0.78rem;">{{ u.name.split()[0] }}</strong>
+            <span class="badge {% if u.role == 'ADMIN' %}bg-danger{% elif u.role == 'REVIEWER' %}bg-warning text-dark{% else %}bg-primary{% endif %}" style="font-size: 0.62rem;">
+              {{ u.role }}
+            </span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% include 'auth/firebase_auth_partial.html' %}
+{% endblock %}

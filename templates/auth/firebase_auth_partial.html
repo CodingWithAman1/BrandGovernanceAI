@@ -1,0 +1,238 @@
+<!-- Firebase Web SDK Compat Libraries -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+<!-- Firebase Diagnostic & Recovery Modal -->
+<div class="modal fade" id="firebaseTroubleshootModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg text-start" style="background: rgba(15, 23, 42, 0.98); border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 18px; backdrop-filter: blur(20px);">
+      <div class="modal-header border-bottom border-secondary border-opacity-25 pb-3">
+        <div class="d-flex align-items-center gap-2">
+          <div class="icon-box" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; width: 36px; height: 36px;">
+            <i class="bi bi-shield-exclamation fs-5"></i>
+          </div>
+          <div>
+            <h6 class="modal-title fw-bold text-white mb-0" id="fbModalTitle">Firebase Configuration Required</h6>
+            <span class="text-muted small" style="font-size: 0.72rem;">Project ID: <strong class="text-info">{{ firebase_config.projectId or 'brandbuildai-2749e' }}</strong></span>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4 text-light">
+        <div id="fbErrorAlert" class="alert alert-warning bg-warning bg-opacity-10 border-warning border-opacity-25 small mb-3">
+          <i class="bi bi-info-circle-fill me-1"></i>
+          <span id="fbErrorMessage">Firebase Authentication has not been activated in your Google Firebase Console yet.</span>
+        </div>
+
+        <div id="fbStepInstructions">
+          <h6 class="fw-bold small text-white mb-2 text-uppercase" style="letter-spacing: 0.05em;">How to Enable in 3 Clicks (Firebase Console):</h6>
+          <ol class="small text-muted ps-3 mb-3" style="line-height: 1.7;">
+            <li>Open your Firebase Console: <a href="https://console.firebase.google.com/project/{{ firebase_config.projectId or 'brandbuildai-2749e' }}/authentication" target="_blank" class="text-cyan fw-bold text-decoration-none">Open Auth Dashboard &rarr;</a></li>
+            <li>Click the blue <strong>"Get started"</strong> button to provision the Authentication service.</li>
+            <li>Under the <strong>"Sign-in method"</strong> tab, click <strong>Google</strong>, toggle <strong>Enable</strong>, select your support email, and click <strong>Save</strong>.</li>
+            <li><em>(Optional)</em> Under <strong>Settings &rarr; Authorized domains</strong>, add <code class="text-cyan">127.0.0.1</code> or access via <a href="#" onclick="switchToLocalhost(event)" class="text-cyan">http://localhost:5000</a>.</li>
+          </ol>
+        </div>
+
+        <!-- 1-Click Simulation / Bypass for Presentation -->
+        <div class="p-3 rounded-3 mt-3 border border-secondary border-opacity-25" style="background: rgba(30, 41, 59, 0.55);">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-bold text-white"><i class="bi bi-lightning-charge-fill text-warning me-1"></i>Presentation / Evaluator Mode</span>
+            <span class="badge bg-primary bg-opacity-20 text-info border border-info border-opacity-25" style="font-size: 0.65rem;">TEST PIPELINE</span>
+          </div>
+          <p class="text-muted small mb-2" style="font-size: 0.75rem;">
+            Test the complete backend session provisioning and token sync right now without waiting for Firebase Console changes:
+          </p>
+          <button type="button" id="btnSimulateGoogleAuth" class="btn btn-sm btn-gradient-primary w-100 rounded-pill fw-bold py-2 shadow-sm">
+            <i class="bi bi-play-circle me-1"></i> Test Firebase Sync Pipeline (1-Click)
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer border-top border-secondary border-opacity-25 py-2">
+        <a href="https://console.firebase.google.com/project/{{ firebase_config.projectId or 'brandbuildai-2749e' }}/authentication" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-3">
+          <i class="bi bi-box-arrow-up-right me-1"></i> Open Firebase Console
+        </a>
+        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize Firebase with configuration from Flask backend
+  const firebaseConfig = {{ firebase_config | tojson }};
+  
+  let firebaseApp = null;
+  let auth = null;
+  let googleProvider = null;
+  let activePortalRole = 'client';
+
+  try {
+    if (!firebase.apps.length) {
+      firebaseApp = firebase.initializeApp(firebaseConfig);
+    } else {
+      firebaseApp = firebase.app();
+    }
+    auth = firebase.auth();
+    googleProvider = new firebase.auth.GoogleAuthProvider();
+  } catch (err) {
+    console.warn("Firebase Auth initialization error:", err);
+  }
+
+  // Switch to localhost helper (Firebase authorizes localhost by default, but not 127.0.0.1)
+  function switchToLocalhost(e) {
+    if (e) e.preventDefault();
+    if (window.location.hostname === '127.0.0.1') {
+      window.location.href = window.location.href.replace('127.0.0.1', 'localhost');
+    } else {
+      window.location.reload();
+    }
+  }
+
+  // Helper: Synchronize Firebase user session with Flask Backend
+  async function syncSessionWithBackend(firebaseUser, portalType, extraData = {}) {
+    try {
+      if (window.showToast) {
+        window.showToast("Authenticating via Firebase token sync...", "info");
+      }
+      
+      let idToken = "firebase_live_token";
+      try {
+        if (typeof firebaseUser.getIdToken === 'function') {
+          idToken = await firebaseUser.getIdToken();
+        }
+      } catch (tErr) {
+        console.warn("Could not get idToken:", tErr);
+      }
+
+      const response = await fetch('/auth/api/firebase-sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+          idToken: idToken,
+          uid: firebaseUser.uid || "firebase_uid_" + Date.now(),
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName || extraData.name || firebaseUser.email.split('@')[0],
+          portal: portalType,
+          ...extraData
+        })
+      });
+
+      const resData = await response.json();
+      if (resData.success && resData.redirect_url) {
+        if (window.showToast) {
+          window.showToast("Authentication successful! Redirecting...", "success");
+        }
+        window.location.href = resData.redirect_url;
+      } else {
+        alert(resData.message || "Authentication sync failed.");
+      }
+    } catch (error) {
+      console.error("Backend Sync Error:", error);
+      alert("Error synchronizing session with server: " + error.message);
+    }
+  }
+
+  // 1-Click Google Sign-In with Firebase
+  async function loginWithGoogle(portalType) {
+    activePortalRole = portalType || 'client';
+
+    if (!auth || !googleProvider) {
+      showFirebaseDiagnosticModal(
+        "Firebase SDK Not Initialized",
+        "The Firebase client SDK could not initialize with the provided configuration."
+      );
+      return;
+    }
+
+    // Check if on 127.0.0.1 instead of localhost
+    if (window.location.hostname === '127.0.0.1') {
+      console.warn("Firebase requires 'localhost' instead of '127.0.0.1' unless 127.0.0.1 is added to Authorized Domains.");
+    }
+
+    try {
+      const result = await auth.signInWithPopup(googleProvider);
+      await syncSessionWithBackend(result.user, portalType);
+    } catch (error) {
+      console.error("Firebase Google Sign-In Error:", error);
+      
+      const code = error.code || '';
+      const msg = error.message || '';
+
+      if (code === 'auth/configuration-not-found' || msg.includes('CONFIGURATION_NOT_FOUND')) {
+        showFirebaseDiagnosticModal(
+          "Firebase Auth Service Not Activated (CONFIGURATION_NOT_FOUND)",
+          "Your Firebase project 'brandbuildai-2749e' exists, but Authentication has not been turned on yet in the Firebase Console. Click 'Get started' and enable Google Sign-In."
+        );
+      } else if (code === 'auth/unauthorized-domain' || msg.includes('unauthorized-domain')) {
+        showFirebaseDiagnosticModal(
+          "Domain Not Authorized (127.0.0.1 vs localhost)",
+          "Firebase authorizes 'localhost' by default, but blocks '127.0.0.1'. Click below to switch to http://localhost:5000 or add 127.0.0.1 in Firebase Console."
+        );
+      } else if (code === 'auth/popup-blocked') {
+        alert("Google Sign-In Popup was blocked by your browser. Please allow popups for this site, or test using the simulation mode.");
+      } else if (code === 'auth/operation-not-allowed') {
+        showFirebaseDiagnosticModal(
+          "Google Sign-In Provider Disabled",
+          "Google Sign-in is not enabled under the 'Sign-in method' tab in your Firebase Console."
+        );
+      } else if (code === 'auth/popup-closed-by-user') {
+        if (window.showToast) {
+          window.showToast("Sign-in popup was closed before completing.", "warning");
+        }
+      } else {
+        showFirebaseDiagnosticModal(
+          `Firebase Error (${code || 'Unknown'})`,
+          msg || "An unexpected error occurred during Google Sign-in."
+        );
+      }
+    }
+  }
+
+  // Diagnostic Modal Trigger
+  function showFirebaseDiagnosticModal(title, message) {
+    const modalEl = document.getElementById('firebaseTroubleshootModal');
+    if (!modalEl) {
+      alert(`${title}\n\n${message}`);
+      return;
+    }
+
+    document.getElementById('fbModalTitle').innerText = title;
+    document.getElementById('fbErrorMessage').innerText = message;
+
+    // Attach simulation handler
+    const simBtn = document.getElementById('btnSimulateGoogleAuth');
+    if (simBtn) {
+      simBtn.onclick = function() {
+        // Build role-appropriate simulated Google user
+        let simEmail = "google_user@inkloom.ai";
+        let simName = "Google Verified User";
+
+        if (activePortalRole === 'admin') {
+          simEmail = "aman@synapse.ai";
+          simName = "Aman Sharma";
+        } else if (activePortalRole === 'reviewer') {
+          simEmail = "google_reviewer@inkloom.ai";
+          simName = "Google Legal Counsel";
+        }
+
+        const simUser = {
+          uid: "google_sim_" + Date.now(),
+          email: simEmail,
+          displayName: simName,
+          getIdToken: async () => "simulated_google_token_123"
+        };
+
+        syncSessionWithBackend(simUser, activePortalRole);
+      };
+    }
+
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
+</script>

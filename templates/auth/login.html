@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Sign In — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center py-5">
+  <div class="col-md-6 col-lg-5 col-xl-4">
+    
+    <div class="bg-card card-glow-shimmer border-cyber-glow p-4 p-md-5 shadow-lg border-0 rounded-4">
+      
+      <!-- Brand Logo & Header -->
+      <div class="text-center mb-4">
+        <div class="brand-logo-icon mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.5rem; border-radius: 14px;">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <h3 class="fw-bold mb-1" style="letter-spacing: -0.03em;">BrandGuard AI</h3>
+        <p class="text-muted small">Pre-Publication Governance & Compliance Portal</p>
+      </div>
+
+      <!-- Standard Login Form -->
+      <form method="POST" action="{{ url_for('auth.login') }}" class="mb-4">
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-dark mb-1">Corporate Email Address</label>
+          <input type="email" name="email" class="form-control" placeholder="name@inkloom.ai" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-dark mb-1">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-gradient-primary w-100 fw-bold py-2 rounded-pill shadow-sm">
+          <i class="bi bi-box-arrow-in-right me-2"></i> Sign In to Portal
+        </button>
+      </form>
+
+      <div class="position-relative text-center my-4">
+        <hr class="text-muted">
+        <span class="position-absolute top-50 start-50 translate-middle px-3 text-muted small fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.1em; background: #111827;">
+          Instant Demo Access
+        </span>
+      </div>
+
+      <!-- 1-Click Role Switcher for Hackathon Evaluators -->
+      <div>
+        <div class="text-center mb-2">
+          <span class="small fw-bold text-muted">⚡ Select Persona to Log In with 1 Click:</span>
+        </div>
+        
+        <div class="d-flex flex-column gap-2">
+          {% for u in demo_users %}
+          <a href="{{ url_for('auth.quick_switch', user_id=u.id) }}" class="btn btn-sm btn-light border text-start d-flex justify-content-between align-items-center py-2 px-3 rounded-3 transition-all hover-shadow">
+            <div>
+              <strong class="d-block small text-dark">{{ u.name }}</strong>
+              <span class="text-muted" style="font-size: 0.72rem;">{{ u.department }}</span>
+            </div>
+            <span class="badge {% if u.role == 'MANAGER' %}bg-warning text-dark{% elif u.role == 'REVIEWER' %}bg-info text-dark{% elif u.role == 'ADMIN' %}bg-danger{% else %}bg-primary{% endif %} rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+              {{ u.role }}
+            </span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

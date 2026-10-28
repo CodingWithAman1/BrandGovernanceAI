@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% block title %}Executive Administration Portal — BrandGuard AI{% endblock %}
+
+{% block content %}
+<!-- Executive Admin Hero Banner -->
+<div class="card-hero-dark card-glow-shimmer border-cyber-glow p-4 p-md-5 mb-4 shadow-lg border-0 fade-in-down" style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #0f172a 100%);">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <div class="d-inline-flex align-items-center gap-2 badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-shield-lock-fill"></i> EXECUTIVE COMMAND PORTAL &bull; SOLE ADMINISTRATOR
+      </div>
+      <h2 class="display-6 fw-bold text-white mb-1" style="letter-spacing: -0.03em;">
+        {{ current_user.name }}
+      </h2>
+      <p class="text-light opacity-75 small mb-0">
+        Email: <strong class="text-white">{{ current_user.email }}</strong> &bull; Organization: <strong>{{ current_user.organization }}</strong> &bull; Role: <span class="badge bg-danger text-white">CHIEF SYSTEM ADMIN</span>
+      </p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{{ url_for('guidelines.list_all') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 py-2 fw-semibold">
+        <i class="bi bi-journal-text me-1"></i> Rulebook Editor
+      </a>
+      <a href="{{ url_for('guidelines.list_all') }}#truth-bank" class="btn btn-outline-light btn-sm rounded-pill px-3 py-2 fw-semibold">
+        <i class="bi bi-database-check me-1"></i> Truth Bank
+      </a>
+      <a href="{{ url_for('scanner.studio') }}" class="btn btn-gradient-primary btn-sm rounded-pill px-3 py-2 fw-bold shadow">
+        <i class="bi bi-magic me-1"></i> Pre-Publish Studio
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Admin KPI Metrics Grid -->
+<div class="row g-3 mb-4 fade-in-up stagger-1">
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box" style="background: rgba(99, 102, 241, 0.12); color: #6366f1;">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div>
+        <div class="metric-val text-dark">{{ all_users|length }}</div>
+        <div class="text-muted small fw-semibold">Total Platform Users</div>
+        <div class="text-muted" style="font-size: 0.72rem;">{{ total_reviewers }} Reviewers &bull; {{ total_clients }} Clients</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+        <i class="bi bi-journal-check"></i>
+      </div>
+      <div>
+        <div class="metric-val text-success">{{ total_guidelines }}</div>
+        <div class="text-muted small fw-semibold">Active Brand Guidelines</div>
+        <div class="text-muted" style="font-size: 0.72rem;">Color, Logo, Claims & Tone</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">
+        <i class="bi bi-database-fill-check"></i>
+      </div>
+      <div>
+        <div class="metric-val text-warning">{{ total_facts }}</div>
+        <div class="text-muted small fw-semibold">Truth Bank Verified Facts</div>
+        <div class="text-muted" style="font-size: 0.72rem;">Zero Hallucination Ground Truth</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box" style="background: rgba(14, 165, 233, 0.12); color: #0ea5e9;">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <div>
+        <div class="metric-val text-info">{{ total_submissions }}</div>
+        <div class="text-muted small fw-semibold">Audited Submissions</div>
+        <div class="text-muted" style="font-size: 0.72rem;">Multi-modal Assets Processed</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Row: User Governance & Quick Admin Controls -->
+<div class="row g-4 mb-4 fade-in-up stagger-2">
+  <!-- User Management Table -->
+  <div class="col-lg-8">
+    <div class="bg-card p-4 shadow-sm h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold mb-0">Platform User Governance</h5>
+          <small class="text-muted">Multi-tenant role management &bull; Strictly 1 Admin (Aman Sharma), multiple Reviewers and Clients</small>
+        </div>
+        <span class="badge bg-light text-dark border px-2 py-1 small">
+          {{ all_users|length }} Accounts
+        </span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+            <tr>
+              <th>User</th>
+              <th>Organization</th>
+              <th>Assigned Role</th>
+              <th>Status</th>
+              <th class="text-end">Account Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in all_users %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold small"
+                       style="width: 34px; height: 34px; background: {% if u.role == 'ADMIN' %}#dc2626{% elif u.role == 'REVIEWER' %}#f59e0b{% else %}#4f46e5{% endif %}; font-size: 0.75rem;">
+                    {{ u.name[:2]|upper }}
+                  </div>
+                  <div>
+                    <div class="fw-bold text-dark small">
+                      {{ u.name }}
+                      {% if u.is_admin %}
+                      <i class="bi bi-patch-check-fill text-danger ms-1" title="Sole Administrator"></i>
+                      {% endif %}
+                    </div>
+                    <div class="text-muted" style="font-size: 0.72rem;">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small fw-semibold text-dark">{{ u.organization or 'Synapse AI' }}</div>
+                <div class="text-muted small" style="font-size: 0.7rem;">{{ u.department or 'General' }}</div>
+              </td>
+              <td>
+                {% if u.role == 'ADMIN' %}
+                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1 rounded-pill small fw-bold">
+                  <i class="bi bi-shield-lock me-1"></i> SOLE ADMIN
+                </span>
+                {% elif u.role == 'REVIEWER' %}
+                <span class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-50 px-2 py-1 rounded-pill small fw-bold">
+                  <i class="bi bi-check2-circle me-1"></i> REVIEWER
+                </span>
+                {% else %}
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1 rounded-pill small fw-bold">
+                  <i class="bi bi-pencil-square me-1"></i> CLIENT / CREATOR
+                </span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.is_active_account %}
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill small">
+                  <i class="bi bi-check-circle-fill me-1"></i> Active
+                </span>
+                {% else %}
+                <span class="badge bg-secondary bg-opacity-25 text-secondary border px-2 py-1 rounded-pill small">
+                  <i class="bi bi-slash-circle me-1"></i> Suspended
+                </span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                {% if u.is_admin %}
+                <span class="text-muted small fst-italic">Protected Root</span>
+                {% else %}
+                <form action="{{ url_for('portal.toggle_user', user_id=u.id) }}" method="POST" class="d-inline">
+                  {% if u.is_active_account %}
+                  <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" style="font-size: 0.72rem;" onclick="return confirm('Suspend user {{ u.name }}?');">
+                    <i class="bi bi-person-x"></i> Deactivate
+                  </button>
+                  {% else %}
+                  <button type="submit" class="btn btn-outline-success btn-sm py-1 px-2" style="font-size: 0.72rem;">
+                    <i class="bi bi-person-check"></i> Activate
+                  </button>
+                  {% endif %}
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Command & System Health Side Column -->
+  <div class="col-lg-4">
+    <!-- Security & Role Policy Card -->
+    <div class="bg-card p-4 shadow-sm mb-4">
+      <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
+        <i class="bi bi-shield-shaded text-danger"></i> Sole Admin Policy Enforced
+      </h6>
+      <p class="small text-muted mb-3">
+        Under Hackathon governance rules, system administration is strictly restricted to <strong>Aman Sharma</strong> (<code>aman@synapse.ai</code>).
+      </p>
+      <div class="p-3 rounded-3 mb-3" style="background: rgba(239, 68, 68, 0.05); border: 1px dashed rgba(239, 68, 68, 0.3);">
+        <div class="d-flex align-items-center gap-2 text-danger small fw-bold mb-1">
+          <i class="bi bi-lock-fill"></i> Role Invariant Guarantee
+        </div>
+        <p class="text-muted mb-0" style="font-size: 0.78rem;">
+          Public signups are strictly confined to <strong>Reviewer</strong> and <strong>Client</strong> roles. The <code>ADMIN</code> role cannot be acquired via public registration.
+        </p>
+      </div>
+
+      <div class="list-group list-group-flush small">
+        <a href="{{ url_for('guidelines.list_all') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+          <span><i class="bi bi-sliders2 text-primary me-2"></i> Manage Brand Rules</span>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </a>
+        <a href="{{ url_for('guidelines.list_all') }}#truth-bank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+          <span><i class="bi bi-check-all text-success me-2"></i> Verified Truth Bank Claims</span>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </a>
+        <a href="{{ url_for('analytics.index') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+          <span><i class="bi bi-graph-up text-warning me-2"></i> Guideline Clarity Index</span>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </a>
+        <a href="{{ url_for('portal.reviewer_portal') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+          <span><i class="bi bi-shield-check text-indigo me-2"></i> Inspect Reviewer Queue</span>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Switcher for Demo / Hackathon Presentation -->
+    <div class="bg-card p-4 shadow-sm">
+      <h6 class="fw-bold mb-2 d-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left-right text-primary"></i> Live Role Simulator
+      </h6>
+      <p class="small text-muted mb-3" style="font-size: 0.78rem;">
+        Quick-switch across authenticated persona accounts to demo role-based experiences for hackathon judges:
+      </p>
+
+      <div class="d-grid gap-2">
+        <a href="{{ url_for('auth.quick_switch', user_id=1) }}" class="btn btn-outline-danger btn-sm text-start py-2">
+          <div class="fw-bold small"><i class="bi bi-shield-lock me-1"></i> Aman Sharma (Sole Admin)</div>
+          <div class="text-muted" style="font-size: 0.7rem;">aman@synapse.ai &bull; Executive Command</div>
+        </a>
+        <a href="{{ url_for('auth.quick_switch', user_id=2) }}" class="btn btn-outline-warning text-dark btn-sm text-start py-2">
+          <div class="fw-bold small"><i class="bi bi-check-circle me-1"></i> Elena Rostova (Reviewer)</div>
+          <div class="text-muted" style="font-size: 0.7rem;">elena.rostova@brandguard.internal &bull; Legal Governance</div>
+        </a>
+        <a href="{{ url_for('auth.quick_switch', user_id=4) }}" class="btn btn-outline-primary btn-sm text-start py-2">
+          <div class="fw-bold small"><i class="bi bi-pencil me-1"></i> Priya Nair (Client / Creator)</div>
+          <div class="text-muted" style="font-size: 0.7rem;">priya.nair@brandguard.internal &bull; Product Marketing</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- System Audit Logs -->
+<div class="bg-card p-4 shadow-sm mb-4 fade-in-up stagger-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h5 class="fw-bold mb-0">System Governance Audit Trail</h5>
+      <small class="text-muted">Immutable log of stage-gate reviews, certifications, and revision requests</small>
+    </div>
+    <span class="badge bg-light text-muted border px-2 py-1 small">
+      Last {{ system_logs|length }} Events
+    </span>
+  </div>
+
+  {% if system_logs %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+        <tr>
+          <th>Timestamp</th>
+          <th>Reviewer</th>
+          <th>Submission</th>
+          <th>Action Taken</th>
+          <th>Feedback & Legal Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in system_logs %}
+        <tr>
+          <td class="small text-muted" style="white-space: nowrap; font-size: 0.75rem;">
+            {{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}
+          </td>
+          <td>
+            <div class="fw-semibold text-dark small">{{ log.actor.name if log.actor else 'System' }}</div>
+            <div class="text-muted" style="font-size: 0.7rem;">{{ log.actor.email if log.actor else 'system@synapse.ai' }}</div>
+          </td>
+          <td>
+            <div class="fw-bold text-dark small">{{ log.submission.title }}</div>
+            <div class="text-muted" style="font-size: 0.7rem;">ID #{{ log.submission.id }}</div>
+          </td>
+          <td>
+            {% if log.action == 'APPROVED' %}
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill small fw-bold">
+              <i class="bi bi-check-circle me-1"></i> APPROVED & CERTIFIED
+            </span>
+            {% elif log.action == 'REJECTED' or log.action == 'CHANGES_REQUESTED' %}
+            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1 rounded-pill small fw-bold">
+              <i class="bi bi-x-circle me-1"></i> CHANGES REQUESTED
+            </span>
+            {% else %}
+            <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1 rounded-pill small">
+              {{ log.action }}
+            </span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">
+            {{ log.comment or 'No remarks recorded.' }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="bi bi-clock-history fs-3 mb-2 d-block opacity-50"></i>
+    <p class="small mb-0">No governance review logs recorded yet.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

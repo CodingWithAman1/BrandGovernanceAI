@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% block title %}Executive Governance Dashboard — BrandGuard AI{% endblock %}
+
+{% block content %}
+<!-- Extraordinary Hero Header -->
+<div class="card-hero-dark p-4 p-md-5 mb-4 shadow-lg">
+  <div class="row align-items-center">
+    <div class="col-lg-8">
+      <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-3">
+        <i class="bi bi-shield-check"></i> ACTIVE PRE-PUBLICATION GOVERNANCE
+      </div>
+      <h2 class="display-6 fw-bold text-white mb-2" style="letter-spacing: -0.03em;">
+        Protect Your Brand Identity Before Content Goes Live
+      </h2>
+      <p class="text-light opacity-75 mb-4 lead fs-6" style="max-width: 650px;">
+        Real-time multi-modal screening for tone drift, unsubstantiated promotional claims, unapproved color hexes, and WCAG accessibility compliance.
+      </p>
+      
+      <div class="d-flex flex-wrap gap-3">
+        <a href="{{ url_for('scanner.studio') }}" class="btn btn-gradient-primary fw-bold px-4 py-2 rounded-pill">
+          <i class="bi bi-magic me-2"></i> Launch Pre-Publish Studio
+        </a>
+        <a href="{{ url_for('reviews.queue') }}" class="btn btn-outline-light px-4 py-2 rounded-pill fw-semibold">
+          <i class="bi bi-inbox me-2"></i> Review Queue <span class="badge bg-warning text-dark ms-1">{{ pending_reviews }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Stats Ticker on Right -->
+    <div class="col-lg-4 d-none d-lg-block text-end">
+      <div class="d-inline-block text-start p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10 backdrop-blur" style="width: 280px;">
+        <div class="text-uppercase small fw-bold text-info mb-2" style="letter-spacing: 0.08em;">Governance Status</div>
+        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-white border-opacity-10">
+          <span class="text-white-50 small">Active Rules</span>
+          <strong class="text-white small">{{ total_rules }} Guidelines</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-white border-opacity-10">
+          <span class="text-white-50 small">Truth Bank</span>
+          <strong class="text-white small">{{ total_facts }} Verified Facts</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-white-50 small">Engine Latency</span>
+          <strong class="text-success small">&lt; 1.2s Parallel</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 Extraordinary KPI Cards -->
+<div class="row g-3 mb-4">
+  
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box icon-box-primary">
+        <i class="bi bi-file-earmark-check"></i>
+      </div>
+      <div>
+        <div class="metric-val text-dark">{{ total_audits }}</div>
+        <div class="text-muted small fw-semibold">Total Audits Run</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box icon-box-success">
+        <i class="bi bi-heart-pulse"></i>
+      </div>
+      <div>
+        <div class="metric-val text-success">{{ avg_score }}<span class="fs-6 text-muted fw-normal">/100</span></div>
+        <div class="text-muted small fw-semibold">Avg Brand Health</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box icon-box-warning">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div>
+        <div class="metric-val text-warning">{{ pending_reviews }}</div>
+        <div class="text-muted small fw-semibold">Pending Approvals</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box icon-box-cyan">
+        <i class="bi bi-patch-check"></i>
+      </div>
+      <div>
+        <div class="metric-val text-info">{{ approved_count }}</div>
+        <div class="text-muted small fw-semibold">Certified Releases</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Main Body: Submissions Table & Audit Trail -->
+<div class="row g-4">
+  
+  <!-- Left: Recent Submissions -->
+  <div class="col-lg-8">
+    <div class="bg-card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold mb-0">Recent Submissions Pipeline</h5>
+          <small class="text-muted">Content screened across text and visual marketing formats</small>
+        </div>
+        <a href="{{ url_for('reviews.queue') }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold">
+          View All <i class="bi bi-chevron-right ms-1"></i>
+        </a>
+      </div>
+
+      {% if recent_submissions %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+            <tr>
+              <th>Campaign / Title</th>
+              <th>Format</th>
+              <th>Creator</th>
+              <th>Health Score</th>
+              <th>Gate Status</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in recent_submissions %}
+            <tr>
+              <td>
+                <div class="fw-bold text-dark">{{ s.title }}</div>
+                <small class="text-muted" style="font-size: 0.75rem;">{{ s.created_at.strftime('%b %d, %Y • %H:%M') }}</small>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border px-2 py-1">{{ s.content_type }}</span>
+              </td>
+              <td>
+                <div class="small fw-semibold text-dark">{{ s.creator.name if s.creator else 'Unknown' }}</div>
+                <div class="text-muted small" style="font-size: 0.72rem;">{{ s.creator.department if s.creator else 'Team' }}</div>
+              </td>
+              <td>
+                <span class="badge {% if s.compliance_score >= 80 %}bg-success{% elif s.compliance_score >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill px-2 py-1 fs-6">
+                  {{ s.compliance_score }}%
+                </span>
+              </td>
+              <td>
+                {% if s.status == 'APPROVED' %}
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                  <i class="bi bi-check2"></i> Approved
+                </span>
+                {% elif s.status == 'PENDING' %}
+                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1 text-dark">
+                  <i class="bi bi-hourglass-split"></i> In Review
+                </span>
+                {% elif s.status == 'CHANGES_REQUESTED' %}
+                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1">
+                  <i class="bi bi-arrow-repeat"></i> Needs Fix
+                </span>
+                {% else %}
+                <span class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1">Scanned</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{{ url_for('scanner.report', submission_id=s.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
+                  Inspect
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
+        <h6 class="fw-bold text-dark">No Submissions Yet</h6>
+        <p class="small">Launch the Pre-Publish Studio to audit your first draft or graphic banner.</p>
+        <a href="{{ url_for('scanner.studio') }}" class="btn btn-sm btn-primary rounded-pill fw-bold">Launch Studio</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right: Audit Timeline & Infraction Breakdown -->
+  <div class="col-lg-4">
+    
+    <!-- Quick Scan Bar -->
+    <div class="bg-card p-4 mb-4 border-start border-4 border-primary">
+      <h6 class="fw-bold mb-1"><i class="bi bi-magic text-primary me-2"></i>Quick Test Samples</h6>
+      <p class="text-muted small mb-3">Test pre-configured drafts in the studio with one click:</p>
+      
+      <div class="d-flex flex-column gap-2">
+        <a href="{{ url_for('scanner.studio') }}" class="btn btn-sm btn-light border text-start d-flex justify-content-between align-items-center py-2 px-3">
+          <div>
+            <strong class="d-block small text-dark">🔥 Risky Promotional Ad</strong>
+            <span class="text-muted" style="font-size: 0.72rem;">#1 claims & FTC Section 5 risks</span>
+          </div>
+          <i class="bi bi-arrow-right text-primary"></i>
+        </a>
+        <a href="{{ url_for('scanner.studio') }}" class="btn btn-sm btn-light border text-start d-flex justify-content-between align-items-center py-2 px-3">
+          <div>
+            <strong class="d-block small text-dark">✅ Compliant Whitepaper</strong>
+            <span class="text-muted" style="font-size: 0.72rem;">98% Health with verified citations</span>
+          </div>
+          <i class="bi bi-arrow-right text-success"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Immutable Audit Trail -->
+    <div class="bg-card p-4">
+      <h6 class="fw-bold mb-3"><i class="bi bi-clock-history text-secondary me-2"></i>Live Audit Activity</h6>
+      <div class="d-flex flex-column gap-3 small">
+        {% for log in recent_logs %}
+        <div class="d-flex gap-2">
+          <div class="mt-1">
+            <span class="pulse-dot {% if log.action == 'APPROVED' %}pulse-dot-green{% else %}pulse-dot-amber{% endif %}"></span>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between">
+              <strong class="text-dark">{{ log.actor.name if log.actor else 'System' }}</strong>
+              <span class="text-muted" style="font-size: 0.72rem;">{{ log.timestamp.strftime('%H:%M:%S') }}</span>
+            </div>
+            <div class="text-muted" style="font-size: 0.8rem;">{{ log.comment }}</div>
+          </div>
+        </div>
+        {% else %}
+        <div class="text-muted small">No recent activity logged.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

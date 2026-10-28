@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% block title %}Audit Scorecard: {{ sub.title }} — BrandGuard AI{% endblock %}
+
+{% block content %}
+<!-- Top Header & Action Bar -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 fade-in-down">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <span class="badge bg-light text-dark border px-2 py-1">{{ sub.content_type }}</span>
+      <span class="badge {% if sub.status == 'APPROVED' %}bg-success{% elif sub.status == 'PENDING' %}bg-warning text-dark{% else %}bg-primary{% endif %} px-2 py-1">
+        {{ sub.status }}
+      </span>
+      <span class="text-muted small">&bull; Submission ID #{{ sub.id }} &bull; Author: {{ sub.creator.name }}</span>
+    </div>
+    <h3 class="fw-bold mb-0" style="letter-spacing: -0.025em;">{{ sub.title }}</h3>
+  </div>
+
+  <div class="d-flex align-items-center gap-2">
+    <a href="{{ url_for('scanner.studio') }}" class="btn btn-outline-secondary rounded-pill px-3 fw-semibold">
+      <i class="bi bi-arrow-left me-1"></i> New Audit
+    </a>
+
+    {% if sub.status != 'APPROVED' %}
+    <form method="POST" action="{{ url_for('scanner.submit_for_review', submission_id=sub.id) }}" class="m-0">
+      <button type="submit" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm">
+        <i class="bi bi-send-check me-2"></i> Route to Stage-Gate Review
+      </button>
+    </form>
+    {% else %}
+    <a href="{{ url_for('reviews.download_certificate', submission_id=sub.id) }}" class="btn btn-primary fw-bold rounded-pill px-4 shadow">
+      <i class="bi bi-file-earmark-pdf me-2"></i> Download Certificate (PDF)
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Extraordinary Hero Scorecard -->
+<div class="bg-card card-glow-shimmer border-cyber-glow p-4 p-md-5 mb-4 shadow-sm fade-in-up stagger-1">
+  <div class="row align-items-center g-4">
+    
+    <!-- SVG Radial Progress Gauge -->
+    <div class="col-lg-3 text-center">
+      <div class="radial-progress-wrapper mb-2">
+        <svg class="radial-progress-svg" viewBox="0 0 140 140">
+          <circle class="radial-bg-circle" cx="70" cy="70" r="54"></circle>
+          <!-- Perimeter = 2 * PI * 54 ~= 339.29 -->
+          <circle id="radialProgressBar" class="radial-progress-circle {% if sub.compliance_score >= 80 %}score-high{% elif sub.compliance_score >= 50 %}score-med{% else %}score-low{% endif %}" 
+                  cx="70" cy="70" r="54" 
+                  stroke-dasharray="339.29" 
+                  stroke-dashoffset="{{ 339.29 - (339.29 * sub.compliance_score / 100) }}"></circle>
+        </svg>
+        <div class="radial-center-content">
+          <div class="display-6 fw-bold text-white" id="brandScoreValue" style="letter-spacing: -0.05em; line-height: 1;">
+            {{ sub.compliance_score }}
+          </div>
+          <span class="text-muted small fw-bold" style="font-size: 0.68rem; letter-spacing: 0.05em;">HEALTH SCORE</span>
+        </div>
+      </div>
+
+      <div class="fw-bold small">
+        {% if sub.compliance_score >= 80 %}
+        <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Brand Compliant</span>
+        {% elif sub.compliance_score >= 50 %}
+        <span class="text-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i> Moderate Risk</span>
+        {% else %}
+        <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i> Critical Action Required</span>
+        {% endif %}
+      </div>
+      <small class="text-muted" style="font-size: 0.72rem;">Target &ge; 85% for clearance</small>
+    </div>
+
+    <!-- 3 Sub-Engine Gauge Cards -->
+    <div class="col-lg-9">
+      <div class="row g-3">
+        
+        <!-- Tone Calibrator -->
+        <div class="col-md-4">
+          <div class="p-3 border rounded-3 bg-card-hover shadow-sm h-100 d-flex flex-column justify-content-between" style="background: rgba(15, 23, 42, 0.75);">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-primary bg-opacity-20 text-info border border-info border-opacity-25 px-2 py-1 small fw-bold">
+                  Engine 1: Tone
+                </span>
+                <strong class="fs-5 {% if sub.tone_score >= 80 %}text-success{% elif sub.tone_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                  {{ sub.tone_score }}%
+                </strong>
+              </div>
+              <h6 class="fw-bold text-white mb-1">Tone & Voice Balance</h6>
+              <p class="text-muted small mb-3" style="font-size: 0.78rem;">Evaluated against 5 enterprise polarities; flags robotic AI jargon and aggression.</p>
+            </div>
+            <div class="progress" style="height: 6px; background: rgba(255, 255, 255, 0.08);">
+              <div class="progress-bar bg-primary" style="width: {{ sub.tone_score }}%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Claims & Evidence -->
+        <div class="col-md-4">
+          <div class="p-3 border rounded-3 bg-card-hover shadow-sm h-100 d-flex flex-column justify-content-between" style="background: rgba(15, 23, 42, 0.75);">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25 px-2 py-1 small fw-bold">
+                  Engine 2: Truth
+                </span>
+                <strong class="fs-5 {% if sub.claim_score >= 80 %}text-success{% elif sub.claim_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                  {{ sub.claim_score }}%
+                </strong>
+              </div>
+              <h6 class="fw-bold text-white mb-1">Claims & FTC Guardrails</h6>
+              <p class="text-muted small mb-3" style="font-size: 0.78rem;">Cross-referenced against SQL Truth Bank; flags unverified #1 claims and guarantees.</p>
+            </div>
+            <div class="progress" style="height: 6px; background: rgba(255, 255, 255, 0.08);">
+              <div class="progress-bar bg-danger" style="width: {{ sub.claim_score }}%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual & Contrast -->
+        <div class="col-md-4">
+          <div class="p-3 border rounded-3 bg-card-hover shadow-sm h-100 d-flex flex-column justify-content-between" style="background: rgba(15, 23, 42, 0.75);">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25 px-2 py-1 small fw-bold">
+                  Engine 3: Vision
+                </span>
+                <strong class="fs-5 {% if sub.visual_score >= 80 %}text-success{% elif sub.visual_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                  {{ sub.visual_score }}%
+                </strong>
+              </div>
+              <h6 class="fw-bold text-white mb-1">WCAG Contrast & Palettes</h6>
+              <p class="text-muted small mb-3" style="font-size: 0.78rem;">OpenCV color clustering & WCAG 2.1 AA (4.5:1) luminance contrast calculations.</p>
+            </div>
+            <div class="progress" style="height: 6px; background: rgba(255, 255, 255, 0.08);">
+              <div class="progress-bar bg-info" style="width: {{ sub.visual_score }}%;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Main Findings & Interactive Side-by-Side Diff Section -->
+<div class="row g-4">
+  
+  <!-- Left Column: Flagged Findings & 1-Click Remediator -->
+  <div class="col-lg-6">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h5 class="fw-bold mb-0">Governance Diagnostic Findings ({{ flags|length }})</h5>
+        <small class="text-muted">Click "Accept 1-Click Fix" to automatically resolve issues in your draft</small>
+      </div>
+      <div>
+        <span class="badge badge-critical px-2 py-1">{{ critical_count }} Critical</span>
+        <span class="badge badge-warning px-2 py-1">{{ warning_count }} Warnings</span>
+      </div>
+    </div>
+
+    {% if flags %}
+    <div class="d-flex flex-column gap-3">
+      {% for f in flags %}
+      <div class="bg-card p-3 p-md-4 border-start border-4 {% if f.severity == 'CRITICAL' %}border-danger{% elif f.severity == 'WARNING' %}border-warning{% else %}border-primary{% endif %} shadow-sm" id="flag-card-{{ f.id }}">
+        
+        <!-- Header Info -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge {% if f.severity == 'CRITICAL' %}badge-critical{% elif f.severity == 'WARNING' %}badge-warning{% else %}badge-suggestion{% endif %}">
+              {{ f.severity }}
+            </span>
+            <span class="badge bg-light text-dark border">{{ f.flag_type }}</span>
+            <span class="badge bg-dark font-monospace" style="font-size: 0.7rem;">{{ f.guideline.rule_code if f.guideline else 'GEN' }}</span>
+          </div>
+
+          <span class="small fw-bold {% if f.status == 'ACCEPTED' %}text-success{% elif f.status == 'DISMISSED' %}text-secondary{% else %}text-warning{% endif %}" id="flag-status-{{ f.id }}">
+            &bull; {{ f.status }}
+          </span>
+        </div>
+
+        <!-- Flagged Snippet Box -->
+        <div class="mb-3">
+          <div class="small fw-bold text-danger mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase;">
+            <i class="bi bi-x-circle me-1"></i> Flagged in Content:
+          </div>
+          <div class="p-2 px-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded font-monospace small text-dark">
+            "{{ f.flagged_snippet }}"
+          </div>
+        </div>
+
+        <!-- Explanation & Citation -->
+        <div class="small text-muted mb-3" style="line-height: 1.5;">
+          <strong class="text-dark">Reason:</strong> {{ f.explanation }}
+          {% if f.guideline and f.guideline.citation_ref %}
+          <div class="text-primary mt-1" style="font-size: 0.76rem;">
+            <i class="bi bi-bookmark-check me-1"></i> <strong>Source Citation:</strong> {{ f.guideline.citation_ref }}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Suggested Tone-Preserving Fix -->
+        {% if f.suggested_fix %}
+        <div class="p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-bold text-success" style="font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase;">
+              <i class="bi bi-check-circle me-1"></i> Tone-Preserving 1-Click Correction:
+            </span>
+            <button type="button" class="btn btn-sm btn-outline-success border-0 py-0 px-2 rounded-pill small" style="font-size: 0.72rem;" onclick="copySuggestedText('{{ f.suggested_fix | replace('\'', '\\\'') }}')">
+              <i class="bi bi-clipboard me-1"></i> Copy
+            </button>
+          </div>
+          <div class="font-monospace text-white small fw-semibold">
+            "{{ f.suggested_fix }}"
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Interactive Action Bar -->
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+          {% if f.status == 'PENDING' %}
+            {% if f.suggested_fix %}
+            <button type="button" class="btn btn-sm btn-primary fw-bold rounded-pill px-3 shadow-sm" id="fix-btn-{{ f.id }}" onclick="applyOneClickFix({{ f.id }})">
+              <i class="bi bi-stars me-1"></i> Accept Fix (1-Click)
+            </button>
+            {% else %}
+            <span class="text-muted small">Visual layout adjustment</span>
+            {% endif %}
+
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#dismissModal-{{ f.id }}">
+              Override / Justify
+            </button>
+          {% elif f.status == 'ACCEPTED' %}
+            <span class="badge badge-success-glow px-3 py-2 fs-6 rounded-pill">
+              <i class="bi bi-check2-all me-1"></i> Remediated
+            </span>
+          {% else %}
+            <span class="text-muted small">Dismissed ({{ f.override_reason }})</span>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- Dismiss / Override Modal -->
+      <div class="modal fade" id="dismissModal-{{ f.id }}" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content border-0 shadow">
+            <form method="POST" action="{{ url_for('scanner.dismiss_flag', flag_id=f.id) }}">
+              <div class="modal-header">
+                <h6 class="modal-title fw-bold">Governance Exception Request</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <p class="small text-muted">Provide a business justification for overriding this rule. This justification will be logged in the immutable audit trail for manager review.</p>
+                <textarea name="reason" class="form-control" rows="3" placeholder="e.g. Approved intentional brand creative pun for Q4 campaign..." required></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-sm btn-warning fw-bold">Record Override</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-card p-5 text-center text-success">
+      <i class="bi bi-patch-check-fill display-4 d-block mb-3 text-success"></i>
+      <h5 class="fw-bold">100% Brand Compliant</h5>
+      <p class="text-muted small">No tone deviations, unsupported claims, or visual contrast issues found.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Column: Interactive Side-by-Side Diff Comparison -->
+  <div class="col-lg-6">
+    
+    {% if sub.file_path %}
+    <!-- Uploaded Graphic Inspector Card -->
+    <div class="bg-card p-3 mb-4 shadow-sm">
+      <h6 class="fw-bold mb-2"><i class="bi bi-image text-info me-2"></i>Visual Asset Inspector</h6>
+      <div class="text-center p-3 bg-light border rounded-3">
+        <img src="{{ url_for('static', filename=sub.file_path) }}" class="img-fluid rounded shadow-sm" style="max-height: 240px;" alt="Banner Preview">
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+        <small class="text-muted">OpenCV K-Means Palette Extracted</small>
+        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 small">WCAG 2.1 AA Validated</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Side-by-Side Red/Green Diff View -->
+    <div class="bg-card card-glow-shimmer border-cyber-glow p-4 shadow-sm sticky-top" style="top: 80px;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold mb-0">Side-by-Side Diff Engine</h5>
+          <small class="text-muted">Live visual comparison between initial draft and remediated copy</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-semibold" onclick="copyRemediatedCopy()" title="Copy live clean copy to clipboard">
+            <i class="bi bi-clipboard-check me-1"></i> Copy Copy
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-2 py-1" onclick="downloadCleanCopy('{{ sub.title }}')" title="Download clean text as .txt">
+            <i class="bi bi-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Initial Draft Box -->
+      <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="small fw-bold text-danger">
+            <i class="bi bi-dash-circle-fill me-1"></i> Initial Unvetted Draft:
+          </span>
+          <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size: 0.65rem;">ORIGINAL</span>
+        </div>
+        <div class="diff-container diff-original">
+          {{ sub.original_content or 'No text copy provided.' }}
+        </div>
+      </div>
+
+      <!-- Current Remediated Copy Box -->
+      <div>
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="small fw-bold text-success">
+            <i class="bi bi-plus-circle-fill me-1"></i> Current Remediated Copy:
+          </span>
+          <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size: 0.65rem;">UPDATED LIVE</span>
+        </div>
+        <div class="diff-container diff-updated" id="diffUpdatedText">
+          {{ sub.raw_content or 'No text copy provided.' }}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

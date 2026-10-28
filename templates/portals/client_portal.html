@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% block title %}Client & Creator Portal — BrandGuard AI{% endblock %}
+
+{% block content %}
+<!-- Client Portal Hero Banner -->
+<div class="card-hero-dark card-glow-shimmer border-cyber-glow p-4 p-md-5 mb-4 shadow-lg border-0 fade-in-down" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 70%, #0f172a 100%);">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-25 text-info border border-info border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-pencil-square"></i> CLIENT & CREATOR WORKSPACE
+      </div>
+      <h2 class="display-6 fw-bold text-white mb-1" style="letter-spacing: -0.03em;">
+        Welcome back, {{ current_user.name }}
+      </h2>
+      <p class="text-light opacity-75 small mb-0">
+        Organization: <strong>{{ current_user.organization }}</strong> &bull; Department: <strong>{{ current_user.department }}</strong>
+      </p>
+    </div>
+
+    <div>
+      <a href="{{ url_for('scanner.studio') }}" class="btn btn-gradient-primary fw-bold px-4 py-2 rounded-pill shadow">
+        <i class="bi bi-magic me-2"></i> Launch Pre-Publish Studio
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 4 Client KPI Cards -->
+<div class="row g-3 mb-4 fade-in-up stagger-1">
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box icon-box-primary">
+        <i class="bi bi-file-earmark-text"></i>
+      </div>
+      <div>
+        <div class="metric-val text-dark">{{ total_my_scans }}</div>
+        <div class="text-muted small fw-semibold">My Content Audits</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box icon-box-warning">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div>
+        <div class="metric-val text-warning">{{ pending_count }}</div>
+        <div class="text-muted small fw-semibold">In Review Queue</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+        <i class="bi bi-arrow-repeat"></i>
+      </div>
+      <div>
+        <div class="metric-val text-danger">{{ changes_req_count }}</div>
+        <div class="text-muted small fw-semibold">Changes Requested</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="bg-card bg-card-hover p-4 d-flex align-items-center gap-3">
+      <div class="icon-box icon-box-success">
+        <i class="bi bi-patch-check"></i>
+      </div>
+      <div>
+        <div class="metric-val text-success">{{ approved_count }}</div>
+        <div class="text-muted small fw-semibold">Certified for Release</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- My Submissions Table -->
+<div class="bg-card p-4 shadow-sm mb-4 fade-in-up stagger-2" id="pipeline">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h5 class="fw-bold mb-0">My Content Pipeline & Releases</h5>
+      <small class="text-muted">Drafts, diagnostic reports, and stage-gate approvals created by your account</small>
+    </div>
+    <a href="{{ url_for('scanner.studio') }}" class="btn btn-sm btn-primary rounded-pill fw-semibold shadow-sm">
+      <i class="bi bi-plus-circle me-1"></i> New Pre-Publish Scan
+    </a>
+  </div>
+
+  {% if my_submissions %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+        <tr>
+          <th>Campaign Title</th>
+          <th>Format</th>
+          <th>Health Score</th>
+          <th>Status</th>
+          <th>Submitted Date</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in my_submissions %}
+        <tr>
+          <td>
+            <div class="fw-bold text-dark">{{ s.title }}</div>
+            <small class="text-muted">ID #{{ s.id }}</small>
+          </td>
+          <td>
+            <span class="badge bg-light text-dark border">{{ s.content_type }}</span>
+          </td>
+          <td>
+            <span class="badge {% if s.compliance_score >= 80 %}bg-success{% elif s.compliance_score >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill px-2 py-1 fs-6">
+              {{ s.compliance_score }}%
+            </span>
+          </td>
+          <td>
+            {% if s.status == 'APPROVED' %}
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+              <i class="bi bi-check2"></i> Approved
+            </span>
+            {% elif s.status == 'PENDING' %}
+            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 text-dark px-2 py-1">
+              <i class="bi bi-hourglass-split"></i> In Manager Review
+            </span>
+            {% elif s.status == 'CHANGES_REQUESTED' %}
+            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1">
+              <i class="bi bi-arrow-repeat"></i> Changes Requested
+            </span>
+            {% else %}
+            <span class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1">Draft Scanned</span>
+            {% endif %}
+          </td>
+          <td>
+            <small class="text-muted">{{ s.created_at.strftime('%b %d, %Y') }}</small>
+          </td>
+          <td class="text-end">
+            <a href="{{ url_for('scanner.report', submission_id=s.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
+              Inspect & Diff
+            </a>
+            {% if s.status == 'APPROVED' %}
+            <a href="{{ url_for('reviews.download_certificate', submission_id=s.id) }}" class="btn btn-sm btn-success rounded-pill px-2 ms-1" title="Download PDF Certificate">
+              <i class="bi bi-file-earmark-pdf"></i>
+            </a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-pencil fs-1 d-block mb-2 text-secondary"></i>
+    <h6 class="fw-bold text-dark">No Submissions Yet</h6>
+    <p class="small">Launch the studio to scan your first marketing draft or banner.</p>
+    <a href="{{ url_for('scanner.studio') }}" class="btn btn-sm btn-primary rounded-pill fw-bold">Launch Studio</a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Active Brand Guidelines Quick Reference for Creators -->
+<div class="bg-card p-4 shadow-sm mb-4 fade-in-up stagger-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-book-half text-primary me-2"></i>Active Corporate Brand Rules (Pre-Publication Guide)</h6>
+      <small class="text-muted">Ensure your marketing copy and banners adhere to these active guidelines before publishing</small>
+    </div>
+    <a href="{{ url_for('guidelines.list_all') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+      View Full Rulebook &rarr;
+    </a>
+  </div>
+
+  <div class="row g-3">
+    {% for rule in active_guidelines %}
+    <div class="col-md-6 col-lg-4">
+      <div class="p-3 rounded-3 border border-secondary border-opacity-25 bg-card h-100 bg-card-hover">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge bg-secondary bg-opacity-25 text-light font-monospace" style="font-size: 0.7rem;">{{ rule.rule_code }}</span>
+          <span class="badge {% if rule.severity == 'CRITICAL' %}bg-danger{% elif rule.severity == 'WARNING' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}" style="font-size: 0.65rem;">
+            {{ rule.severity }}
+          </span>
+        </div>
+        <div class="fw-bold text-dark small mb-1">{{ rule.rule_title }}</div>
+        <p class="text-muted mb-2" style="font-size: 0.78rem; line-height: 1.4;">{{ rule.rule_description }}</p>
+        {% if rule.recommended_replacement %}
+        <div class="small text-success fw-semibold" style="font-size: 0.72rem;">
+          <i class="bi bi-check-circle me-1"></i> Use: {{ rule.recommended_replacement }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

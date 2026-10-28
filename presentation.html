@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrandGuard AI — Team Synapse (Round 1 Master Deck)</title>
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --brand-navy: #0f172a;
+      --brand-slate: #1e293b;
+      --brand-blue: #2563eb;
+      --brand-cyan: #0ea5e9;
+      --brand-green: #10b981;
+      --brand-amber: #f59e0b;
+      --brand-red: #ef4444;
+      --bg-light: #f8fafc;
+    }
+    
+    * {
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    body {
+      background-color: #0b0f19;
+      color: #334155;
+      overflow: hidden;
+      height: 100vh;
+      margin: 0;
+      user-select: none;
+    }
+    
+    .presentation-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    .progress-bar-container {
+      height: 4px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand-blue), var(--brand-cyan));
+      width: 0%;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .slide-viewport {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem;
+      position: relative;
+    }
+    
+    .slide {
+      width: 100%;
+      max-width: 1400px;
+      aspect-ratio: 16 / 9;
+      max-height: 90vh;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      display: none;
+      flex-direction: column;
+      padding: 2.4rem 3.2rem;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInSlide 0.3s ease-out forwards;
+    }
+    
+    .slide.active {
+      display: flex;
+    }
+    
+    .slide.dark-theme {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
+      color: #f8fafc;
+    }
+    
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: scale(0.985); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .slide-eyebrow {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--brand-blue);
+      margin-bottom: 0.25rem;
+    }
+    .dark-theme .slide-eyebrow { color: var(--brand-cyan); }
+    
+    .slide-title {
+      font-size: 1.95rem;
+      font-weight: 800;
+      color: var(--brand-navy);
+      letter-spacing: -0.025em;
+      margin-bottom: 1.4rem;
+    }
+    .dark-theme .slide-title { color: #ffffff; }
+    
+    .gov-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.2rem;
+      height: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .gov-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+    
+    .stat-badge {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      background: #f1f5f9;
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      color: #0f172a;
+      display: inline-block;
+    }
+    
+    .bottom-bar {
+      height: 55px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+    
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #ffffff;
+      padding: 0.35rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .nav-btn:hover {
+      background: var(--brand-blue);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="presentation-container">
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <div class="slide-viewport">
+    
+    <!-- SLIDE 1: TITLE (Dark) -->
+    <div class="slide dark-theme active" data-slide="1">
+      <div class="d-flex flex-column justify-content-center h-100 ps-3">
+        <div class="slide-eyebrow">INKLOOM AI HACKATHON • ROUND 1: THE MASTER PLAN</div>
+        <h1 class="display-4 fw-bold text-white mb-2" style="letter-spacing: -0.03em;">BrandGuard AI</h1>
+        <h3 class="fw-normal text-info mb-4" style="font-size: 1.5rem;">
+          Intelligent Multi-Modal Brand Governance & Pre-Publication Compliance Platform
+        </h3>
+        
+        <div class="p-3 rounded-3 bg-white bg-opacity-10 border border-secondary mb-4" style="max-width: 850px;">
+          <div class="text-uppercase fw-bold text-info small mb-1">Submitted by: Team Synapse</div>
+          <div class="fs-5 fw-bold text-white mb-1">
+            • Aman Sharma <span class="badge bg-primary ms-1">Team Leader</span> 
+            <span class="mx-2">•</span> 
+            Janhavi Kanojia <span class="badge bg-info text-dark ms-1">Frontend Dev</span>
+          </div>
+          <div class="text-light small opacity-75">
+            Stack: Python 3.11 • Flask • Werkzeug • Relational SQL • HTML5 • CSS3 • JavaScript (ES6) • Bootstrap 5
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: THE CONTENT GOVERNANCE CRISIS -->
+    <div class="slide" data-slide="2">
+      <div class="slide-eyebrow">PROBLEM DEFINITION</div>
+      <div class="slide-title">The Content Governance Crisis</div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col">
+          <div class="gov-card border-top border-4 border-primary text-center">
+            <div class="stat-badge text-primary mb-2">85%</div>
+            <h6 class="fw-bold">Have Brand Rules</h6>
+            <p class="text-muted small">Only 30% consistently enforce them across content operations.</p>
+            <div class="badge bg-light text-dark border">Marq Benchmark</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gov-card border-top border-4 border-danger text-center">
+            <div class="stat-badge text-danger mb-2">77%</div>
+            <h6 class="fw-bold">Publish Off-Brand</h6>
+            <p class="text-muted small">Rogue drafts bypass review due to distributed creator teams.</p>
+            <div class="badge bg-light text-dark border">Marq 400+ Survey</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gov-card border-top border-4 border-warning text-center">
+            <div class="stat-badge text-warning mb-2">63%</div>
+            <h6 class="fw-bold">AI Compliance Lag</h6>
+            <p class="text-muted small">Leaders cite brand risk as the #1 barrier to scaling GenAI.</p>
+            <div class="badge bg-light text-dark border">Gartner Study</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gov-card border-top border-4 border-info text-center">
+            <div class="stat-badge text-info mb-2">81.0%</div>
+            <h6 class="fw-bold">WCAG Failures</h6>
+            <p class="text-muted small">Top 1M sites average 34.5 visual contrast errors per page.</p>
+            <div class="badge bg-light text-dark border">WebAIM 2024</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gov-card border-top border-4 border-secondary text-center">
+            <div class="stat-badge text-secondary mb-2">4,000+</div>
+            <h6 class="fw-bold">Annual ADA Suits</h6>
+            <p class="text-muted small">Lawsuits targeting non-compliant visual contrast & metadata.</p>
+            <div class="badge bg-light text-dark border">UsableNet Report</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: LIABILITY IS NO LONGER HYPOTHETICAL -->
+    <div class="slide" data-slide="3">
+      <div class="slide-eyebrow">EMPIRICAL LEGAL PRECEDENTS</div>
+      <div class="slide-title">Liability is No Longer Hypothetical</div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col-4">
+          <div class="gov-card border-start border-4 border-danger p-3">
+            <div class="badge bg-danger mb-2">2024 Court Precedent</div>
+            <h6 class="fw-bold">Moffatt v. Air Canada (CRT 149)</h6>
+            <p class="text-muted small mb-2">Air Canada's chatbot hallucinated bereavement policy terms. The airline claimed the AI was a "separate legal entity"—the tribunal rejected this, holding Air Canada strictly liable for negligent misrepresentation.</p>
+            <strong class="small text-dark">Precedent: Companies bear 100% liability for automated copy.</strong>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="gov-card border-start border-4 border-warning p-3">
+            <div class="badge bg-warning text-dark mb-2">2024 Federal Crackdown</div>
+            <h6 class="fw-bold">FTC Operation AI Comply</h6>
+            <p class="text-muted small mb-2">US FTC launched Section 5 enforcement against unproven claims: DoNotPay was fined $193,000 for "robot lawyer" marketing lacking validation; Rytr sanctioned for generating unverified reviews.</p>
+            <strong class="small text-dark">Precedent: Superlatives ("#1", "guaranteed") mandate proof.</strong>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="gov-card border-start border-4 border-primary p-3">
+            <div class="badge bg-primary mb-2">2024 Audit Benchmark</div>
+            <h6 class="fw-bold">WebAIM Million Audit</h6>
+            <p class="text-muted small mb-2">95.9% of top 1M pages exhibited detectable WCAG failures. Low-contrast text affected 81.0% of pages, driving over 4,000 ADA federal lawsuits in a single year.</p>
+            <strong class="small text-dark">Precedent: Visual contrast checks must be mathematically automated.</strong>
+          </div>
+        </div>
+      </div>
+      <div class="p-2 rounded bg-dark text-white text-center mt-3 small fw-bold">
+        “AI-generated statements remain the company’s responsibility.” — THE GOVERNANCE GAP IS NOW A LEGAL EXPOSURE
+      </div>
+    </div>
+
+    <!-- SLIDE 4: BUILT FOR EVERY DECISION-MAKER -->
+    <div class="slide" data-slide="4">
+      <div class="slide-eyebrow">USER PERSONAS</div>
+      <div class="slide-title">Built for Every Decision-Maker in the Review Chain</div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col-3">
+          <div class="gov-card text-center p-3">
+            <div class="badge bg-primary mb-2">Priya Sharma</div>
+            <div class="fw-bold">Senior Copywriter</div>
+            <div class="text-danger small my-2"><strong>Pain:</strong> Tone drift · slow review · wastes 4.5 hrs/wk in revision loops.</div>
+            <div class="text-success small"><strong>BrandGuard:</strong> Inline scanner + 1-click tone-preserving suggested rewrites.</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card text-center p-3">
+            <div class="badge bg-info text-dark mb-2">Marcus Vance</div>
+            <div class="fw-bold">Lead Visual Designer</div>
+            <div class="text-danger small my-2"><strong>Pain:</strong> Color codes · 81% of banners fail WCAG contrast.</div>
+            <div class="text-success small"><strong>BrandGuard:</strong> OpenCV hex extraction + WCAG AA 4.5:1 validation.</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card text-center p-3">
+            <div class="badge bg-success mb-2">Elena Rostova</div>
+            <div class="fw-bold">VP of Brand Ops</div>
+            <div class="text-danger small my-2"><strong>Pain:</strong> Queue overload · 77% off-brand publishing · no control.</div>
+            <div class="text-success small"><strong>BrandGuard:</strong> Unified approval queue, side-by-side diff review.</div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card text-center p-3">
+            <div class="badge bg-dark mb-2">David Chen</div>
+            <div class="fw-bold">Legal Counsel</div>
+            <div class="text-danger small my-2"><strong>Pain:</strong> FTC Section 5 penalties from unverified claims.</div>
+            <div class="text-success small"><strong>BrandGuard:</strong> Claim cross-referencing against Approved Fact Bank.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: FOUR PILLARS -->
+    <div class="slide" data-slide="5">
+      <div class="slide-eyebrow">CORE ARCHITECTURE</div>
+      <div class="slide-title">Four Pillars of Pre-Publication Brand Governance</div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col-6">
+          <div class="gov-card border-start border-4 border-primary p-3">
+            <div class="badge bg-primary mb-1">Pillar 01</div>
+            <h6 class="fw-bold">Synchronous Gate</h6>
+            <p class="text-muted small mb-0">Multi-modal checks before publish: Evaluates headlines, body copy, disclaimers, hex colors, and embedded banner text simultaneously in &lt;1.5s.</p>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="gov-card border-start border-4 border-info p-3">
+            <div class="badge bg-info text-dark mb-1">Pillar 02</div>
+            <h6 class="fw-bold">Explainable Citations</h6>
+            <p class="text-muted small mb-0">Every flag maps to a rule: Zero black-box rejections. Cites exact Guideline ID, chapter title, specific rationale, and verified evidence URL.</p>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="gov-card border-start border-4 border-success p-3">
+            <div class="badge bg-success mb-1">Pillar 03</div>
+            <h6 class="fw-bold">1-Click Suggestions</h6>
+            <p class="text-muted small mb-0">Fixes preserve tone and intent: Context-aware suggestions that eliminate legal risk without stripping the author's creative voice.</p>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="gov-card border-start border-4 border-dark p-3">
+            <div class="badge bg-dark mb-1">Pillar 04</div>
+            <h6 class="fw-bold">Human Stage-Gates</h6>
+            <p class="text-muted small mb-0">People retain final authority: Strict role-based control plane (Creator Draft ➔ Engine Scan ➔ Manager Approval ➔ Signed Certificate).</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-2 rounded bg-light border text-center mt-3 small fw-bold text-primary">
+        GOVERN ➔ EXPLAIN ➔ REMEDIATE ➔ APPROVE — THE COMPLETE CONTROL LOOP
+      </div>
+    </div>
+
+    <!-- SLIDE 6: WORKFLOW (5 STEPS) -->
+    <div class="slide" data-slide="6">
+      <div class="slide-eyebrow">SYSTEM WORKFLOW</div>
+      <div class="slide-title">One Governed Path from Knowledge to Publication</div>
+      <div class="row g-2 flex-grow-1 align-items-stretch">
+        <div class="col">
+          <div class="gov-card text-center p-2">
+            <div class="badge bg-primary rounded-pill mb-2">1. Ingest</div>
+            <div class="fw-bold small">Guidelines + Config</div>
+            <p class="text-muted" style="font-size: 0.78rem;">Upload rules, forbidden dictionary, fact vault & hex tokens into SQL.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gov-card text-center p-2">
+            <div class="badge bg-info text-dark rounded-pill mb-2">2. Submit</div>
+            <div class="fw-bold small">Multi-Format Upload</div>
+            <p class="text-muted" style="font-size: 0.78rem;">Creator submits copy or uploads images via secure Werkzeug pipeline.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gov-card text-center p-2">
+            <div class="badge bg-warning text-dark rounded-pill mb-2">3. Evaluate</div>
+            <div class="fw-bold small">4 Engines in Parallel</div>
+            <p class="text-muted" style="font-size: 0.78rem;">NLP tone, claim matcher, OCR text extraction, and OpenCV contrast.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gov-card text-center p-2">
+            <div class="badge bg-success rounded-pill mb-2">4. Remediate</div>
+            <div class="fw-bold small">1-Click Fixes</div>
+            <p class="text-muted" style="font-size: 0.78rem;">Interactive red/green diff view with 1-click tone-aligned rewrites.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="gov-card text-center p-2">
+            <div class="badge bg-dark rounded-pill mb-2">5. Sign Off</div>
+            <div class="fw-bold small">Stage-Gate + Audit</div>
+            <p class="text-muted" style="font-size: 0.78rem;">Manager review, exception justification, and Compliance Certificate.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: 4 ENGINES OVERVIEW -->
+    <div class="slide" data-slide="7">
+      <div class="slide-eyebrow">GOVERNANCE ENGINE SUITE</div>
+      <div class="slide-title">Four Specialized Engines. One Defensible Decision.</div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col-3">
+          <div class="gov-card border-top border-4 border-primary text-center">
+            <div class="badge bg-primary mb-2">TONE</div>
+            <h6 class="fw-bold">Tone & Voice Calibrator</h6>
+            <p class="text-muted small">Calibrates voice across 5 polarities. Rebalances hyperbole and robotic phrasing while retaining author intent.</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card border-top border-4 border-danger text-center">
+            <div class="badge bg-danger mb-2">TRUTH</div>
+            <h6 class="fw-bold">Claims Fact-Checker</h6>
+            <p class="text-muted small">Validates statistics against SQL Approved Facts bank. Flags unbacked superlatives and monitors claim expiration.</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card border-top border-4 border-info text-center">
+            <div class="badge bg-info text-dark mb-2">VISION</div>
+            <h6 class="fw-bold">Visual & Accessibility</h6>
+            <p class="text-muted small">PyTesseract OCR extracts banner text. OpenCV clusters palettes. WCAG formula verifies 4.5:1 contrast ratios.</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card border-top border-4 border-success text-center">
+            <div class="badge bg-success mb-2">CLARITY</div>
+            <h6 class="fw-bold">Guideline Clarity Index</h6>
+            <p class="text-muted small">Aggregates repeated infractions, creator disputes, and manual overrides to surface ambiguous brand rules.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: ENGINE 1 & 2 (TONE & TRUTH WITH REAL EXAMPLE) -->
+    <div class="slide" data-slide="8">
+      <div class="slide-eyebrow">TEXT INTELLIGENCE</div>
+      <div class="slide-title">Text Intelligence That Corrects — Not Homogenizes</div>
+      <div class="row g-3 mb-3">
+        <div class="col-6">
+          <div class="gov-card p-3">
+            <div class="text-primary fw-bold small">ENGINE 1 / TONE</div>
+            <h6 class="fw-bold">Calibrate voice across 5 polarity axes</h6>
+            <p class="text-muted small mb-0">• Polarity Vectors: Professional/Casual, Empathetic/Clinical, Authoritative/Aggressive, Concise/Verbose, Inclusive/Exclusionary.<br>• Generates contextual fixes that preserve the author's intent.</p>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="gov-card p-3">
+            <div class="text-danger fw-bold small">ENGINE 2 / TRUTH</div>
+            <h6 class="fw-bold">Verify every claim against evidence</h6>
+            <p class="text-muted small mb-0">• SQL evidence bank + BM25 and vector similarity.<br>• FTC Section 5 guardrail detection and claim expiration tracking.</p>
+          </div>
+        </div>
+      </div>
+      <div class="gov-card bg-dark text-white p-3 border-0">
+        <div class="text-danger small fw-bold mb-1">❌ FLAGGED DRAFT COPY:</div>
+        <div class="small mb-2 font-monospace">“Our revolutionary, #1 platform in the world guarantees 100% perfect results.”</div>
+        <div class="text-success small fw-bold mb-1">✅ TONE-PRESERVING SUGGESTED FIX:</div>
+        <div class="small font-monospace text-info">“Our award-winning platform helps teams reduce review friction with cited guidance.”</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: ENGINE 3 & 4 (VISION & CLARITY) -->
+    <div class="slide" data-slide="9">
+      <div class="slide-eyebrow">MULTI-MODAL & GOVERNANCE INTELLIGENCE</div>
+      <div class="slide-title">See Compliance Risks Hidden Inside the Asset</div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col-6">
+          <div class="gov-card border-start border-4 border-info p-3">
+            <div class="text-info fw-bold small">ENGINE 3 / VISION</div>
+            <h6 class="fw-bold">OCR + Palette + Contrast Algorithms</h6>
+            <ul class="list-unstyled text-muted small d-flex flex-column gap-2 mt-3">
+              <li><strong>PyTesseract OCR:</strong> Finds embedded raster text inside marketing banners and PDFs.</li>
+              <li><strong>OpenCV K-Means:</strong> Clusters dominant hex codes and tests Euclidean distance to brand guidelines.</li>
+              <li><strong>WCAG 2.1 AA Formula:</strong> Evaluates relative luminance $(L_1 + 0.05)/(L_2 + 0.05) \ge 4.5:1$.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="gov-card border-start border-4 border-success p-3">
+            <div class="text-success fw-bold small">ENGINE 4 / CLARITY</div>
+            <h6 class="fw-bold">Govern the Guidelines (Continuous Improvement)</h6>
+            <ul class="list-unstyled text-muted small d-flex flex-column gap-2 mt-3">
+              <li><strong>Dispute Tracking:</strong> Measures manual overrides to reveal ambiguous or conflicting rules.</li>
+              <li><strong>Friction Mapping:</strong> Highlights top 5 recurring infractions across teams and agencies.</li>
+              <li><strong>Executive Feedback:</strong> Turns operational friction into actionable insights to refine the brand book.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: TECHNOLOGY ARCHITECTURE -->
+    <div class="slide" data-slide="10">
+      <div class="slide-eyebrow">SYSTEM ARCHITECTURE</div>
+      <div class="slide-title">Production-Ready Technology, Layered for Control</div>
+      <div class="d-flex flex-column gap-2 flex-grow-1">
+        <div class="p-2 px-3 border rounded d-flex align-items-center justify-content-between">
+          <span class="badge bg-primary">PRESENTATION</span>
+          <strong class="small">HTML5 · CSS3 · JS ES6 · Bootstrap 5</strong>
+          <span class="text-muted small">Responsive console, Side-by-Side Diff UI, Dynamic score counters</span>
+        </div>
+        <div class="p-2 px-3 border rounded d-flex align-items-center justify-content-between">
+          <span class="badge bg-info text-dark">APPLICATION</span>
+          <strong class="small">Python 3.11+ · Flask · Werkzeug</strong>
+          <span class="text-muted small">Modular Blueprints (auth, guidelines, scanner, review, analytics), REST API</span>
+        </div>
+        <div class="p-2 px-3 border rounded d-flex align-items-center justify-content-between">
+          <span class="badge bg-dark">SECURITY</span>
+          <strong class="small">PBKDF2 · RBAC · Secure File Handling</strong>
+          <span class="text-muted small">Werkzeug security, secure_filename sanitization, Role-Based Access Control</span>
+        </div>
+        <div class="p-2 px-3 border rounded d-flex align-items-center justify-content-between">
+          <span class="badge bg-warning text-dark">AI ENGINES</span>
+          <strong class="small">LLM API · PyTesseract · OpenCV · Pillow</strong>
+          <span class="text-muted small">Structured JSON NLP parsing, OCR raster text extraction, WCAG contrast formula</span>
+        </div>
+        <div class="p-2 px-3 border rounded d-flex align-items-center justify-content-between">
+          <span class="badge bg-success">PERSISTENCE</span>
+          <strong class="small">PostgreSQL / SQLite · SQLAlchemy ORM</strong>
+          <span class="text-muted small">Relational data models, verified fact vault, versioned submissions, audit logs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: SQL SCHEMA -->
+    <div class="slide" data-slide="11">
+      <div class="slide-eyebrow">DATA ARCHITECTURE</div>
+      <div class="slide-title">Traceability is a Data Architecture Decision</div>
+      <div class="row g-2 flex-grow-1">
+        <div class="col-4">
+          <div class="gov-card p-2">
+            <div class="code-tag mb-1">TABLE: users</div>
+            <div class="small text-muted">RBAC identity: id, name, email, password_hash, role</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="gov-card p-2">
+            <div class="code-tag mb-1">TABLE: brand_guidelines</div>
+            <div class="small text-muted">Rules engine: id, category, rule_title, severity, forbidden_patterns</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="gov-card p-2">
+            <div class="code-tag mb-1">TABLE: approved_facts</div>
+            <div class="small text-muted">Evidence bank: id, topic, claim_statement, source_link, expiration</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="gov-card p-2">
+            <div class="code-tag mb-1">TABLE: submissions</div>
+            <div class="small text-muted">Content pipeline: id, title, content_type, raw_content, status, score</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="gov-card p-2">
+            <div class="code-tag mb-1">TABLE: evaluation_flags</div>
+            <div class="small text-muted">Granular citations: id, submission_id, guideline_id, snippet, fix</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="gov-card p-2">
+            <div class="code-tag mb-1">TABLE: review_logs</div>
+            <div class="small text-muted">Immutable audit trail: id, actor_id, action, justification, timestamp</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-2 rounded bg-dark text-white text-center mt-2 small fw-bold">
+        EVERY FLAG LINKS: RULE ➔ EVIDENCE ➔ REVIEWER ➔ DECISION (100% AUDITABLE)
+      </div>
+    </div>
+
+    <!-- SLIDE 12: RESPONSIBLE AI -->
+    <div class="slide" data-slide="12">
+      <div class="slide-eyebrow">RESPONSIBLE DESIGN</div>
+      <div class="slide-title">Responsible AI, Designed into the Control Plane</div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col-3">
+          <div class="gov-card border-top border-4 border-primary p-3 text-center">
+            <div class="badge bg-primary mb-2">01 • HUMAN VETO</div>
+            <h6 class="fw-bold">Final Human Veto</h6>
+            <p class="text-muted small">No auto-publishing. System architecture strictly prohibits publishing without authorized manager sign-off.</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card border-top border-4 border-info p-3 text-center">
+            <div class="badge bg-info text-dark mb-2">02 • PRIVACY</div>
+            <h6 class="fw-bold">Asset Isolation</h6>
+            <p class="text-muted small">Zero data retention. Proprietary drafts stay in private storage and are never used to train public AI models.</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card border-top border-4 border-warning p-3 text-center">
+            <div class="badge bg-warning text-dark mb-2">03 • CITATIONS</div>
+            <h6 class="fw-bold">Explainability</h6>
+            <p class="text-muted small">Rule-level citations. Aligns with NIST AI RMF 1.0; every flag links to a documented rule ID and evidence URL.</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="gov-card border-top border-4 border-success p-3 text-center">
+            <div class="badge bg-success mb-2">04 • INCLUSIVE</div>
+            <h6 class="fw-bold">Inclusive Design</h6>
+            <p class="text-muted small">Bias mitigation + linguistic breadth. Audits for exclusionary terms without suppressing creative brand voice.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 13: 6-WEEK ROADMAP & ROLES -->
+    <div class="slide" data-slide="13">
+      <div class="slide-eyebrow">DELIVERY TIMELINE & TEAM ALLOCATION</div>
+      <div class="slide-title">Six Weeks from Architecture to Governed Prototype</div>
+      <div class="row g-3 flex-grow-1">
+        <div class="col-6">
+          <div class="gov-card p-3">
+            <h6 class="fw-bold text-primary mb-3">Execution Sprint Milestones</h6>
+            <div class="small d-flex flex-column gap-2 text-muted">
+              <div><strong>W1: Architecture & RBAC</strong> — Flask scaffolding, Werkzeug auth, SQL models.</div>
+              <div><strong>W2–3: Multi-Modal Engines</strong> — NLP tone, claim matcher, PyTesseract OCR, OpenCV.</div>
+              <div><strong>W4–5: Interactive UI & Workflows</strong> — Bootstrap 5 studio, diff view, 1-click fixes.</div>
+              <div><strong>W6: Analytics & QA</strong> — Guideline Clarity heatmap, PDF compliance certificate export.</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="gov-card p-3">
+            <h6 class="fw-bold text-primary mb-3">Team Synapse — Role Allocation</h6>
+            <div class="small d-flex flex-column gap-2 text-muted">
+              <div><strong>Aman Sharma (Team Leader):</strong> Backend, AI & Security Lead — Flask blueprints, Werkzeug security, SQL data models, NLP prompting & OpenCV vision checks.</div>
+              <div><strong>Janhavi Kanojia:</strong> Frontend & UI/UX Developer — HTML5/CSS3 layout, Bootstrap 5 responsive studio, side-by-side red/green diff viewer, dynamic score rings.</div>
+              <div><strong>Shared Governance Contract:</strong> Test dataset synthesis, FTC Section 5 guardrail policies, prompt calibration, and QA test suites.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 14: WORKFLOW BENCHMARK (CHART & DATA) -->
+    <div class="slide" data-slide="14">
+      <div class="slide-eyebrow">BUSINESS IMPACT & BENCHMARKS</div>
+      <div class="slide-title">Governance Shifts from Bottleneck to Growth Lever</div>
+      <div class="row g-3 align-items-center flex-grow-1">
+        <div class="col-4 d-flex flex-column gap-2">
+          <div class="gov-card p-3 text-center">
+            <div class="stat-badge text-primary mb-1">70%+</div>
+            <div class="fw-bold small">Review Speed Acceleration</div>
+            <div class="text-muted small">Screening drops from 48h to &lt;1.5s</div>
+          </div>
+          <div class="gov-card p-3 text-center">
+            <div class="stat-badge text-success mb-1">−45%</div>
+            <div class="fw-bold small">Revision Cycles</div>
+            <div class="text-muted small">Creators self-remediate via 1-click fixes</div>
+          </div>
+          <div class="gov-card p-3 text-center">
+            <div class="stat-badge text-info mb-1">+10–33%</div>
+            <div class="fw-bold small">Revenue Growth Benchmark</div>
+            <div class="text-muted small">Consistent multi-channel branding (Marq)</div>
+          </div>
+        </div>
+        <div class="col-8">
+          <div class="gov-card p-3">
+            <h6 class="fw-bold mb-3">Workflow Benchmark Index: Traditional vs. BrandGuard</h6>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small fw-bold mb-1">
+                <span>Review Speed (Velocity)</span>
+                <span class="text-primary">+70% Improvement</span>
+              </div>
+              <div class="progress" style="height: 14px;">
+                <div class="progress-bar bg-secondary opacity-50" style="width: 30%;">Trad: 30%</div>
+                <div class="progress-bar bg-info" style="width: 70%;">BrandGuard: 100%</div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small fw-bold mb-1">
+                <span>Revision Efficiency</span>
+                <span class="text-success">+45% Efficiency</span>
+              </div>
+              <div class="progress" style="height: 14px;">
+                <div class="progress-bar bg-secondary opacity-50" style="width: 55%;">Trad: 55%</div>
+                <div class="progress-bar bg-success" style="width: 45%;">BrandGuard: 100%</div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small fw-bold mb-1">
+                <span>WCAG Contrast Readiness</span>
+                <span class="text-info">+81% Compliance</span>
+              </div>
+              <div class="progress" style="height: 14px;">
+                <div class="progress-bar bg-secondary opacity-50" style="width: 19%;">Trad: 19%</div>
+                <div class="progress-bar bg-primary" style="width: 81%;">BrandGuard: 100%</div>
+              </div>
+            </div>
+            <div>
+              <div class="d-flex justify-content-between small fw-bold mb-1">
+                <span>FTC Claims Compliance</span>
+                <span class="text-warning">Zero Liability Risk</span>
+              </div>
+              <div class="progress" style="height: 14px;">
+                <div class="progress-bar bg-secondary opacity-50" style="width: 72%;">Trad: 72%</div>
+                <div class="progress-bar bg-warning text-dark" style="width: 28%;">BrandGuard: 100%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 15: READY FOR ROUND 2 (Dark) -->
+    <div class="slide dark-theme" data-slide="15">
+      <div class="d-flex flex-column justify-content-center h-100 ps-3">
+        <div class="slide-eyebrow">FROM BRAND RULES TO BRAND CONFIDENCE</div>
+        <h2 class="display-4 fw-bold text-white mb-2" style="letter-spacing: -0.03em;">BrandGuard AI is Ready for Round 2.</h2>
+        <div class="fs-5 text-info mb-4">Empirically Grounded. Multi-Modal. Explainable. Human-Governed. Production-Ready.</div>
+        
+        <div class="row g-3 mb-4" style="max-width: 900px;">
+          <div class="col-6">
+            <div class="p-2 rounded bg-white bg-opacity-10 small text-light">
+              <strong class="text-white">✓ Grounded in Real Data:</strong> Marq, Gartner, WebAIM, and FTC precedents.
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 rounded bg-white bg-opacity-10 small text-light">
+              <strong class="text-white">✓ Synchronous Multi-Modal:</strong> Copy, claims, hex palettes, and WCAG contrast.
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 rounded bg-white bg-opacity-10 small text-light">
+              <strong class="text-white">✓ 1-Click Remediation:</strong> Explains the 'why' and preserves author voice.
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 rounded bg-white bg-opacity-10 small text-light">
+              <strong class="text-white">✓ Team Synapse Stack:</strong> Pure Python, Flask, Werkzeug, SQL, and Bootstrap 5.
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <span class="badge bg-primary px-4 py-2 fs-6">BUILD THE FUNCTIONAL PROTOTYPE ➔</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 16: THANK YOU (Dark) -->
+    <div class="slide dark-theme" data-slide="16">
+      <div class="d-flex flex-column justify-content-center h-100 ps-3">
+        <div class="slide-eyebrow">BRANDGUARD AI × INKLOOM AI HACKATHON</div>
+        <h1 class="display-2 fw-bold text-white mb-2">Thank you.</h1>
+        <h3 class="text-light opacity-75 mb-4">Questions, challenges, and collaboration welcome.</h3>
+        
+        <div class="p-3 rounded bg-white bg-opacity-10 border border-secondary" style="max-width: 600px;">
+          <div class="text-uppercase fw-bold text-info small mb-1">TEAM SYNAPSE</div>
+          <div class="text-white fs-5 fw-bold">Aman Sharma (Team Leader) • Janhavi Kanojia (Frontend Dev)</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="d-flex align-items-center gap-3">
+      <span class="fw-bold text-white"><i class="bi bi-shield-check text-primary me-2"></i>BrandGuard AI</span>
+      <span>•</span>
+      <span class="text-info fw-bold">Team Synapse</span>
+      <span>•</span>
+      <span id="slideIndicator">Slide 1 of 16</span>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">
+      <button class="nav-btn" onclick="prevSlide()"><i class="bi bi-chevron-left"></i> Prev</button>
+      <button class="nav-btn" onclick="nextSlide()">Next <i class="bi bi-chevron-right"></i></button>
+      <button class="nav-btn" onclick="toggleFullScreen()"><i class="bi bi-arrows-fullscreen"></i></button>
+      <button class="nav-btn" onclick="window.print()"><i class="bi bi-printer"></i> PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = document.querySelectorAll('.slide').length;
+  
+  function updateSlide(newSlide) {
+    if (newSlide < 1 || newSlide > totalSlides) return;
+    document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.remove('active');
+    currentSlide = newSlide;
+    document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.add('active');
+    
+    const progress = (currentSlide / totalSlides) * 100;
+    document.getElementById('progressBar').style.width = `${progress}%`;
+    document.getElementById('slideIndicator').innerText = `Slide ${currentSlide} of ${totalSlides}`;
+  }
+  
+  function nextSlide() { updateSlide(currentSlide + 1); }
+  function prevSlide() { updateSlide(currentSlide - 1); }
+  
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => alert(err.message));
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      prevSlide();
+    } else if (e.key === 'f' || e.key === 'F') {
+      toggleFullScreen();
+    }
+  });
+
+  updateSlide(1);
+</script>
+
+</body>
+</html>

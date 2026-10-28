@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}Reviewer & Legal Governance Desk — BrandGuard AI{% endblock %}
+
+{% block content %}
+<!-- Reviewer Hero Banner -->
+<div class="card-hero-dark card-glow-shimmer border-cyber-glow p-4 p-md-5 mb-4 shadow-lg border-0 fade-in-down" style="background: linear-gradient(135deg, #0f172a 0%, #312e81 60%, #0f172a 100%);">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <div class="d-inline-flex align-items-center gap-2 badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-shield-check"></i> REVIEWER & GOVERNANCE DESK
+      </div>
+      <h2 class="display-6 fw-bold text-white mb-1" style="letter-spacing: -0.03em;">
+        {{ current_user.name }}
+      </h2>
+      <p class="text-light opacity-75 small mb-0">
+        Department: <strong>{{ current_user.department }}</strong> &bull; Organization: <strong>{{ current_user.organization }}</strong>
+      </p>
+    </div>
+
+    <div>
+      <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill shadow-sm">
+        <i class="bi bi-hourglass-split me-1"></i> {{ total_pending }} Awaiting Approval
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Pending Stage-Gate Review Queue -->
+<div class="bg-card p-4 mb-4 shadow-sm fade-in-up stagger-1">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h5 class="fw-bold mb-0">Pending Stage-Gate Review Queue ({{ total_pending }})</h5>
+      <small class="text-muted">Client submissions awaiting formal manager and legal approval</small>
+    </div>
+  </div>
+
+  {% if pending_queue %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+        <tr>
+          <th>Submission Title</th>
+          <th>Creator / Client</th>
+          <th>Format</th>
+          <th>Health Score</th>
+          <th>Submitted Date</th>
+          <th class="text-end">Stage-Gate Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in pending_queue %}
+        <tr>
+          <td>
+            <div class="fw-bold text-dark">{{ s.title }}</div>
+            <small class="text-muted">ID #{{ s.id }}</small>
+          </td>
+          <td>
+            <div class="fw-semibold text-dark small">{{ s.creator.name }}</div>
+            <div class="text-muted small" style="font-size: 0.72rem;">{{ s.creator.organization }} &bull; {{ s.creator.department }}</div>
+          </td>
+          <td>
+            <span class="badge bg-light text-dark border">{{ s.content_type }}</span>
+          </td>
+          <td>
+            <span class="badge {% if s.compliance_score >= 80 %}bg-success{% elif s.compliance_score >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill px-2 py-1 fs-6">
+              {{ s.compliance_score }}%
+            </span>
+          </td>
+          <td>
+            <small class="text-muted">{{ s.created_at.strftime('%b %d, %Y • %H:%M') }}</small>
+          </td>
+          <td class="text-end">
+            <a href="{{ url_for('reviews.detail', submission_id=s.id) }}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm">
+              Review & Sign-Off &rarr;
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-check-circle fs-1 text-success d-block mb-2"></i>
+    <h6 class="fw-bold text-dark">Queue Clear!</h6>
+    <p class="small">No client submissions currently waiting for manager clearance.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Recently Certified Releases Table -->
+<div class="bg-card p-4 shadow-sm fade-in-up stagger-2">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h5 class="fw-bold mb-0">Certified Releases ({{ total_certified }})</h5>
+      <small class="text-muted">Content approved and certified for public release with cryptographic verification</small>
+    </div>
+  </div>
+
+  {% if approved_list %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+        <tr>
+          <th>Campaign Title</th>
+          <th>Creator</th>
+          <th>Score</th>
+          <th>Certified Date</th>
+          <th>Certificate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in approved_list %}
+        <tr>
+          <td class="fw-bold text-dark">{{ s.title }}</td>
+          <td>{{ s.creator.name }}</td>
+          <td>
+            <span class="badge bg-success rounded-pill px-2 py-1">{{ s.compliance_score }}%</span>
+          </td>
+          <td><small class="text-muted">{{ s.updated_at.strftime('%b %d, %Y') }}</small></td>
+          <td>
+            <a href="{{ url_for('reviews.download_certificate', submission_id=s.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+              <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted small">No approved releases yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

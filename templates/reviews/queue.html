@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}Stage-Gate Review Queue — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold mb-1">Stage-Gate Approval Queue</h3>
+    <p class="text-muted small mb-0">Authorized review pipeline for Brand Managers and Legal/Regulatory Compliance Officers</p>
+  </div>
+  <div>
+    <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+      <i class="bi bi-hourglass-split me-1"></i> {{ pending|length }} Pending Action
+    </span>
+  </div>
+</div>
+
+<!-- Tabs: Pending, Approved, In Revision -->
+<ul class="nav nav-pills mb-4 gap-2" id="queueTabs">
+  <li class="nav-item">
+    <button class="nav-link active fw-bold" data-bs-toggle="pill" data-bs-target="#tab-pending">
+      <i class="bi bi-inbox me-1"></i> Pending Review ({{ pending|length }})
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link fw-bold" data-bs-toggle="pill" data-bs-target="#tab-approved">
+      <i class="bi bi-check-circle me-1"></i> Approved & Certified ({{ approved|length }})
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link fw-bold" data-bs-toggle="pill" data-bs-target="#tab-revision">
+      <i class="bi bi-arrow-repeat me-1"></i> In Revision / Drafts ({{ in_revision|length }})
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content">
+  
+  <!-- Tab 1: Pending Queue -->
+  <div class="tab-pane fade show active" id="tab-pending">
+    <div class="bg-card p-4">
+      {% if pending %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small text-muted text-uppercase">
+            <tr>
+              <th>Submission Title</th>
+              <th>Creator</th>
+              <th>Format</th>
+              <th>Health Score</th>
+              <th>Submitted At</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in pending %}
+            <tr>
+              <td>
+                <div class="fw-bold text-dark">{{ s.title }}</div>
+                <small class="text-muted">ID #{{ s.id }}</small>
+              </td>
+              <td>
+                <strong>{{ s.creator.name }}</strong>
+                <small class="text-muted d-block">{{ s.creator.department }}</small>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border">{{ s.content_type }}</span>
+              </td>
+              <td>
+                <span class="badge {% if s.compliance_score >= 80 %}bg-success{% elif s.compliance_score >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
+                  {{ s.compliance_score }}%
+                </span>
+              </td>
+              <td>
+                <small class="text-muted">{{ s.created_at.strftime('%b %d, %Y • %H:%M') }}</small>
+              </td>
+              <td>
+                <a href="{{ url_for('reviews.detail', submission_id=s.id) }}" class="btn btn-sm btn-primary fw-bold">
+                  Review & Sign-Off →
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-check-circle fs-1 text-success d-block mb-2"></i>
+        <h5 class="fw-bold text-dark">Queue Clear!</h5>
+        <p class="small">No submissions currently waiting for manager review.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Tab 2: Approved Queue -->
+  <div class="tab-pane fade" id="tab-approved">
+    <div class="bg-card p-4">
+      {% if approved %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small text-muted text-uppercase">
+            <tr>
+              <th>Title</th>
+              <th>Creator</th>
+              <th>Reviewer</th>
+              <th>Score</th>
+              <th>Certified Date</th>
+              <th>Certificate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in approved %}
+            <tr>
+              <td class="fw-bold text-dark">{{ s.title }}</td>
+              <td>{{ s.creator.name }}</td>
+              <td>
+                <span class="badge bg-light text-dark border">
+                  {{ s.reviewer.name if s.reviewer else 'Brand Manager' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-success fs-6">{{ s.compliance_score }}%</span>
+              </td>
+              <td><small class="text-muted">{{ s.updated_at.strftime('%b %d, %Y') }}</small></td>
+              <td>
+                <a href="{{ url_for('reviews.download_certificate', submission_id=s.id) }}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-file-earmark-pdf"></i> Download PDF
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4 text-muted">No approved submissions yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Tab 3: In Revision -->
+  <div class="tab-pane fade" id="tab-revision">
+    <div class="bg-card p-4">
+      {% if in_revision %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small text-muted text-uppercase">
+            <tr>
+              <th>Title</th>
+              <th>Creator</th>
+              <th>Status</th>
+              <th>Score</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in in_revision %}
+            <tr>
+              <td class="fw-bold text-dark">{{ s.title }}</td>
+              <td>{{ s.creator.name }}</td>
+              <td>
+                <span class="badge {% if s.status == 'CHANGES_REQUESTED' %}bg-danger{% else %}bg-secondary{% endif %}">
+                  {{ s.status }}
+                </span>
+              </td>
+              <td><span class="badge bg-light text-dark border">{{ s.compliance_score }}%</span></td>
+              <td>
+                <a href="{{ url_for('scanner.report', submission_id=s.id) }}" class="btn btn-sm btn-outline-secondary">
+                  Open in Studio
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4 text-muted">No submissions in revision.</div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
