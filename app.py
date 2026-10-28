@@ -43,6 +43,11 @@ def create_app():
     app.register_blueprint(analytics_bp)
     app.register_blueprint(api_bp)
 
+    # Health check endpoint for cloud load balancers / Render health checks
+    @app.route('/healthz')
+    def health_check():
+        return {'status': 'healthy', 'service': 'BrandGuard AI'}, 200
+
     # Smart root redirect based on user role
     @app.route('/')
     def root():
