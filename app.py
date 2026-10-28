@@ -74,12 +74,15 @@ def create_app():
 
     return app
 
+# Expose WSGI application at module level for Gunicorn / Render production deployments
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     print("=" * 65)
     print("[+] BRANDGUARD AI -- Pre-Publication Governance Platform Active")
     print("[*] Running locally on: http://localhost:5000 (Firebase Authorized Domain)")
     print("[*] Also available at: http://127.0.0.1:5000")
     print("[*] Sole Administrator: Aman Sharma (aman@synapse.ai)")
     print("=" * 65)
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
