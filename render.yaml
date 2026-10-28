@@ -14,3 +14,17 @@ services:
         generateValue: true
       - key: FLASK_ENV
         value: production
+      - key: FIREBASE_API_KEY
+        value: AIzaSyDEzSmkRfXfFdlgnghz6QtuuoAwPsLYu3g
+      - key: FIREBASE_AUTH_DOMAIN
+        value: brandbuildai-2749e.firebaseapp.com
+      - key: FIREBASE_PROJECT_ID
+        value: brandbuildai-2749e
+      - key: FIREBASE_STORAGE_BUCKET
+        value: brandbuildai-2749e.firebasestorage.app
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: "1063131223920"
+      - key: FIREBASE_APP_ID
+        value: "1:1063131223920:web:bc9ae6675e2a62f8c4e1b5"
+      - key: FIREBASE_MEASUREMENT_ID
+        value: G-PZ59QGRJPH
