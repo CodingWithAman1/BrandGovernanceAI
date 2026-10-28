@@ -321,7 +321,7 @@ def build_project_report_pdf(output_filename="BrandGuard_AI_Project_Report.pdf")
             Spacer(1, 12)
         ],
         [
-            Paragraph("<font color='#64748B' size='7'>GITHUB: <b>https://github.com/CodingWithAman1/BrandGovernanceAI.git</b>  •  RENDER CLOUD: <b>prj-dbgu43t9el5s73dhpa60</b>  •  HOST: <b>http://localhost:5000</b></font>", ParagraphStyle('CoverLinks', parent=body_style, alignment=1))
+            Paragraph("<font color='#64748B' size='7.5'>GITHUB REPOSITORY: <b>https://github.com/CodingWithAman1/BrandGovernanceAI.git</b>  •  LIVE APPLICATION: <b>https://brandgovernanceai.onrender.com</b></font>", ParagraphStyle('CoverLinks', parent=body_style, alignment=1))
         ]
     ]
 
@@ -884,13 +884,13 @@ def build_project_report_pdf(output_filename="BrandGuard_AI_Project_Report.pdf")
 
     deploy_info = [
         [
-            Paragraph("<b>RENDER CLOUD DEPLOYMENT & GUNICORN CONFIGURATION</b>", card_title)
+            Paragraph("<b>PRODUCTION CLOUD DEPLOYMENT (RENDER LIVE PLATFORM)</b>", card_title)
         ],
         [
-            Paragraph("• <b>Cloud PaaS:</b> Deployed on Render under project <code>prj-dbgu43t9el5s73dhpa60</code>.<br/>"
-                      "• <b>Production WSGI Server:</b> Configured via <code>gunicorn.conf.py</code>, <code>render.yaml</code>, and <code>Procfile</code>, binding dynamically to <code>0.0.0.0:$PORT</code>.<br/>"
-                      "• <b>Health Check:</b> Lightweight <code>/healthz</code> route returning HTTP 200 OK for cloud load balancers.<br/>"
-                      "• <b>Version Control:</b> Continuous deployment connected to GitHub repository <b>CodingWithAman1/BrandGovernanceAI</b> on branch <b>main</b>.", body_muted)
+            Paragraph("• <b>Live Web Service:</b> Publicly hosted and active at <b>https://brandgovernanceai.onrender.com</b>.<br/>"
+                      "• <b>Production WSGI Server:</b> High-concurrency Gunicorn engine configured via <code>gunicorn.conf.py</code>, <code>render.yaml</code>, and <code>Procfile</code>, binding dynamically to <code>0.0.0.0:$PORT</code>.<br/>"
+                      "• <b>Health Monitoring:</b> Dedicated <code>/healthz</code> endpoint returning HTTP 200 OK for continuous uptime and load balancing.<br/>"
+                      "• <b>Automated CI/CD:</b> Continuous integration pipeline connected directly to GitHub repository <b>CodingWithAman1/BrandGovernanceAI</b> on branch <b>main</b>.", body_muted)
         ]
     ]
     t_dinfo = Table(deploy_info, colWidths=[532])
@@ -969,13 +969,12 @@ def build_project_report_pdf(output_filename="BrandGuard_AI_Project_Report.pdf")
             Table([
                 [
                     Paragraph("<b>GitHub Repository:</b><br/><font color='#0284C7'>https://github.com/CodingWithAman1/BrandGovernanceAI.git</font>", body_muted),
-                    Paragraph("<b>Render Cloud Dashboard:</b><br/><font color='#0284C7'>https://dashboard.render.com/project/prj-dbgu43t9el5s73dhpa60</font>", body_muted),
-                    Paragraph("<b>Local Server:</b><br/><font color='#0284C7'>http://localhost:5000</font>", body_muted)
+                    Paragraph("<b>Live Cloud Application:</b><br/><font color='#0284C7'>https://brandgovernanceai.onrender.com</font>", body_muted)
                 ]
-            ], colWidths=[180, 180, 150], style=[
+            ], colWidths=[266, 266], style=[
                 ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')),
                 ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)),
-                ('PADDING', (0,0), (-1,-1), 4),
+                ('PADDING', (0,0), (-1,-1), 6),
             ])
         ]
     ]

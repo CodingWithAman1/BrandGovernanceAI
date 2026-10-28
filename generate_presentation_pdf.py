@@ -237,7 +237,7 @@ def build_pdf(output_filename="BrandGuard_AI_Executive_Presentation.pdf"):
             Spacer(1, 16)
         ],
         [
-            Paragraph("<font color='#64748B' size='8'>LIVE REPOSITORY: <b>https://github.com/CodingWithAman1/BrandGovernanceAI.git</b>  •  RENDER CLOUD PROJECT: <b>prj-dbgu43t9el5s73dhpa60</b>  •  LOCAL: <b>http://localhost:5000</b></font>", ParagraphStyle('CoverLinks', parent=body_style, textColor=colors.HexColor('#64748B'), alignment=1))
+            Paragraph("<font color='#64748B' size='8'>LIVE REPOSITORY: <b>https://github.com/CodingWithAman1/BrandGovernanceAI.git</b>  •  LIVE APPLICATION: <b>https://brandgovernanceai.onrender.com</b></font>", ParagraphStyle('CoverLinks', parent=body_style, textColor=colors.HexColor('#64748B'), alignment=1))
         ]
     ]
 
@@ -624,13 +624,12 @@ def build_pdf(output_filename="BrandGuard_AI_Executive_Presentation.pdf"):
             Table([
                 [
                     Paragraph("<b>Live GitHub Repository:</b><br/><font color='#2563EB'>https://github.com/CodingWithAman1/BrandGovernanceAI.git</font>", body_muted),
-                    Paragraph("<b>Render Cloud Dashboard:</b><br/><font color='#2563EB'>https://dashboard.render.com/project/prj-dbgu43t9el5s73dhpa60</font>", body_muted),
-                    Paragraph("<b>Local Deployment:</b><br/><font color='#2563EB'>http://localhost:5000</font>", body_muted)
+                    Paragraph("<b>Live Cloud Application:</b><br/><font color='#2563EB'>https://brandgovernanceai.onrender.com</font>", body_muted)
                 ]
-            ], colWidths=[240, 240, 220], style=[
+            ], colWidths=[350, 350], style=[
                 ('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)),
                 ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                ('PADDING', (0,0), (-1,-1), 6),
+                ('PADDING', (0,0), (-1,-1), 8),
             ])
         ]
     ]
