@@ -32,11 +32,23 @@ class AICopilotEngine:
 
     def _get_gemini_key(self):
         """Dynamically retrieves Gemini key from environment on each invocation."""
-        return (
+        key = (
             os.environ.get("GEMINI_API_KEY") or
             os.environ.get("GOOGLE_API_KEY") or
             os.environ.get("GEMINI_KEY")
         )
+        if not key:
+            try:
+                from dotenv import load_dotenv
+                load_dotenv()
+                key = (
+                    os.environ.get("GEMINI_API_KEY") or
+                    os.environ.get("GOOGLE_API_KEY") or
+                    os.environ.get("GEMINI_KEY")
+                )
+            except Exception:
+                pass
+        return key
 
     def _get_openai_key(self):
         return os.environ.get("OPENAI_API_KEY")
@@ -46,7 +58,7 @@ class AICopilotEngine:
         key = self._get_gemini_key()
         if key:
             return {
-                "active_engine": "Google Gemini 1.5 Flash (Live Cloud)",
+                "active_engine": "Google Gemini 3 Flash (Live Cloud)",
                 "is_cloud_active": True,
                 "key_preview": f"{key[:6]}...{key[-4:]}" if len(key) > 10 else "***"
             }
@@ -59,13 +71,18 @@ class AICopilotEngine:
     # =========================================================================
     # 1. CLOUD LLM CALLER (WITH RESILIENT FALLBACK)
     # =========================================================================
-    def _call_gemini(self, prompt, system_instruction=None, timeout=6):
+    def _call_gemini(self, prompt, system_instruction=None, timeout=10):
         key = self._get_gemini_key()
         if not key:
             return None
 
-        # Candidate models in priority order
-        models = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-2.0-flash", "gemini-pro"]
+        # Candidate models supported by Gemini API in priority order
+        models = [
+            "gemini-3-flash-preview",
+            "gemini-3.1-flash-lite-preview",
+            "gemini-flash-latest",
+            "gemini-2.5-flash",
+        ]
         
         for model in models:
             try:
@@ -80,8 +97,8 @@ class AICopilotEngine:
                         }
                     ],
                     "generationConfig": {
-                        "temperature": 0.3,
-                        "maxOutputTokens": 900
+                        "temperature": 0.4,
+                        "maxOutputTokens": 1000
                     }
                 }
                 req = urllib.request.Request(
@@ -105,12 +122,11 @@ class AICopilotEngine:
                 except Exception:
                     pass
                 print(f"[Gemini API Notice] Model {model} returned HTTP {e.code}: {err_text[:160]}")
-                # If key is forbidden / API disabled, do not loop endlessly
-                if e.code in [400, 403]:
-                    break
+                # Continue trying the next model in candidate list
+                continue
             except Exception as e:
-                print(f"[Gemini Call Exception]: {e}")
-                break
+                print(f"[Gemini Call Exception on {model}]: {e}")
+                continue
 
         return None
 
@@ -150,11 +166,11 @@ class AICopilotEngine:
                 "reading_ease": metrics["reading_ease"],
                 "formality_index": metrics["formality_index"],
                 "improvements": [
-                    "Eliminated clichéd synthetic filler and buzzwords via Gemini 1.5",
+                    "Eliminated clichéd synthetic filler and buzzwords via Gemini 3 Flash",
                     "Harmonized sentence cadence to enterprise consultative standards",
                     "Neutralized unverified regulatory claim risks"
                 ],
-                "engine_used": "Google Gemini 1.5 Flash (Live Cloud)"
+                "engine_used": "Google Gemini 3 Flash (Live Cloud)"
             }
 
         # Local Semantic Engine (High Quality, Instant, Reproducible)
@@ -279,7 +295,7 @@ class AICopilotEngine:
         if cloud_reply:
             return {
                 "reply": cloud_reply,
-                "source": "Google Gemini 1.5 Flash (Live Cloud)"
+                "source": "Google Gemini 3 Flash (Live Cloud)"
             }
 
         # Conversational Local Intelligence (Natural, Knowledgeable, Friendly)

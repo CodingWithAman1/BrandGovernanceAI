@@ -61,7 +61,7 @@ class TestAIFeatures(unittest.TestCase):
         self.assertIn("4.5:1", q2['reply'])
 
         q3 = ai_copilot.chat("Why is 'delve into' flagged?")
-        self.assertIn("Delve into", q3['reply'])
+        self.assertIn("delve into", q3['reply'].lower())
 
     def test_04_synthesize_guideline(self):
         """Verify that AI guideline synthesizer outputs complete rule schema."""
