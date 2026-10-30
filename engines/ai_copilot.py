@@ -17,6 +17,12 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 class AICopilotEngine:
     """
@@ -24,43 +30,89 @@ class AICopilotEngine:
     Handles semantic rewrites, safe harbor disclaimers, chat advisory, and rule synthesis.
     """
 
-    def __init__(self):
-        self.gemini_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-        self.openai_key = os.environ.get("OPENAI_API_KEY")
+    def _get_gemini_key(self):
+        """Dynamically retrieves Gemini key from environment on each invocation."""
+        return (
+            os.environ.get("GEMINI_API_KEY") or
+            os.environ.get("GOOGLE_API_KEY") or
+            os.environ.get("GEMINI_KEY")
+        )
+
+    def _get_openai_key(self):
+        return os.environ.get("OPENAI_API_KEY")
+
+    def get_status(self):
+        """Returns the active AI engine status for UI telemetry."""
+        key = self._get_gemini_key()
+        if key:
+            return {
+                "active_engine": "Google Gemini 1.5 Flash (Live Cloud)",
+                "is_cloud_active": True,
+                "key_preview": f"{key[:6]}...{key[-4:]}" if len(key) > 10 else "***"
+            }
+        return {
+            "active_engine": "BrandGuard Knowledge Engine (Local Neural NLP)",
+            "is_cloud_active": False,
+            "key_preview": None
+        }
 
     # =========================================================================
-    # 1. CLOUD LLM CALLER (WITH SILENT ZERO-CRASH FALLBACK)
+    # 1. CLOUD LLM CALLER (WITH RESILIENT FALLBACK)
     # =========================================================================
-    def _call_gemini(self, prompt, system_instruction=None, timeout=5):
-        if not self.gemini_key:
+    def _call_gemini(self, prompt, system_instruction=None, timeout=6):
+        key = self._get_gemini_key()
+        if not key:
             return None
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.gemini_key}"
-            payload = {
-                "contents": [
-                    {
-                        "parts": [
-                            {"text": (f"System Context: {system_instruction}\n\n" if system_instruction else "") + prompt}
-                        ]
+
+        # Candidate models in priority order
+        models = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-2.0-flash", "gemini-pro"]
+        
+        for model in models:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
+                combined_prompt = f"System Context: {system_instruction}\n\n{prompt}" if system_instruction else prompt
+                payload = {
+                    "contents": [
+                        {
+                            "parts": [
+                                {"text": combined_prompt}
+                            ]
+                        }
+                    ],
+                    "generationConfig": {
+                        "temperature": 0.3,
+                        "maxOutputTokens": 900
                     }
-                ],
-                "generationConfig": {
-                    "temperature": 0.2,
-                    "maxOutputTokens": 800
                 }
-            }
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(payload).encode('utf-8'),
-                headers={'Content-Type': 'application/json'},
-                method='POST'
-            )
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                data = json.loads(resp.read().decode('utf-8'))
-                text = data['candidates'][0]['content']['parts'][0]['text']
-                return text.strip()
-        except Exception:
-            return None
+                req = urllib.request.Request(
+                    url,
+                    data=json.dumps(payload).encode('utf-8'),
+                    headers={'Content-Type': 'application/json'},
+                    method='POST'
+                )
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    if 'candidates' in data and len(data['candidates']) > 0:
+                        candidate = data['candidates'][0]
+                        if 'content' in candidate and 'parts' in candidate['content']:
+                            text = candidate['content']['parts'][0].get('text', '')
+                            if text:
+                                return text.strip()
+            except urllib.error.HTTPError as e:
+                err_text = ""
+                try:
+                    err_text = e.read().decode('utf-8')
+                except Exception:
+                    pass
+                print(f"[Gemini API Notice] Model {model} returned HTTP {e.code}: {err_text[:160]}")
+                # If key is forbidden / API disabled, do not loop endlessly
+                if e.code in [400, 403]:
+                    break
+            except Exception as e:
+                print(f"[Gemini Call Exception]: {e}")
+                break
+
+        return None
 
     # =========================================================================
     # 2. SEMANTIC HARMONIZATION & DEEP REWRITE
@@ -79,8 +131,8 @@ class AICopilotEngine:
         original_text = text.strip()
 
         # Try cloud LLM if configured
-        if self.gemini_key:
-            prompt = (
+        cloud_result = self._call_gemini(
+            prompt=(
                 f"You are the BrandGuard AI Chief Compliance Editor. Rewrite the following marketing draft "
                 f"so it strictly complies with enterprise brand voice ({brand_voice}), eliminates robotic AI jargon "
                 f"(delve into, rich tapestry, a testament to), removes unsubstantiated superlatives (#1, world's best, 100% risk free), "
@@ -88,22 +140,22 @@ class AICopilotEngine:
                 f"Original Draft:\n{original_text}\n\n"
                 f"Return ONLY the rewritten copy without conversational chatter or markdown backticks."
             )
-            cloud_result = self._call_gemini(prompt)
-            if cloud_result:
-                metrics = self._calculate_linguistic_metrics(cloud_result)
-                return {
-                    "success": True,
-                    "harmonized_text": cloud_result,
-                    "tone_shift": "Optimized via Gemini Neural API",
-                    "reading_ease": metrics["reading_ease"],
-                    "formality_index": metrics["formality_index"],
-                    "improvements": [
-                        "Eliminated clichéd synthetic filler and buzzwords",
-                        "Harmonized sentence cadence to enterprise consultative standards",
-                        "Neutralized unverified regulatory claim risks"
-                    ],
-                    "engine_used": "Gemini 1.5 Flash (Cloud)"
-                }
+        )
+        if cloud_result:
+            metrics = self._calculate_linguistic_metrics(cloud_result)
+            return {
+                "success": True,
+                "harmonized_text": cloud_result,
+                "tone_shift": "Optimized via Google Gemini Neural API",
+                "reading_ease": metrics["reading_ease"],
+                "formality_index": metrics["formality_index"],
+                "improvements": [
+                    "Eliminated clichéd synthetic filler and buzzwords via Gemini 1.5",
+                    "Harmonized sentence cadence to enterprise consultative standards",
+                    "Neutralized unverified regulatory claim risks"
+                ],
+                "engine_used": "Google Gemini 1.5 Flash (Live Cloud)"
+            }
 
         # Local Semantic Engine (High Quality, Instant, Reproducible)
         replacements = [
@@ -208,27 +260,78 @@ class AICopilotEngine:
         """
         msg = (user_message or "").strip()
         if not msg:
-            return {"reply": "Hello! I am your BrandGuard AI Co-Pilot. How can I help you ensure brand compliance today?"}
+            return {
+                "reply": "Hello! I am your BrandGuard AI Co-Pilot. How can I help you ensure brand compliance today?",
+                "source": "BrandGuard AI"
+            }
 
-        # Try cloud LLM if configured
-        if self.gemini_key:
-            sys_inst = (
-                "You are BrandGuard AI Co-Pilot, an authoritative expert on enterprise brand governance, "
-                "FTC truth-in-advertising (Section 5), SEC AI-washing regulations, WCAG 2.1 AA accessibility, and tone calibration. "
-                "Keep responses concise, clear, and actionable with exact compliant rewrites."
-            )
-            full_prompt = f"User Question: {msg}\n"
-            if context_text:
-                full_prompt += f"\nCurrent Draft Working Context:\n{context_text[:800]}\n"
-            cloud_reply = self._call_gemini(full_prompt, system_instruction=sys_inst)
-            if cloud_reply:
-                return {"reply": cloud_reply, "source": "Gemini 1.5 Flash"}
+        # Try cloud Gemini LLM if configured
+        sys_inst = (
+            "You are BrandGuard AI Co-Pilot, an authoritative expert on enterprise brand governance, "
+            "FTC truth-in-advertising (Section 5), SEC AI-washing regulations, WCAG 2.1 AA accessibility, and tone calibration. "
+            "You were developed by Team Synapse (Aman Sharma & Janhavi Kanojia). Keep responses friendly, concise, clear, and actionable."
+        )
+        full_prompt = f"User Question: {msg}\n"
+        if context_text:
+            full_prompt += f"\nCurrent Draft Working Context:\n{context_text[:800]}\n"
 
-        # Local Intelligent Knowledge Base & Advisor
-        lower = msg.lower()
+        cloud_reply = self._call_gemini(full_prompt, system_instruction=sys_inst)
+        if cloud_reply:
+            return {
+                "reply": cloud_reply,
+                "source": "Google Gemini 1.5 Flash (Live Cloud)"
+            }
+
+        # Conversational Local Intelligence (Natural, Knowledgeable, Friendly)
+        lower = msg.lower().strip()
+
+        # Intent: Identity / Introduction
+        if any(phrase in lower for phrase in ["who are you", "what are you", "who created you", "who made you", "identity"]):
+            return {
+                "reply": (
+                    "👋 **I am BrandGuard AI Co-Pilot!**\n\n"
+                    "I am an intelligent pre-publication brand governance assistant built by **Team Synapse** "
+                    "(**Aman Sharma** & **Janhavi Kanojia**) for the Inkloom AI Hackathon.\n\n"
+                    "**What I do:**\n"
+                    "• **Deterministic Governance:** I evaluate marketing copy across 5 tone polarities, FTC Section 5 truth banks, and WCAG 2.1 AA contrast.\n"
+                    "• **AI Deep Harmonization:** I rewrite rough drafts to eliminate robotic AI clichés (*'delve into'*, *'game-changer'*) while preserving your brand's unique voice.\n"
+                    "• **Safe Harbor Synthesis:** I automatically draft FTC & SEC regulatory disclaimers for metrics and uptime claims.\n"
+                    "• **Cryptographic Certification:** Once approved, we issue tamper-evident PDF certificates with SHA-256 copy digests.\n\n"
+                    "Feel free to ask me to review a headline, explain compliance rules, or generate safe copy!"
+                ),
+                "source": "BrandGuard Knowledge Engine (Offline Mode)"
+            }
+
+        # Intent: Greetings
+        if lower in ["hello", "hi", "hey", "good morning", "good evening", "greetings"]:
+            return {
+                "reply": (
+                    "Hello! 👋 I'm your **BrandGuard AI Co-Pilot**.\n\n"
+                    "How can I help you today? You can ask me to:\n"
+                    "1. Critique and polish your draft copy.\n"
+                    "2. Explain FTC Section 5 or SEC AI-washing rules.\n"
+                    "3. Generate compliant headlines or safe harbor disclaimers.\n\n"
+                    "*Tip: You can also click 'AI Deep Harmonize' above the Studio editor to auto-polish your text!*"
+                ),
+                "source": "BrandGuard Knowledge Engine (Offline Mode)"
+            }
+
+        # Intent: Capabilities / Help
+        if any(w in lower for w in ["what can you do", "features", "capabilities", "help me"]):
+            return {
+                "reply": (
+                    "**Here is what BrandGuard AI can do for you:**\n\n"
+                    "• **⚡ AI Deep Harmonize:** Rewrites copy in one click, removing filler cliches and unsubstantiated superlatives.\n"
+                    "• **🛡️ FTC Safe Harbor:** Generates FTC 16 CFR § 255 and SEC safe harbor statements for performance metrics.\n"
+                    "• **👁️ Visual Inspector:** Computes WCAG 2.1 AA contrast ratios (4.5:1) using OpenCV K-Means.\n"
+                    "• **⚖️ Stage-Gate Clearance:** Routes drafts to Reviewers with side-by-side red/green diffs and SHA-256 PDF certificates.\n"
+                    "• **✍️ Copywriting Co-Pilot:** Ask me for compliant headlines, hooks, or rule explanations anytime!"
+                ),
+                "source": "BrandGuard Knowledge Engine (Offline Mode)"
+            }
 
         # Topic: FTC Section 5
-        if "ftc" in lower or "truth" in lower or "claim" in lower or "superlative" in lower:
+        if any(w in lower for w in ["ftc", "truth", "claim", "superlative", "#1", "guarantee"]):
             return {
                 "reply": (
                     "**FTC Section 5 & Deceptive Claims Guidance:**\n\n"
@@ -238,11 +341,11 @@ class AICopilotEngine:
                     "with *'proven SLA-backed reliability'*.\n"
                     "• **Action:** Always cross-reference claims with verified records in the SQL Truth Bank."
                 ),
-                "source": "BrandGuard Knowledge Base"
+                "source": "BrandGuard Knowledge Engine (Offline Mode)"
             }
 
         # Topic: WCAG / Accessibility / Contrast
-        if "wcag" in lower or "contrast" in lower or "color" in lower or "accessibility" in lower or "visual" in lower:
+        if any(w in lower for w in ["wcag", "contrast", "color", "accessibility", "visual", "ratio"]):
             return {
                 "reply": (
                     "**WCAG 2.1 AA Visual Accessibility Standards:**\n\n"
@@ -251,11 +354,11 @@ class AICopilotEngine:
                     "• **Formula:** BrandGuard calculates relative luminance: `Cr = (L1 + 0.05) / (L2 + 0.05)` using OpenCV K-Means.\n"
                     "• **Tip:** Avoid placing thin light-cyan or amber text directly over multi-colored photographic backgrounds."
                 ),
-                "source": "BrandGuard Knowledge Base"
+                "source": "BrandGuard Knowledge Engine (Offline Mode)"
             }
 
         # Topic: Cliché AI Jargon
-        if "jargon" in lower or "cliche" in lower or "delve" in lower or "tone" in lower or "buzzword" in lower:
+        if any(w in lower for w in ["jargon", "cliche", "delve", "tone", "buzzword", "filler"]):
             return {
                 "reply": (
                     "**Eliminating Robotic AI Jargon:**\n\n"
@@ -267,35 +370,33 @@ class AICopilotEngine:
                     "• *'Crush the competition'* → **Outperform industry standards**\n\n"
                     "Tip: Click **'AI Deep Harmonize'** in the Studio to auto-fix these instantly."
                 ),
-                "source": "BrandGuard Knowledge Base"
+                "source": "BrandGuard Knowledge Engine (Offline Mode)"
             }
 
         # Topic: Headline or Hook Review
-        if "headline" in lower or "rewrite" in lower or "hook" in lower:
-            draft_sample = context_text if context_text else msg
+        if any(w in lower for w in ["headline", "rewrite", "hook", "title", "angle"]):
             return {
                 "reply": (
                     "**Compliant Headline Recommendations:**\n\n"
-                    "Here are three enterprise-grade headline angles crafted from your context:\n"
+                    "Here are three enterprise-grade headline angles crafted for maximum impact:\n"
                     "1. **Outcome-Driven:** *'Accelerate Enterprise Brand Clearance with Deterministic Governance.'*\n"
                     "2. **Problem/Solution:** *'Eliminate Legal Review Bottlenecks Without Compromising Compliance.'*\n"
                     "3. **Consultative Proof:** *'Proven Pre-Publication Gatekeeping for Mission-Critical Marketing.'*\n\n"
                     "All three avoid unverified '#1' superlatives while communicating high authority."
                 ),
-                "source": "BrandGuard Knowledge Base"
+                "source": "BrandGuard Knowledge Engine (Offline Mode)"
             }
 
         # Default intelligent response
         return {
             "reply": (
-                f"**BrandGuard AI Advisory:**\n\n"
-                f"I've analyzed your inquiry: *'{msg}'*.\n\n"
-                f"• **Governance Status:** Active & Monitored\n"
-                f"• **Recommendation:** When drafting enterprise copy, adhere to consultative voice polarity, maintain WCAG 2.1 4.5:1 contrast, "
-                f"and verify all statistical claims against the SQL Truth Bank before submitting for stage-gate clearance.\n"
-                f"• **Quick Action:** Use the toolbar buttons above to **Deep Harmonize** your draft or **Append a Safe Harbor Disclaimer**."
+                f"**BrandGuard AI Co-Pilot:**\n\n"
+                f"Regarding *'{msg}'*:\n\n"
+                f"• **Recommendation:** When crafting enterprise marketing collateral, ensure all performance claims are backed by documented audits, "
+                f"avoid unverified superlatives, and maintain an empathetic, consultative tone.\n"
+                f"• **Quick Action:** If you have draft text in your editor, click **'AI Deep Harmonize'** or ask me to *'Rewrite my headline'*."
             ),
-            "source": "BrandGuard Knowledge Base"
+            "source": "BrandGuard Knowledge Engine (Offline Mode)"
         }
 
     # =========================================================================
@@ -310,23 +411,22 @@ class AICopilotEngine:
         code = f"BG-{slug or 'RULE'}-01"
 
         # Try cloud LLM if configured
-        if self.gemini_key:
-            prompt = (
-                f"Generate a brand compliance rule for topic '{topic}'. Return JSON with keys: "
-                f"rule_code, rule_title, category (TONE, CLAIM, TERMINOLOGY, or ACCESSIBILITY), "
-                f"rule_description, severity (CRITICAL, WARNING, or SUGGESTION), "
-                f"forbidden_patterns (comma-separated list), recommended_replacement, citation_ref."
-            )
-            cloud_json = self._call_gemini(prompt)
-            if cloud_json:
-                try:
-                    cleaned = re.search(r'\{.*\}', cloud_json, re.DOTALL)
-                    if cleaned:
-                        data = json.loads(cleaned.group(0))
-                        data["rule_code"] = code
-                        return {"success": True, "guideline": data}
-                except Exception:
-                    pass
+        prompt = (
+            f"Generate a brand compliance rule for topic '{topic}'. Return JSON with keys: "
+            f"rule_code, rule_title, category (TONE, CLAIM, TERMINOLOGY, or ACCESSIBILITY), "
+            f"rule_description, severity (CRITICAL, WARNING, or SUGGESTION), "
+            f"forbidden_patterns (comma-separated list), recommended_replacement, citation_ref."
+        )
+        cloud_json = self._call_gemini(prompt)
+        if cloud_json:
+            try:
+                cleaned = re.search(r'\{.*\}', cloud_json, re.DOTALL)
+                if cleaned:
+                    data = json.loads(cleaned.group(0))
+                    data["rule_code"] = code
+                    return {"success": True, "guideline": data}
+            except Exception:
+                pass
 
         # Local intelligent synthesis rules
         category = "CLAIM" if any(w in topic.lower() for w in ["truth", "claim", "money", "guarantee", "uptime", "legal"]) else "TONE"
@@ -362,7 +462,6 @@ class AICopilotEngine:
         sentences = max(1, len(re.split(r'[.!?]+', text)))
         avg_sentence_len = word_count / sentences
 
-        # Approximate Flesch Reading Ease
         reading_ease = max(20, min(95, int(206.835 - (1.015 * avg_sentence_len) - 25)))
         formality_index = min(98, max(50, int(60 + (avg_sentence_len * 1.5))))
 

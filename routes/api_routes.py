@@ -117,3 +117,10 @@ def ai_suggest_guideline():
 
     result = ai_copilot.synthesize_guideline(topic)
     return jsonify(result)
+
+
+@api_bp.route('/ai/status', methods=['GET'])
+def ai_status():
+    """Returns real-time telemetry on active AI engine (Gemini Cloud vs Local Semantic)."""
+    return jsonify(ai_copilot.get_status())
+

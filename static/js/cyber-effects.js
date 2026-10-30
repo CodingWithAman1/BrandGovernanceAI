@@ -342,10 +342,27 @@
     // Toggle drawer open/close
     trigger.addEventListener('click', () => {
       drawer.classList.toggle('open');
-      if (drawer.classList.contains('open') && chatInput) {
-        setTimeout(() => chatInput.focus(), 300);
+      if (drawer.classList.contains('open')) {
+        if (chatInput) setTimeout(() => chatInput.focus(), 300);
+        updateAiDrawerStatus();
       }
     });
+
+    function updateAiDrawerStatus() {
+      fetch('/api/v1/ai/status')
+        .then(res => res.json())
+        .then(data => {
+          const statusEl = document.getElementById('aiDrawerStatus');
+          if (statusEl) {
+            if (data.is_cloud_active) {
+              statusEl.innerHTML = `<span class="pulse-dot pulse-dot-green"></span> <strong class="text-info">${data.active_engine}</strong>`;
+            } else {
+              statusEl.innerHTML = `<span class="pulse-dot pulse-dot-green"></span> ${data.active_engine}`;
+            }
+          }
+        })
+        .catch(() => {});
+    }
 
     if (closeBtn) {
       closeBtn.addEventListener('click', () => drawer.classList.remove('open'));
@@ -445,7 +462,20 @@
         .replace(/\n/g, '<br/>');
 
       let actionButtons = '';
+      let sourceBadge = '';
+
       if (sender === 'bot') {
+        if (source) {
+          const isGemini = source.includes('Gemini');
+          sourceBadge = `
+            <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-secondary border-opacity-15">
+              <span class="badge ${isGemini ? 'bg-primary' : 'bg-dark'} border ${isGemini ? 'border-primary' : 'border-secondary'} text-cyan px-2 py-1" style="font-size: 0.68rem; font-weight: 600;">
+                <i class="bi ${isGemini ? 'bi-stars' : 'bi-cpu'} me-1"></i>${source}
+              </span>
+            </div>
+          `;
+        }
+
         const cleanCopyText = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         actionButtons = `
           <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex gap-2">
@@ -463,6 +493,7 @@
 
       el.innerHTML = `
         <div class="ai-msg-bubble">
+          ${sourceBadge}
           ${formatted}
           ${actionButtons}
         </div>
