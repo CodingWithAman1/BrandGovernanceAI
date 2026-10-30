@@ -17,7 +17,10 @@
       </p>
     </div>
 
-    <div>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-ai-glow fw-bold px-3 py-2 rounded-pill shadow" onclick="askAiPrompt('How can I optimize my marketing copy for fast stage-gate clearance?')">
+        <i class="bi bi-robot me-1"></i> AI Assistant
+      </button>
       <a href="{{ url_for('scanner.studio') }}" class="btn btn-gradient-primary fw-bold px-4 py-2 rounded-pill shadow">
         <i class="bi bi-magic me-2"></i> Launch Pre-Publish Studio
       </a>

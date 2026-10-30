@@ -326,10 +326,166 @@
     window.showToast(label, 'success');
   }
 
+  // =========================================================================
+  // 4. BRANDGUARD AI CO-PILOT DRAWER CONTROLLER
+  // =========================================================================
+  function initAiCopilotDrawer() {
+    const trigger = document.getElementById('aiCopilotTrigger');
+    const drawer = document.getElementById('aiCopilotDrawer');
+    const closeBtn = document.getElementById('closeAiDrawer');
+    const chatForm = document.getElementById('aiChatForm');
+    const chatInput = document.getElementById('aiChatInput');
+    const thread = document.getElementById('aiChatThread');
+
+    if (!trigger || !drawer) return;
+
+    // Toggle drawer open/close
+    trigger.addEventListener('click', () => {
+      drawer.classList.toggle('open');
+      if (drawer.classList.contains('open') && chatInput) {
+        setTimeout(() => chatInput.focus(), 300);
+      }
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => drawer.classList.remove('open'));
+    }
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawer.classList.contains('open')) {
+        drawer.classList.remove('open');
+      }
+    });
+
+    // Global helper for quick action chips
+    window.askAiPrompt = function (promptText) {
+      if (!drawer.classList.contains('open')) {
+        drawer.classList.add('open');
+      }
+      if (chatInput) {
+        chatInput.value = promptText;
+        submitAiChat(promptText);
+      }
+    };
+
+    if (chatForm && chatInput && thread) {
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+        submitAiChat(msg);
+      });
+    }
+
+    function submitAiChat(messageText) {
+      if (!thread || !chatInput) return;
+
+      // Append user bubble
+      appendMsg('user', messageText);
+      chatInput.value = '';
+
+      // Append loading indicator
+      const loadingId = 'ai-loading-' + Date.now();
+      const loadingEl = document.createElement('div');
+      loadingEl.className = 'ai-chat-msg bot';
+      loadingEl.id = loadingId;
+      loadingEl.innerHTML = `
+        <div class="ai-msg-bubble text-cyan">
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          Consulting BrandGuard AI Neural Engine...
+        </div>
+      `;
+      thread.appendChild(loadingEl);
+      thread.scrollTop = thread.scrollHeight;
+
+      // Extract context from page if available (e.g. active text in studio or review)
+      let pageContext = '';
+      const studioInput = document.getElementById('inputContent');
+      const diffUpdated = document.querySelector('.diff-updated');
+      if (studioInput && studioInput.value) {
+        pageContext = studioInput.value;
+      } else if (diffUpdated && diffUpdated.innerText) {
+        pageContext = diffUpdated.innerText;
+      }
+
+      // Send to backend API
+      fetch('/api/v1/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: messageText, context: pageContext })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const loading = document.getElementById(loadingId);
+        if (loading) loading.remove();
+
+        const reply = data.reply || 'Analysis complete. Adhere to brand guidelines.';
+        appendMsg('bot', reply, data.source);
+      })
+      .catch(err => {
+        const loading = document.getElementById(loadingId);
+        if (loading) loading.remove();
+        appendMsg('bot', 'AI Engine connection error. Please try again.');
+      });
+    }
+
+    function appendMsg(sender, text, source) {
+      if (!thread) return;
+      const el = document.createElement('div');
+      el.className = `ai-chat-msg ${sender}`;
+
+      // Convert basic markdown-style formatting (*bold*, code, bullets)
+      let formatted = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code class="text-cyan px-1 bg-dark rounded">$1</code>')
+        .replace(/\n\n/g, '<br/><br/>')
+        .replace(/\n•/g, '<br/>&bull;')
+        .replace(/\n/g, '<br/>');
+
+      let actionButtons = '';
+      if (sender === 'bot') {
+        const cleanCopyText = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        actionButtons = `
+          <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex gap-2">
+            <button type="button" class="btn btn-xs btn-outline-info rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="copyToClipboard('${cleanCopyText}', 'Response copied!')">
+              <i class="bi bi-clipboard me-1"></i> Copy
+            </button>
+            ${document.getElementById('inputContent') ? `
+              <button type="button" class="btn btn-xs btn-gradient-primary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="insertAiTextToStudio('${cleanCopyText}')">
+                <i class="bi bi-arrow-down-left-square me-1"></i> Use in Studio
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      el.innerHTML = `
+        <div class="ai-msg-bubble">
+          ${formatted}
+          ${actionButtons}
+        </div>
+      `;
+      thread.appendChild(el);
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    window.insertAiTextToStudio = function (text) {
+      const editor = document.getElementById('inputContent');
+      if (editor) {
+        editor.value = text;
+        if (window.updateCharCount) window.updateCharCount();
+        window.showToast('AI response loaded into Studio editor!', 'success');
+      }
+    };
+  }
+
   // Initialize once DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
     initCyberCursor();
     initAmbientParticles();
+    initAiCopilotDrawer();
   });
 
 })();

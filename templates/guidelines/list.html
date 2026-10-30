@@ -8,7 +8,10 @@
     <p class="text-muted small mb-0">Manage tone guidelines, verified claims bank, terminology rules, and brand design tokens</p>
   </div>
 
-  <div class="d-flex gap-2">
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn btn-ai-glow fw-bold rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addRuleModal" onclick="focusAiRulePrompt()">
+      <i class="bi bi-robot me-1"></i> AI Synthesize Rule
+    </button>
     <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addRuleModal">
       <i class="bi bi-plus-circle me-1"></i> Add Brand Rule
     </button>
@@ -177,18 +180,38 @@
     <div class="modal-content">
       <form method="POST" action="{{ url_for('guidelines.add_rule') }}">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold">Add Brand Guideline Rule</h5>
+          <div class="d-flex align-items-center gap-2">
+            <h5 class="modal-title fw-bold mb-0">Add Brand Guideline Rule</h5>
+            <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25 small">
+              <i class="bi bi-stars"></i> AI Synthesis Supported
+            </span>
+          </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
+          
+          <!-- AI Fast Synthesize Prompt Bar -->
+          <div class="p-3 mb-4 rounded-3 border border-info border-opacity-25 shadow-sm" style="background: rgba(14, 165, 233, 0.08);">
+            <label class="form-label small fw-bold text-info mb-1 d-flex align-items-center gap-1">
+              <i class="bi bi-robot"></i> AI Instant Rule Generator
+            </label>
+            <div class="input-group">
+              <input type="text" id="aiRuleTopicInput" class="form-control form-control-sm bg-dark text-white border-info border-opacity-50" placeholder="Type a concept, e.g. 'Greenwashing & Eco Claims' or 'AI Hallucination Liability'">
+              <button type="button" class="btn btn-sm btn-info text-dark fw-bold px-3" onclick="synthesizeRuleWithAi()">
+                <i class="bi bi-magic me-1"></i> Auto-Fill with AI
+              </button>
+            </div>
+            <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">BrandGuard AI will populate code, description, category, regex patterns, and statutory citations.</small>
+          </div>
+
           <div class="row g-3 mb-3">
             <div class="col-md-4">
               <label class="form-label small fw-bold">Rule Code</label>
-              <input type="text" name="rule_code" class="form-control" placeholder="e.g. BG-CLAIM-03" required>
+              <input type="text" name="rule_code" id="ruleCodeInput" class="form-control" placeholder="e.g. BG-CLAIM-03" required>
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">Category</label>
-              <select name="category" class="form-select">
+              <select name="category" id="ruleCategorySelect" class="form-select">
                 <option value="TONE">TONE (Voice & Polarity)</option>
                 <option value="CLAIM">CLAIM (Regulatory & Evidence)</option>
                 <option value="TERMINOLOGY">TERMINOLOGY (Naming & Lexicon)</option>
@@ -198,7 +221,7 @@
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">Severity</label>
-              <select name="severity" class="form-select">
+              <select name="severity" id="ruleSeveritySelect" class="form-select">
                 <option value="CRITICAL">CRITICAL (Blocks release)</option>
                 <option value="WARNING">WARNING (Review required)</option>
                 <option value="SUGGESTION">SUGGESTION (Advisory fix)</option>
@@ -208,28 +231,28 @@
 
           <div class="mb-3">
             <label class="form-label small fw-bold">Rule Title</label>
-            <input type="text" name="rule_title" class="form-control" placeholder="e.g. Prohibit Unsubstantiated Market Dominance Claims" required>
+            <input type="text" name="rule_title" id="ruleTitleInput" class="form-control" placeholder="e.g. Prohibit Unsubstantiated Market Dominance Claims" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-bold">Detailed Rule Description & Rationale</label>
-            <textarea name="rule_description" class="form-control" rows="3" placeholder="Explain the governance or regulatory reason for this guideline..." required></textarea>
+            <textarea name="rule_description" id="ruleDescInput" class="form-control" rows="3" placeholder="Explain the governance or regulatory reason for this guideline..." required></textarea>
           </div>
 
           <div class="row g-3 mb-3">
             <div class="col-md-6">
               <label class="form-label small fw-bold">Forbidden Keywords / Patterns (comma separated)</label>
-              <input type="text" name="forbidden_patterns" class="form-control" placeholder="e.g. #1 in market, best ever, foolproof">
+              <input type="text" name="forbidden_patterns" id="rulePatternsInput" class="form-control" placeholder="e.g. #1 in market, best ever, foolproof">
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Recommended Tone-Preserving Replacement</label>
-              <input type="text" name="recommended_replacement" class="form-control" placeholder="e.g. leading industry benchmark">
+              <input type="text" name="recommended_replacement" id="ruleReplacementInput" class="form-control" placeholder="e.g. leading industry benchmark">
             </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-bold">Statutory or Brand Book Citation Reference</label>
-            <input type="text" name="citation_ref" class="form-control" placeholder="e.g. FTC Act § 5 / Brand Voice Guide § 3.2">
+            <input type="text" name="citation_ref" id="ruleCitationInput" class="form-control" placeholder="e.g. FTC Act § 5 / Brand Voice Guide § 3.2">
           </div>
         </div>
         <div class="modal-footer">
@@ -285,4 +308,54 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function focusAiRulePrompt() {
+  setTimeout(() => {
+    const input = document.getElementById('aiRuleTopicInput');
+    if (input) input.focus();
+  }, 400);
+}
+
+function synthesizeRuleWithAi() {
+  const topicInput = document.getElementById('aiRuleTopicInput');
+  if (!topicInput || !topicInput.value.trim()) {
+    if (window.showToast) window.showToast('Please type a rule concept first.', 'warning');
+    return;
+  }
+
+  const topic = topicInput.value.trim();
+  if (window.showToast) window.showToast('Synthesizing brand guideline with AI...', 'info');
+
+  fetch('/api/v1/ai/suggest-guideline', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic: topic })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success && data.guideline) {
+      const g = data.guideline;
+      if (document.getElementById('ruleCodeInput')) document.getElementById('ruleCodeInput').value = g.rule_code || '';
+      if (document.getElementById('ruleTitleInput')) document.getElementById('ruleTitleInput').value = g.rule_title || '';
+      if (document.getElementById('ruleCategorySelect')) document.getElementById('ruleCategorySelect').value = g.category || 'TONE';
+      if (document.getElementById('ruleSeveritySelect')) document.getElementById('ruleSeveritySelect').value = g.severity || 'WARNING';
+      if (document.getElementById('ruleDescInput')) document.getElementById('ruleDescInput').value = g.rule_description || '';
+      if (document.getElementById('rulePatternsInput')) document.getElementById('rulePatternsInput').value = g.forbidden_patterns || '';
+      if (document.getElementById('ruleReplacementInput')) document.getElementById('ruleReplacementInput').value = g.recommended_replacement || '';
+      if (document.getElementById('ruleCitationInput')) document.getElementById('ruleCitationInput').value = g.citation_ref || '';
+
+      if (window.showToast) {
+        window.showToast(`✨ Brand Rule '${g.rule_code}' auto-generated by AI!`, 'success');
+      }
+    }
+  })
+  .catch(err => {
+    console.error('AI rule synthesis error:', err);
+    if (window.showToast) window.showToast('Failed to auto-generate rule.', 'error');
+  });
+}
+</script>
 {% endblock %}

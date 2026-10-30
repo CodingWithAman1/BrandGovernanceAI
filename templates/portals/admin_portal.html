@@ -18,6 +18,9 @@
     </div>
 
     <div class="d-flex flex-wrap gap-2">
+      <button type="button" class="btn btn-ai-glow btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm" onclick="askAiPrompt('How can I synthesize an enterprise brand policy for AI-generated assets?')">
+        <i class="bi bi-robot me-1"></i> AI Policy Assistant
+      </button>
       <a href="{{ url_for('guidelines.list_all') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 py-2 fw-semibold">
         <i class="bi bi-journal-text me-1"></i> Rulebook Editor
       </a>

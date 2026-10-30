@@ -15,10 +15,26 @@
     <h3 class="fw-bold mb-0" style="letter-spacing: -0.025em;">{{ sub.title }}</h3>
   </div>
 
-  <div class="d-flex align-items-center gap-2">
+  <div class="d-flex flex-wrap align-items-center gap-2">
     <a href="{{ url_for('scanner.studio') }}" class="btn btn-outline-secondary rounded-pill px-3 fw-semibold">
       <i class="bi bi-arrow-left me-1"></i> New Audit
     </a>
+
+    {% if sub.raw_content and sub.status != 'APPROVED' %}
+    <!-- AI Deep Harmonization Action -->
+    <form method="POST" action="{{ url_for('scanner.ai_harmonize', submission_id=sub.id) }}" class="m-0">
+      <button type="submit" class="btn btn-ai-glow fw-bold rounded-pill px-3 shadow-sm" title="AI Full Draft Harmonization & Cliche Removal">
+        <i class="bi bi-stars me-1"></i> AI Deep Harmonize
+      </button>
+    </form>
+
+    <!-- AI Safe Harbor Disclaimer Generator -->
+    <form method="POST" action="{{ url_for('scanner.append_safe_harbor', submission_id=sub.id) }}" class="m-0">
+      <button type="submit" class="btn btn-outline-info rounded-pill px-3 fw-bold" title="Append FTC Section 5 & SEC Safe Harbor Disclaimers">
+        <i class="bi bi-shield-check me-1"></i> + Safe Harbor
+      </button>
+    </form>
+    {% endif %}
 
     {% if sub.status != 'APPROVED' %}
     <form method="POST" action="{{ url_for('scanner.submit_for_review', submission_id=sub.id) }}" class="m-0">

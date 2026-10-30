@@ -27,6 +27,43 @@
   </div>
 </div>
 
+<!-- AI Executive Legal Briefing Card -->
+<div class="bg-card card-glow-shimmer border-cyber-glow p-3 p-md-4 mb-4 shadow-sm" style="background: rgba(15, 23, 42, 0.85);">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <div class="brand-logo-icon bg-info text-dark" style="width: 38px; height: 38px; font-size: 1.15rem;">
+        <i class="bi bi-robot"></i>
+      </div>
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <strong class="text-white fs-6">AI Legal & Regulatory Briefing</strong>
+          <span class="badge {% if sub.compliance_score >= 80 %}bg-success{% elif sub.compliance_score >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill px-2">
+            {% if sub.compliance_score >= 80 %}Low Exposure{% elif sub.compliance_score >= 50 %}Moderate Risk{% else %}High Regulatory Risk{% endif %}
+          </span>
+        </div>
+        <p class="text-muted small mb-0" style="font-size: 0.82rem;">
+          Linguistic Tone Balance: <strong class="text-white">{{ sub.tone_score }}%</strong> &bull; 
+          Truth Bank & Claims: <strong class="text-white">{{ sub.claim_score }}%</strong> &bull; 
+          Visual & WCAG: <strong class="text-white">{{ sub.visual_score }}%</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold" onclick="askAiPrompt('Provide a legal compliance briefing for submission #{{ sub.id }}: {{ sub.title }}')">
+        <i class="bi bi-chat-quote me-1"></i> Ask AI Legal Counsel
+      </button>
+      {% if sub.status != 'APPROVED' and sub.raw_content %}
+      <form method="POST" action="{{ url_for('scanner.append_safe_harbor', submission_id=sub.id) }}" class="m-0">
+        <button type="submit" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" title="Auto-append FTC Safe Harbor disclaimer before approval">
+          <i class="bi bi-shield-plus me-1"></i> Append Safe Harbor
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
 <!-- Decision Console for Authorized Managers & Reviewers -->
 {% if current_user.role in ['MANAGER', 'REVIEWER', 'ADMIN'] and sub.status != 'APPROVED' %}
 <div class="bg-card card-glow-shimmer border-cyber-glow p-4 mb-4 border-start border-4 border-primary shadow-sm" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 58, 138, 0.3) 100%);">

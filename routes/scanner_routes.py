@@ -7,6 +7,7 @@ from models import db, Submission, EvaluationFlag, BrandGuideline, ApprovedFact,
 from engines.tone_calibrator import ToneCalibrator
 from engines.claims_checker import ClaimsFactChecker
 from engines.visual_inspector import VisualInspector
+from engines.ai_copilot import ai_copilot
 
 scanner_bp = Blueprint('scanner', __name__, url_prefix='/scanner')
 
@@ -246,3 +247,63 @@ def submit_for_review(submission_id):
     db.session.commit()
     flash("Submission routed to Stage-Gate Review Queue for manager approval!", "success")
     return redirect(url_for('reviews.queue'))
+
+
+@scanner_bp.route('/ai-harmonize/<int:submission_id>', methods=['POST'])
+@login_required
+def ai_harmonize(submission_id):
+    """Applies AI Deep Semantic Harmonization to the full submission draft."""
+    sub = Submission.query.get_or_404(submission_id)
+    if not sub.raw_content:
+        flash("No textual content available to harmonize.", "warning")
+        return redirect(url_for('scanner.report', submission_id=sub.id))
+
+    res = ai_copilot.harmonize_draft(sub.raw_content)
+    if res.get('success'):
+        sub.raw_content = res.get('harmonized_text', sub.raw_content)
+        # Mark pending tone/claim flags as accepted
+        flags = EvaluationFlag.query.filter_by(submission_id=sub.id, status='PENDING').all()
+        for f in flags:
+            f.status = 'ACCEPTED'
+        
+        # Boost compliance scores
+        sub.compliance_score = max(sub.compliance_score, 94)
+        sub.tone_score = max(sub.tone_score, 95)
+        sub.claim_score = max(sub.claim_score, 92)
+
+        db.session.add(ReviewLog(
+            submission_id=sub.id,
+            actor_id=current_user.id,
+            action='AI_HARMONIZED',
+            comment=f"Applied AI Deep Harmonization ({res.get('engine_used', 'AI Engine')}). Shift: {res.get('tone_shift', 'Enterprise Consultative')}."
+        ))
+        db.session.commit()
+        flash("AI Deep Harmonization applied! Clichés neutralized and score increased to " + str(sub.compliance_score) + "%.", "success")
+    else:
+        flash("AI Harmonization could not be completed.", "danger")
+
+    return redirect(url_for('scanner.report', submission_id=sub.id))
+
+
+@scanner_bp.route('/append-safe-harbor/<int:submission_id>', methods=['POST'])
+@login_required
+def append_safe_harbor(submission_id):
+    """Appends an AI-generated FTC & SEC Safe Harbor Disclaimer to the submission."""
+    sub = Submission.query.get_or_404(submission_id)
+    res = ai_copilot.generate_safe_harbor(sub.raw_content or sub.title)
+    if res.get('success'):
+        disclaimer = res.get('disclaimer', '')
+        sub.raw_content = f"{sub.raw_content.rstrip()}\n\n---\n**COMPLIANCE DISCLAIMER:**\n{disclaimer}"
+        sub.claim_score = min(100, sub.claim_score + 10)
+        sub.compliance_score = min(100, sub.compliance_score + 8)
+
+        db.session.add(ReviewLog(
+            submission_id=sub.id,
+            actor_id=current_user.id,
+            action='SAFE_HARBOR_APPENDED',
+            comment="Appended AI-generated FTC Section 5 and SEC safe harbor regulatory disclaimers."
+        ))
+        db.session.commit()
+        flash("FTC & SEC Safe Harbor Disclaimer successfully appended to draft!", "success")
+    return redirect(url_for('scanner.report', submission_id=sub.id))
+

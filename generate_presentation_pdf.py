@@ -591,8 +591,8 @@ def build_pdf(output_filename="BrandGuard_AI_Executive_Presentation.pdf"):
     summary_cards = [
         [
             Table([
-                [Paragraph("<b>22/22 Automated Tests (100% Pass)</b>", card_title)],
-                [Paragraph("• <b>test_complete_suite.py (12 Tests):</b> Tone Calibrator, Claims Checker, Visual Inspector, Clarity Engine, PDF Generator, Route Protection, Sole Admin Lock, Portal Isolation, and Full Lifecycle.<br/>• <b>test_portals_auth.py (10 Tests):</b> Firebase sync, dynamic navbars, role redirects, and RBAC enforcement.<br/>• All tests passing in <6 seconds with 100% assertions satisfied.", body_muted)]
+                [Paragraph("<b>32/32 Automated Tests (100% Pass Across 3 Suites)</b>", card_title)],
+                [Paragraph("• <b>test_complete_suite.py (12 Tests):</b> Tone Calibrator, Claims Checker, Visual Inspector, Clarity Engine, PDF Generator, Route Protection, Sole Admin Lock, Portal Isolation, and Full Lifecycle.<br/>• <b>test_portals_auth.py (10 Tests):</b> Firebase sync, dynamic navbars, role redirects, and RBAC enforcement.<br/>• <b>test_ai_features.py (10 Tests):</b> AI Co-Pilot, Deep Harmonize, FTC Safe Harbor, and Rule Synthesis.<br/>• All tests passing with 100% assertions satisfied.", body_muted)]
             ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_GREEN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
 
             Table([

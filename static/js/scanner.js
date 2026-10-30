@@ -11,6 +11,10 @@ const SAMPLE_PRESETS = {
   jargon: {
     title: "Customer Success Story Draft",
     content: "It is a testament to our team that we unpack deep customer insights and crush the competition. Why settle for inferior Slack-killer tools when you can have our unrivaled platform that never fails?"
+  },
+  ai_pitch: {
+    title: "Autonomous AI Enterprise Product Launch",
+    content: "In today's fast-paced digital landscape, our game-changer platform is a testament to technological leadership. We delve into massive datasets to deliver 100% foolproof autonomous brand clearance as the #1 AI engine in the world. Obviously, this miraculous architecture never fails to crush the competition."
   }
 };
 
@@ -163,4 +167,76 @@ function downloadCleanCopy(title = 'Remediated_Copy') {
   if (window.showToast) {
     window.showToast('Clean copy downloaded as .txt', 'success');
   }
+}
+
+// =============================================================================
+// STUDIO AI CO-PILOT ACTIONS
+// =============================================================================
+
+function studioAiHarmonize() {
+  const contentEl = document.getElementById('inputContent');
+  if (!contentEl || !contentEl.value.trim()) {
+    if (window.showToast) window.showToast('Please enter draft text first.', 'warning');
+    return;
+  }
+
+  const origText = contentEl.value.trim();
+  if (window.showToast) window.showToast('Consulting BrandGuard AI Neural Engine...', 'info');
+
+  fetch('/api/v1/ai/harmonize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: origText, voice: 'ENTERPRISE_CONSULTATIVE' })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success && data.harmonized_text) {
+      contentEl.value = data.harmonized_text;
+      contentEl.style.transition = 'all 0.5s ease';
+      contentEl.style.backgroundColor = 'rgba(14, 165, 233, 0.15)';
+      setTimeout(() => { contentEl.style.backgroundColor = ''; }, 800);
+      
+      if (typeof updateCharCount === 'function') updateCharCount();
+      if (window.showToast) {
+        window.showToast('✨ AI Deep Harmonize complete! Cliches neutralized & tone elevated.', 'success');
+      }
+    } else {
+      if (window.showToast) window.showToast(data.message || 'Harmonization failed.', 'error');
+    }
+  })
+  .catch(err => {
+    console.error('AI Harmonize error:', err);
+    if (window.showToast) window.showToast('AI service error. Please try again.', 'error');
+  });
+}
+
+function studioAiSafeHarbor() {
+  const contentEl = document.getElementById('inputContent');
+  if (!contentEl || !contentEl.value.trim()) {
+    if (window.showToast) window.showToast('Please enter draft text first.', 'warning');
+    return;
+  }
+
+  const origText = contentEl.value.trim();
+  if (window.showToast) window.showToast('Generating FTC & SEC Safe Harbor...', 'info');
+
+  fetch('/api/v1/ai/safe-harbor', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: origText })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success && data.disclaimer) {
+      contentEl.value = `${origText}\n\n---\n**COMPLIANCE DISCLAIMER:**\n${data.disclaimer}`;
+      if (typeof updateCharCount === 'function') updateCharCount();
+      if (window.showToast) {
+        window.showToast('🛡️ FTC Section 5 & SEC Safe Harbor appended!', 'success');
+      }
+    }
+  })
+  .catch(err => {
+    console.error('Safe Harbor error:', err);
+    if (window.showToast) window.showToast('Failed to append disclaimer.', 'error');
+  });
 }

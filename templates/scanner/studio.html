@@ -33,6 +33,9 @@
         <button type="button" class="btn-sample-chip" onclick="loadPreset('compliant')">
           <span>✅</span> Fully Compliant Whitepaper
         </button>
+        <button type="button" class="btn-sample-chip" onclick="loadPreset('ai_pitch')">
+          <span>🤖</span> AI-Generated Marketing Pitch
+        </button>
       </div>
     </div>
 
@@ -46,11 +49,19 @@
           <input type="text" name="title" id="inputTitle" class="form-control form-control-lg fs-6" placeholder="e.g. Q4 Cloud Product Announcement" required>
         </div>
 
-        <!-- Text Input -->
+        <!-- Text Input with Integrated AI Co-Pilot Toolbar -->
         <div class="mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
             <label class="form-label fw-bold text-dark mb-0">Textual Copy (Articles, Social Posts, Ad Copy, Emails)</label>
-            <span class="text-muted small" id="wordCountBadge">0 characters</span>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-xs btn-ai-glow rounded-pill px-3 py-1 fw-bold" onclick="studioAiHarmonize()" style="font-size: 0.78rem;" title="AI Deep Context Rewrite">
+                <i class="bi bi-stars me-1"></i> AI Deep Harmonize
+              </button>
+              <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-3 py-1 fw-bold" onclick="studioAiSafeHarbor()" style="font-size: 0.78rem;" title="Append FTC Safe Harbor Disclaimer">
+                <i class="bi bi-shield-check me-1"></i> + Safe Harbor
+              </button>
+              <span class="text-muted small border-start ps-2" id="wordCountBadge">0 characters</span>
+            </div>
           </div>
           <textarea name="content" id="inputContent" rows="8" class="form-control font-monospace p-3" style="font-size: 0.9rem; line-height: 1.6;" placeholder="Paste draft content here for multi-modal evaluation..." oninput="updateCharCount()"></textarea>
         </div>

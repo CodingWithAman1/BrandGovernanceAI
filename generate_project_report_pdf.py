@@ -306,7 +306,7 @@ def build_project_report_pdf(output_filename="BrandGuard_AI_Project_Report.pdf")
                 [
                     Paragraph("<b>4 Deterministic Engines</b><br/><font color='#94A3B8'>Tone, Truth, Contrast, Clarity</font>", ParagraphStyle('CS1', parent=body_muted, textColor=colors.HexColor('#FFFFFF'))),
                     Paragraph("<b>3 Isolated Portals</b><br/><font color='#94A3B8'>Client, Reviewer, Admin RBAC</font>", ParagraphStyle('CS2', parent=body_muted, textColor=colors.HexColor('#FFFFFF'))),
-                    Paragraph("<b>22 Automated Tests</b><br/><font color='#94A3B8'>100% Pass Verification Rate</font>", ParagraphStyle('CS3', parent=body_muted, textColor=colors.HexColor('#FFFFFF'))),
+                    Paragraph("<b>32 Automated Tests</b><br/><font color='#94A3B8'>100% Pass Across 3 Suites</font>", ParagraphStyle('CS3', parent=body_muted, textColor=colors.HexColor('#FFFFFF'))),
                     Paragraph("<b>SHA-256 Tamper-Proof</b><br/><font color='#94A3B8'>Cryptographic PDF Certificates</font>", ParagraphStyle('CS4', parent=body_muted, textColor=colors.HexColor('#FFFFFF')))
                 ]
             ], colWidths=[125, 125, 125, 125], style=[
@@ -871,7 +871,7 @@ def build_project_report_pdf(output_filename="BrandGuard_AI_Project_Report.pdf")
     story.append(t_apis)
     story.append(Spacer(1, 6))
 
-    story.append(Paragraph("<b>6.2 Comprehensive Automated Test Suite (22/22 Passing - 100%):</b> Verified by 22 automated integration tests across two suites: <code>test_complete_suite.py</code> (12 tests covering engines, route guards, sole admin lock, lifecycle, and rule CRUD) and <code>test_portals_auth.py</code> (10 tests covering dynamic navbars, Firebase sync, and RBAC cross-portal blocks).", body))
+    story.append(Paragraph("<b>6.2 Comprehensive Automated Test Suite (32/32 Passing - 100%):</b> Verified by 32 automated integration tests across three suites: <code>test_complete_suite.py</code> (12 tests covering engines, route guards, sole admin lock, lifecycle, and rule CRUD), <code>test_portals_auth.py</code> (10 tests covering dynamic navbars, Firebase sync, and RBAC cross-portal blocks), and <code>test_ai_features.py</code> (10 tests covering neural semantic harmonization, FTC safe harbor synthesis, AI chat advisory, and rule synthesis).", body))
 
     story.append(PageBreak())
 
@@ -932,8 +932,8 @@ def build_project_report_pdf(output_filename="BrandGuard_AI_Project_Report.pdf")
         ],
         [
             Paragraph("<b>Automated Test Matrix</b>", body_bold),
-            Paragraph("22 comprehensive integration tests spanning all engines, security rules, and workflows.", body_muted),
-            Paragraph("<font color='#059669'><b>22/22 PASSING (100%)</b></font>", body_bold)
+            Paragraph("32 comprehensive integration tests spanning all engines, AI Co-Pilot, security rules, and workflows.", body_muted),
+            Paragraph("<font color='#059669'><b>32/32 PASSING (100%)</b></font>", body_bold)
         ]
     ]
     t_chk = Table(chk_items, colWidths=[120, 292, 120])
