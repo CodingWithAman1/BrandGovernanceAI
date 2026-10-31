@@ -85,7 +85,11 @@ class VisualInspector:
             return []
 
     def evaluate_image(self, image_path):
-        """Evaluates an image for palette conformity, contrast, and OCR text."""
+        """
+        Evaluates an image for palette conformity, contrast, and OCR text.
+        Performs pairwise contrast checks across ALL dominant color pairs,
+        flagging any combination with ratio < 4.5:1.
+        """
         flags = []
         dominant_colors = self.extract_dominant_colors(image_path)
         
@@ -121,25 +125,35 @@ class VisualInspector:
                     'citation': 'Brand Design System § 1.3 (Approved Color Tokens)'
                 })
 
-        # 2. Contrast Analysis between dominant colors
+        # 2. Pairwise Contrast Analysis — check ALL pairs of dominant colors
         if len(dominant_colors) >= 2:
-            # Check highest luminance vs lowest luminance color
-            lum_list = [(self.calculate_relative_luminance(c['rgb']), c) for c in dominant_colors]
-            lum_list.sort(key=lambda x: x[0])
-            darkest = lum_list[0][1]
-            brightest = lum_list[-1][1]
-            ratio = self.calculate_contrast_ratio(darkest['rgb'], brightest['rgb'])
-            
-            if ratio < 4.5:
-                flags.append({
-                    'flag_type': 'ACCESSIBILITY',
-                    'snippet': f"Contrast Ratio {ratio}:1 ({darkest['hex']} on {brightest['hex']})",
-                    'severity': 'CRITICAL',
-                    'explanation': f"WCAG 2.1 Contrast Violation: Contrast ratio is {ratio}:1, which is below the mandatory 4.5:1 AA threshold.",
-                    'suggested_fix': "Darken the foreground text or lighten the background graphic container to reach at least 4.5:1 contrast.",
-                    'rule_code': 'BG-ACC-01',
-                    'citation': 'WCAG 2.1 Level AA / ADA Title III Accessibility Requirement'
-                })
+            seen_pairs = set()
+            for i in range(len(dominant_colors)):
+                for j in range(i + 1, len(dominant_colors)):
+                    c1 = dominant_colors[i]
+                    c2 = dominant_colors[j]
+                    pair_key = tuple(sorted([c1['hex'], c2['hex']]))
+                    if pair_key in seen_pairs:
+                        continue
+                    seen_pairs.add(pair_key)
+
+                    ratio = self.calculate_contrast_ratio(c1['rgb'], c2['rgb'])
+                    if ratio < 4.5:
+                        flags.append({
+                            'flag_type': 'ACCESSIBILITY',
+                            'snippet': f"Contrast Ratio {ratio}:1 ({c1['hex']} vs {c2['hex']})",
+                            'severity': 'CRITICAL',
+                            'explanation': (
+                                f"WCAG 2.1 Contrast Violation: Color pair {c1['hex']} and {c2['hex']} "
+                                f"has a contrast ratio of {ratio}:1, below the mandatory 4.5:1 AA threshold."
+                            ),
+                            'suggested_fix': (
+                                "Adjust one or both colors to achieve at least 4.5:1 contrast ratio. "
+                                f"Consider darkening {c1['hex']} or lightening {c2['hex']}."
+                            ),
+                            'rule_code': 'BG-ACC-01',
+                            'citation': 'WCAG 2.1 Level AA / ADA Title III Accessibility Requirement'
+                        })
 
         # 3. Text OCR inside graphic
         extracted_text = ""
@@ -159,4 +173,60 @@ class VisualInspector:
             'flags': flags,
             'dominant_colors': dominant_colors,
             'extracted_text': extracted_text
+        }
+
+    def generate_accessibility_report(self, image_path):
+        """
+        Generates a high-level accessibility report for the image.
+        Returns a dict with keys: wcag_level, dominant_issue, fixes.
+        """
+        result = self.evaluate_image(image_path)
+        flags = result['flags']
+        score = result['score']
+        dominant_colors = result.get('dominant_colors', [])
+
+        # Determine WCAG compliance level
+        critical_acc_flags = [f for f in flags if f['flag_type'] == 'ACCESSIBILITY' and f['severity'] == 'CRITICAL']
+        if not critical_acc_flags:
+            wcag_level = "AA_PASS"
+        elif score >= 60:
+            wcag_level = "AA_PARTIAL"
+        else:
+            wcag_level = "AA_FAIL"
+
+        # Dominant issue
+        if critical_acc_flags:
+            dominant_issue = critical_acc_flags[0]['explanation']
+        elif flags:
+            dominant_issue = flags[0]['explanation']
+        else:
+            dominant_issue = "No accessibility issues detected. Image appears WCAG 2.1 AA compliant."
+
+        # Actionable fixes
+        fixes = []
+        if critical_acc_flags:
+            fixes.append(
+                f"Resolve {len(critical_acc_flags)} contrast violation(s): "
+                "Ensure all color pairs have at least 4.5:1 contrast ratio for normal text."
+            )
+        visual_flags = [f for f in flags if f['flag_type'] == 'VISUAL']
+        if visual_flags:
+            fixes.append(
+                f"Replace {len(visual_flags)} off-brand color(s) with approved palette tokens "
+                "to maintain visual consistency and accessibility."
+            )
+        if not fixes:
+            fixes.append("No immediate fixes required. Continue monitoring with each new asset version.")
+        fixes.append(
+            "Use the WebAIM Contrast Checker (webaim.org/resources/contrastchecker) to verify "
+            "text-on-background combinations before final export."
+        )
+
+        return {
+            "wcag_level": wcag_level,
+            "dominant_issue": dominant_issue,
+            "fixes": fixes,
+            "score": score,
+            "critical_contrast_violations": len(critical_acc_flags),
+            "dominant_colors": [c['hex'] for c in dominant_colors]
         }

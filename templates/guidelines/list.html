@@ -55,6 +55,7 @@
               <th>Severity</th>
               <th>Forbidden Patterns</th>
               <th>Legal / Brand Citation</th>
+              <th class="text-end">AI Governance Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -82,6 +83,17 @@
               </td>
               <td>
                 <small class="text-muted"><i class="bi bi-bookmark me-1"></i>{{ g.citation_ref or 'Internal Standard' }}</small>
+              </td>
+              <td class="text-end">
+                {% if current_user.role in ['MANAGER', 'ADMIN'] %}
+                <form method="POST" action="{{ url_for('guidelines.remediate_rule', rule_id=g.id) }}" class="d-inline">
+                  <button type="submit" class="btn btn-xs btn-outline-info rounded-pill px-2 py-1 fw-bold" style="font-size: 0.72rem;" title="AI Ambiguity Resolver: Clarify rule based on creator dispute feedback">
+                    <i class="bi bi-magic me-1"></i> AI Resolve Ambiguity
+                  </button>
+                </form>
+                {% else %}
+                <span class="text-muted small">Standard Active</span>
+                {% endif %}
               </td>
             </tr>
             {% endfor %}

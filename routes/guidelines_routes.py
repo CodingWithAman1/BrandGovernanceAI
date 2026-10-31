@@ -107,3 +107,47 @@ def add_asset():
     db.session.commit()
     flash(f"Design token '{name}' ({asset_value}) added!", "success")
     return redirect(url_for('guidelines.list_all'))
+
+@guidelines_bp.route('/rule/remediate/<int:rule_id>', methods=['POST'])
+@login_required
+def remediate_rule(rule_id):
+    """
+    AI Ambiguity Resolver: Evaluates disputed rule overrides and automatically
+    synthesizes a clarifying amendment into BrandGuideline.
+    """
+    if current_user.role not in ['MANAGER', 'ADMIN']:
+        flash("Only Managers and Admins can amend brand rules.", "danger")
+        return redirect(url_for('guidelines.list_all'))
+
+    from models import EvaluationFlag
+    from engines.ai_copilot import ai_copilot
+
+    rule = BrandGuideline.query.get_or_404(rule_id)
+    disputed_flags = EvaluationFlag.query.filter_by(guideline_id=rule.id).filter(
+        EvaluationFlag.status.in_(['DISMISSED', 'OVERRIDDEN'])
+    ).all()
+
+    reasons = [f.override_reason for f in disputed_flags if f.override_reason]
+    if not reasons:
+        reasons = ["Creators noted rule lacks clear operational boundary conditions."]
+
+    res = ai_copilot.remediate_rule_ambiguity(
+        rule_code=rule.rule_code,
+        current_title=rule.rule_title,
+        current_description=rule.rule_description,
+        current_patterns=rule.forbidden_patterns or "",
+        current_replacement=rule.recommended_replacement or "",
+        override_reasons=reasons
+    )
+
+    if res.get('success'):
+        rule.rule_title = res.get('amended_title', rule.rule_title)
+        rule.rule_description = res.get('amended_description', rule.rule_description)
+        rule.forbidden_patterns = res.get('amended_forbidden_patterns', rule.forbidden_patterns)
+        rule.recommended_replacement = res.get('amended_recommended_replacement', rule.recommended_replacement)
+        db.session.commit()
+        flash(f"Rule {rule.rule_code} auto-remediated via {res.get('engine_used')}: {res.get('explanation_of_amendment')}", "success")
+    else:
+        flash("AI Ambiguity Resolver could not process amendment at this time.", "warning")
+
+    return redirect(url_for('guidelines.list_all'))

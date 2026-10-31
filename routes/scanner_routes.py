@@ -7,6 +7,8 @@ from models import db, Submission, EvaluationFlag, BrandGuideline, ApprovedFact,
 from engines.tone_calibrator import ToneCalibrator
 from engines.claims_checker import ClaimsFactChecker
 from engines.visual_inspector import VisualInspector
+from engines.regulatory_engine import regulatory_engine
+from engines.url_scanner import url_scanner_engine
 from engines.ai_copilot import ai_copilot
 
 scanner_bp = Blueprint('scanner', __name__, url_prefix='/scanner')
@@ -22,6 +24,7 @@ def studio():
 def analyze():
     title = request.form.get('title', 'Untitled Content Draft').strip()
     raw_content = request.form.get('content', '').strip()
+    jurisdiction = request.form.get('jurisdiction', 'GLOBAL').strip().upper()
     content_type = 'TEXT'
     file_path = None
     saved_filename = None
@@ -53,6 +56,7 @@ def analyze():
     tone_score = 100
     claim_score = 100
     visual_score = 100
+    regulatory_score = 100
 
     # 1. Run Tone Engine
     if raw_content:
@@ -68,7 +72,13 @@ def analyze():
         claim_score = claim_res['score']
         all_flags.extend(claim_res['flags'])
 
-    # 3. Run Visual Engine if image uploaded
+    # 3. Run Regulatory Compliance Engine (SEC AI-Washing, EU AI Act, UK CMA)
+    if raw_content:
+        reg_res = regulatory_engine.evaluate(raw_content, jurisdiction=jurisdiction)
+        regulatory_score = reg_res['score']
+        all_flags.extend(reg_res['flags'])
+
+    # 4. Run Visual Engine if image uploaded
     extracted_ocr_text = ""
     dominant_colors = []
     if file_path and content_type in ['IMAGE_BANNER', 'HYBRID']:
@@ -80,21 +90,26 @@ def analyze():
         dominant_colors = vis_res.get('dominant_colors', [])
         extracted_ocr_text = vis_res.get('extracted_text', '')
 
-        # If OCR extracted text from the image, also run tone/claim checks on it!
+        # If OCR extracted text from the image, also run tone/claim/regulatory checks on it!
         if extracted_ocr_text:
             ocr_claim_engine = ClaimsFactChecker(approved_facts, guidelines)
             ocr_claim_res = ocr_claim_engine.evaluate(extracted_ocr_text)
             for f in ocr_claim_res['flags']:
                 f['snippet'] = f"[Text inside Image] {f['snippet']}"
                 all_flags.append(f)
+            
+            ocr_reg_res = regulatory_engine.evaluate(extracted_ocr_text, jurisdiction=jurisdiction)
+            for f in ocr_reg_res['flags']:
+                f['snippet'] = f"[Text inside Image] {f['snippet']}"
+                all_flags.append(f)
 
     # Compute Overall Compliance Score
     if content_type == 'TEXT':
-        compliance_score = int((tone_score * 0.45) + (claim_score * 0.55))
+        compliance_score = int((tone_score * 0.30) + (claim_score * 0.35) + (regulatory_score * 0.35))
     elif content_type == 'IMAGE_BANNER':
         compliance_score = visual_score
     else:
-        compliance_score = int((tone_score * 0.3) + (claim_score * 0.4) + (visual_score * 0.3))
+        compliance_score = int((tone_score * 0.25) + (claim_score * 0.25) + (visual_score * 0.25) + (regulatory_score * 0.25))
 
     # Save to Database
     submission = Submission(
@@ -108,7 +123,9 @@ def analyze():
         compliance_score=compliance_score,
         tone_score=tone_score,
         claim_score=claim_score,
-        visual_score=visual_score
+        visual_score=visual_score,
+        regulatory_score=regulatory_score,
+        jurisdiction=jurisdiction
     )
     db.session.add(submission)
     db.session.commit()
@@ -134,12 +151,32 @@ def analyze():
         )
         db.session.add(flag)
 
+    # AI Deep Analysis — run analyze_submission() if Gemini or local engine is available
+    ai_analysis_comment = f"Pre-publication scan completed. Overall Health: {compliance_score}/100. Total flags: {len(all_flags)}."
+    if raw_content:
+        try:
+            ai_result = ai_copilot.analyze_submission(raw_content)
+            if ai_result.get('success'):
+                quality_rating = ai_result.get('overall_quality_rating', 'N/A')
+                tone_issues = ai_result.get('tone_issues', [])
+                claim_risks = ai_result.get('claim_risks', [])
+                engine_used = ai_result.get('engine_used', 'AI Engine')
+                ai_analysis_comment = (
+                    f"Pre-publication scan completed. Overall Health: {compliance_score}/100. "
+                    f"Total flags: {len(all_flags)}. "
+                    f"AI Quality Rating: {quality_rating}/10 (via {engine_used}). "
+                    f"Tone issues: {len(tone_issues)}. Claim risks: {len(claim_risks)}. "
+                    f"Improvements: {'; '.join(ai_result.get('suggested_improvements', []))}"
+                )
+        except Exception as ai_err:
+            print(f"[Scanner] AI analysis error (non-fatal): {ai_err}")
+
     # Log action
     db.session.add(ReviewLog(
         submission_id=submission.id,
         actor_id=current_user.id,
         action='SCAN',
-        comment=f"Pre-publication scan completed. Overall Health: {compliance_score}/100. Total flags: {len(all_flags)}."
+        comment=ai_analysis_comment
     ))
     db.session.commit()
 
@@ -158,6 +195,18 @@ def report(submission_id):
     critical_count = sum(1 for f in flags if f.severity == 'CRITICAL' and f.status == 'PENDING')
     warning_count = sum(1 for f in flags if f.severity == 'WARNING' and f.status == 'PENDING')
 
+    # Extract AI analysis comment from the most recent SCAN log entry
+    ai_analysis = None
+    try:
+        scan_log = ReviewLog.query.filter_by(
+            submission_id=sub.id,
+            action='SCAN'
+        ).order_by(ReviewLog.created_at.desc()).first()
+        if scan_log and scan_log.comment:
+            ai_analysis = scan_log.comment
+    except Exception:
+        ai_analysis = None
+
     return render_template(
         'scanner/report.html',
         sub=sub,
@@ -165,7 +214,8 @@ def report(submission_id):
         pending_flags=pending_flags,
         accepted_flags=accepted_flags,
         critical_count=critical_count,
-        warning_count=warning_count
+        warning_count=warning_count,
+        ai_analysis=ai_analysis
     )
 
 
@@ -195,6 +245,8 @@ def apply_fix(flag_id):
         sub.claim_score = min(100, sub.claim_score + 15)
     elif flag.flag_type in ['VISUAL', 'ACCESSIBILITY']:
         sub.visual_score = min(100, sub.visual_score + 15)
+    elif flag.flag_type in ['REGULATORY', 'REG_SEC', 'REG_EU', 'REG_UK']:
+        sub.regulatory_score = min(100, (sub.regulatory_score or 80) + 16)
 
     db.session.add(ReviewLog(
         submission_id=sub.id,
@@ -306,4 +358,81 @@ def append_safe_harbor(submission_id):
         db.session.commit()
         flash("FTC & SEC Safe Harbor Disclaimer successfully appended to draft!", "success")
     return redirect(url_for('scanner.report', submission_id=sub.id))
+
+
+@scanner_bp.route('/append-regulatory-disclaimer/<int:submission_id>', methods=['POST'])
+@login_required
+def append_regulatory_disclaimer(submission_id):
+    """Appends tailored SEC/EU AI Act/UK CMA regulatory disclaimers to the draft."""
+    sub = Submission.query.get_or_404(submission_id)
+    jurisdiction = request.form.get('jurisdiction', sub.jurisdiction or 'GLOBAL')
+    disclaimer = regulatory_engine.generate_tailored_disclaimer(sub.raw_content or sub.title, jurisdiction=jurisdiction)
+
+    if disclaimer:
+        sub.raw_content = f"{sub.raw_content.rstrip()}\n\n---\n**JURISDICTIONAL REGULATORY NOTICE ({jurisdiction}):**\n{disclaimer}"
+        sub.regulatory_score = min(100, (sub.regulatory_score or 80) + 18)
+        sub.compliance_score = min(100, sub.compliance_score + 10)
+
+        db.session.add(ReviewLog(
+            submission_id=sub.id,
+            actor_id=current_user.id,
+            action='REGULATORY_DISCLAIMER_APPENDED',
+            comment=f"Appended tailored {jurisdiction} regulatory notice (EU AI Act / SEC / UK CMA)."
+        ))
+        db.session.commit()
+        flash(f"{jurisdiction} Regulatory Compliance Notice successfully appended to draft!", "success")
+    return redirect(url_for('scanner.report', submission_id=sub.id))
+
+
+@scanner_bp.route('/url-scan', methods=['GET', 'POST'])
+@login_required
+def url_scan():
+    """
+    Live URL & Competitor Claim Scanner:
+    Fetches web copy, audits claim vulnerabilities, compares against SQL Truth Bank,
+    and synthesizes sales battlecards and counter-messaging.
+    """
+    scan_result = None
+    competitor_url = ""
+    competitor_text = ""
+    competitor_name = "Competitor"
+
+    if request.method == 'POST':
+        competitor_url = request.form.get('url', '').strip()
+        competitor_text = request.form.get('content', '').strip()
+        competitor_name = request.form.get('competitor_name', 'Competitor').strip() or "Competitor"
+
+        extracted_data = None
+        if competitor_url:
+            fetch_res = url_scanner_engine.fetch_url_content(competitor_url)
+            if not fetch_res.get('success'):
+                flash(fetch_res.get('error', 'Failed to retrieve URL content.'), 'danger')
+            else:
+                extracted_data = fetch_res
+                competitor_text = fetch_res.get('content', '')
+                if not competitor_name or competitor_name == "Competitor":
+                    competitor_name = fetch_res.get('title', 'Competitor')[:40]
+
+        if competitor_text:
+            approved_facts = ApprovedFact.query.filter_by(is_active=True).all()
+            # Pass ai_copilot to url_scanner_engine
+            url_scanner_engine.ai_copilot = ai_copilot
+            scan_result = url_scanner_engine.audit_competitor_claims(
+                content=competitor_text,
+                title=extracted_data.get('title', 'Competitor Page') if extracted_data else competitor_name,
+                approved_facts=approved_facts,
+                competitor_name=competitor_name
+            )
+            if extracted_data:
+                scan_result['url_meta'] = extracted_data
+        elif request.method == 'POST' and not competitor_url:
+            flash("Please enter a target URL or paste competitor copy to scan.", "warning")
+
+    return render_template(
+        'scanner/url_scan.html',
+        scan_result=scan_result,
+        competitor_url=competitor_url,
+        competitor_text=competitor_text,
+        competitor_name=competitor_name
+    )
 

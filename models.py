@@ -98,6 +98,8 @@ class Submission(db.Model):
     tone_score = db.Column(db.Integer, default=100)
     claim_score = db.Column(db.Integer, default=100)
     visual_score = db.Column(db.Integer, default=100)
+    regulatory_score = db.Column(db.Integer, default=100)
+    jurisdiction = db.Column(db.String(30), default='GLOBAL')
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -4,11 +4,17 @@
 {% block content %}
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
   <div>
-    <h3 class="fw-bold mb-1">Guideline Clarity Index & Analytics</h3>
+    <h3 class="fw-bold mb-1">Guideline Clarity Index & Governance Analytics</h3>
     <p class="text-muted small mb-0">Empirical insights into recurring creator mistakes, rule disputes, and guideline ambiguity</p>
   </div>
-  <div>
-    <span class="badge bg-primary fs-6 px-3 py-2">
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <a href="{{ url_for('analytics.audit_vault_export') }}" class="btn btn-outline-info rounded-pill px-3 fw-bold shadow-sm">
+      <i class="bi bi-shield-lock-fill me-1"></i> Audit Vault Dossier
+    </a>
+    <a href="{{ url_for('analytics.audit_vault_export', format='json') }}" class="btn btn-outline-secondary rounded-pill px-3 small">
+      <i class="bi bi-download me-1"></i> JSON Export
+    </a>
+    <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
       <i class="bi bi-lightbulb me-1"></i> Executive Feedback Loop
     </span>
   </div>
@@ -16,7 +22,7 @@
 
 <!-- Clarity Index Overview Cards -->
 <div class="row g-3 mb-4">
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="bg-card p-3 d-flex align-items-center gap-3">
       <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-3">
         <i class="bi bi-bullseye"></i>
@@ -28,7 +34,7 @@
     </div>
   </div>
 
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="bg-card p-3 d-flex align-items-center gap-3">
       <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-3">
         <i class="bi bi-patch-check"></i>
@@ -40,7 +46,7 @@
     </div>
   </div>
 
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="bg-card p-3 d-flex align-items-center gap-3">
       <div class="rounded-3 bg-danger bg-opacity-10 text-danger p-3 fs-3">
         <i class="bi bi-shield-exclamation"></i>
@@ -50,6 +56,77 @@
         <div class="text-muted small fw-bold">FTC Section 5 Escapes</div>
       </div>
     </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="bg-card p-3 d-flex align-items-center gap-3 border-start border-3 border-info">
+      <div class="rounded-3 bg-info bg-opacity-10 text-info p-3 fs-3">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <div>
+        <div class="metric-val text-cyan">{{ drift_trend.drift_delta }}</div>
+        <div class="text-muted small fw-bold">Brand Drift: {{ drift_trend.drift_label }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Executive Risk Profiling: Department-Level Heatmap -->
+<div class="bg-card card-glow-shimmer border-cyber-glow p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h5 class="fw-bold mb-1 text-white"><i class="bi bi-diagram-3 text-cyan me-2"></i>Department-Level Risk Profiling & Heatmap</h5>
+      <p class="text-muted small mb-0">Empirical brand risk posture benchmarked across functional organizational units.</p>
+    </div>
+    <span class="badge bg-dark border text-cyan small">{{ department_profiles|length }} Units Monitored</span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small text-muted text-uppercase">
+        <tr>
+          <th>Department / Business Unit</th>
+          <th>Active Creators</th>
+          <th>Total Drafts</th>
+          <th>Total Flags</th>
+          <th>Critical Violations</th>
+          <th>Avg Compliance Score</th>
+          <th>Risk Posture</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in department_profiles %}
+        <tr>
+          <td class="fw-bold text-white small">
+            <i class="bi bi-building me-1 text-muted"></i> {{ d.department }}
+          </td>
+          <td>{{ d.active_creators }}</td>
+          <td>{{ d.submissions_count }}</td>
+          <td>{{ d.total_flags }}</td>
+          <td>
+            <span class="badge {% if d.critical_count > 0 %}badge-critical{% else %}bg-secondary{% endif %}">
+              {{ d.critical_count }}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <span class="small fw-bold {% if d.avg_score >= 85 %}text-success{% elif d.avg_score >= 70 %}text-warning{% else %}text-danger{% endif %}">
+                {{ d.avg_score }}%
+              </span>
+              <div class="progress flex-grow-1" style="height: 6px; width: 60px;">
+                <div class="progress-bar {% if d.avg_score >= 85 %}bg-success{% elif d.avg_score >= 70 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ d.avg_score }}%;"></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge bg-{{ d.risk_color }} bg-opacity-20 text-{{ d.risk_color }} border border-{{ d.risk_color }} border-opacity-25 px-2 py-1 small fw-bold">
+              {{ d.risk_badge }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 

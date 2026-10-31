@@ -15,6 +15,14 @@ const SAMPLE_PRESETS = {
   ai_pitch: {
     title: "Autonomous AI Enterprise Product Launch",
     content: "In today's fast-paced digital landscape, our game-changer platform is a testament to technological leadership. We delve into massive datasets to deliver 100% foolproof autonomous brand clearance as the #1 AI engine in the world. Obviously, this miraculous architecture never fails to crush the competition."
+  },
+  sec_ai_wash: {
+    title: "SEC Safe Harbor & Autonomy Test",
+    content: "Our conscious AI has zero hallucinations and operates completely autonomous without any human intervention needed, guaranteeing 10x ROI for enterprise marketing teams within 60 days. Our carbon neutral AI cloud eliminates all errors."
+  },
+  eu_ai_act: {
+    title: "EU AI Act Transparency & Biometrics Test",
+    content: "Experience our digital human and synthetic persona featuring real-time emotion recognition and candidate screening AI. Our 100% eco-friendly cloud delivers predictive behavioral sentiment tracking across European markets."
   }
 };
 
@@ -27,6 +35,9 @@ function loadPreset(key) {
       contentEl.value = SAMPLE_PRESETS[key].content;
       if (typeof updateCharCount === 'function') {
         updateCharCount();
+      }
+      if (typeof syncSocialPreviews === 'function') {
+        syncSocialPreviews(contentEl.value, titleEl.value);
       }
       if (window.showToast) {
         window.showToast(`Loaded preset: "${SAMPLE_PRESETS[key].title}"`, 'info');

@@ -34,6 +34,13 @@
         <i class="bi bi-shield-check me-1"></i> + Safe Harbor
       </button>
     </form>
+
+    <!-- Jurisdictional Regulatory Disclaimer Generator -->
+    <form method="POST" action="{{ url_for('scanner.append_regulatory_disclaimer', submission_id=sub.id) }}" class="m-0">
+      <button type="submit" class="btn btn-outline-warning rounded-pill px-3 fw-bold" title="Append Tailored Regulatory Disclaimers (EU AI Act / SEC / UK CMA)">
+        <i class="bi bi-bank me-1"></i> + Regulatory Notice
+      </button>
+    </form>
     {% endif %}
 
     {% if sub.status != 'APPROVED' %}
@@ -85,12 +92,12 @@
       <small class="text-muted" style="font-size: 0.72rem;">Target &ge; 85% for clearance</small>
     </div>
 
-    <!-- 3 Sub-Engine Gauge Cards -->
+    <!-- 4 Sub-Engine Gauge Cards -->
     <div class="col-lg-9">
       <div class="row g-3">
         
         <!-- Tone Calibrator -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="p-3 border rounded-3 bg-card-hover shadow-sm h-100 d-flex flex-column justify-content-between" style="background: rgba(15, 23, 42, 0.75);">
             <div>
               <div class="d-flex justify-content-between align-items-center mb-1">
@@ -101,8 +108,8 @@
                   {{ sub.tone_score }}%
                 </strong>
               </div>
-              <h6 class="fw-bold text-white mb-1">Tone & Voice Balance</h6>
-              <p class="text-muted small mb-3" style="font-size: 0.78rem;">Evaluated against 5 enterprise polarities; flags robotic AI jargon and aggression.</p>
+              <h6 class="fw-bold text-white mb-1">Tone & Voice</h6>
+              <p class="text-muted small mb-3" style="font-size: 0.76rem;">Evaluated against enterprise polarities; flags robotic AI jargon.</p>
             </div>
             <div class="progress" style="height: 6px; background: rgba(255, 255, 255, 0.08);">
               <div class="progress-bar bg-primary" style="width: {{ sub.tone_score }}%;"></div>
@@ -111,7 +118,7 @@
         </div>
 
         <!-- Claims & Evidence -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="p-3 border rounded-3 bg-card-hover shadow-sm h-100 d-flex flex-column justify-content-between" style="background: rgba(15, 23, 42, 0.75);">
             <div>
               <div class="d-flex justify-content-between align-items-center mb-1">
@@ -122,8 +129,8 @@
                   {{ sub.claim_score }}%
                 </strong>
               </div>
-              <h6 class="fw-bold text-white mb-1">Claims & FTC Guardrails</h6>
-              <p class="text-muted small mb-3" style="font-size: 0.78rem;">Cross-referenced against SQL Truth Bank; flags unverified #1 claims and guarantees.</p>
+              <h6 class="fw-bold text-white mb-1">Claims & Truth</h6>
+              <p class="text-muted small mb-3" style="font-size: 0.76rem;">Cross-referenced against SQL Truth Bank; flags unverified superlatives.</p>
             </div>
             <div class="progress" style="height: 6px; background: rgba(255, 255, 255, 0.08);">
               <div class="progress-bar bg-danger" style="width: {{ sub.claim_score }}%;"></div>
@@ -132,7 +139,7 @@
         </div>
 
         <!-- Visual & Contrast -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="p-3 border rounded-3 bg-card-hover shadow-sm h-100 d-flex flex-column justify-content-between" style="background: rgba(15, 23, 42, 0.75);">
             <div>
               <div class="d-flex justify-content-between align-items-center mb-1">
@@ -143,11 +150,32 @@
                   {{ sub.visual_score }}%
                 </strong>
               </div>
-              <h6 class="fw-bold text-white mb-1">WCAG Contrast & Palettes</h6>
-              <p class="text-muted small mb-3" style="font-size: 0.78rem;">OpenCV color clustering & WCAG 2.1 AA (4.5:1) luminance contrast calculations.</p>
+              <h6 class="fw-bold text-white mb-1">WCAG Contrast</h6>
+              <p class="text-muted small mb-3" style="font-size: 0.76rem;">OpenCV color clustering & WCAG 2.1 AA luminance contrast checks.</p>
             </div>
             <div class="progress" style="height: 6px; background: rgba(255, 255, 255, 0.08);">
               <div class="progress-bar bg-info" style="width: {{ sub.visual_score }}%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regulatory & Global Compliance -->
+        <div class="col-md-3">
+          <div class="p-3 border rounded-3 bg-card-hover shadow-sm h-100 d-flex flex-column justify-content-between" style="background: rgba(15, 23, 42, 0.75);">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-25 px-2 py-1 small fw-bold">
+                  Engine 4: Regs
+                </span>
+                <strong class="fs-5 {% if (sub.regulatory_score or 100) >= 80 %}text-success{% elif (sub.regulatory_score or 100) >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                  {{ sub.regulatory_score or 100 }}%
+                </strong>
+              </div>
+              <h6 class="fw-bold text-white mb-1">SEC, EU & UK CMA</h6>
+              <p class="text-muted small mb-3" style="font-size: 0.76rem;">SEC AI-washing, EU AI Act Art. 50/52, and UK Green Claims.</p>
+            </div>
+            <div class="progress" style="height: 6px; background: rgba(255, 255, 255, 0.08);">
+              <div class="progress-bar bg-warning" style="width: {{ sub.regulatory_score or 100 }}%;"></div>
             </div>
           </div>
         </div>
@@ -352,5 +380,12 @@
 
   </div>
 
+</div>
+
+<!-- Multi-Platform Social Media Live Preview & Visual Mockups -->
+<div class="row mt-4">
+  <div class="col-12">
+    {% include 'scanner/social_previews_card.html' %}
+  </div>
 </div>
 {% endblock %}

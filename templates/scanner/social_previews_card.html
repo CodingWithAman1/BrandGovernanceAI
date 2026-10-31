@@ -1,0 +1,275 @@
+<!-- BrandGuard AI — Multi-Platform Social Media Live Preview & Visual Mockups -->
+<div class="bg-card card-glow-shimmer border-cyber-glow p-4 rounded-3 shadow-sm mb-4" id="socialPreviewContainer">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 gap-2">
+    <div>
+      <h5 class="fw-bold mb-0 text-white d-flex align-items-center gap-2">
+        <i class="bi bi-display text-info"></i> Omnichannel Live Content Previews
+      </h5>
+      <small class="text-muted">Simulate how your compliant copy will render across major digital networks</small>
+    </div>
+    
+    <!-- Platform Selector Pills -->
+    <ul class="nav nav-pills gap-1 bg-dark p-1 rounded-pill border border-secondary border-opacity-25" id="socialPreviewTabs" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link active rounded-pill px-3 py-1 small fw-semibold text-white" id="tab-linkedin-btn" data-bs-toggle="pill" data-bs-target="#preview-linkedin" type="button">
+          <i class="bi bi-linkedin text-info me-1"></i> LinkedIn
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link rounded-pill px-3 py-1 small fw-semibold text-white" id="tab-x-btn" data-bs-toggle="pill" data-bs-target="#preview-x" type="button">
+          <i class="bi bi-twitter-x text-light me-1"></i> X / Twitter
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link rounded-pill px-3 py-1 small fw-semibold text-white" id="tab-google-btn" data-bs-toggle="pill" data-bs-target="#preview-google" type="button">
+          <i class="bi bi-google text-warning me-1"></i> Google SERP
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link rounded-pill px-3 py-1 small fw-semibold text-white" id="tab-instagram-btn" data-bs-toggle="pill" data-bs-target="#preview-instagram" type="button">
+          <i class="bi bi-instagram text-danger me-1"></i> Instagram
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="tab-content pt-2" id="socialPreviewContent">
+    
+    <!-- 1. LINKEDIN PREVIEW -->
+    <div class="tab-pane fade show active" id="preview-linkedin" role="tabpanel">
+      <div class="linkedin-card mx-auto rounded-3 p-3 text-start shadow" style="max-width: 560px; background: #1b1f23; border: 1px solid rgba(255,255,255,0.12); color: #e1e9ee; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" style="width: 44px; height: 44px; background: linear-gradient(135deg, #0077b5, #00a0dc); font-size: 1.1rem;">
+              {{ current_user.name[0] if current_user.is_authenticated else 'B' }}
+            </div>
+            <div>
+              <div class="fw-bold text-white small d-flex align-items-center gap-1">
+                <span>{{ current_user.name if current_user.is_authenticated else 'BrandGuard Enterprise' }}</span>
+                <span class="text-muted" style="font-size: 0.72rem;">&bull; 1st</span>
+              </div>
+              <div class="text-muted" style="font-size: 0.73rem;">{{ current_user.department if current_user.is_authenticated else 'Brand Strategy & Governance' }} &bull; 14,280 followers</div>
+              <div class="text-muted" style="font-size: 0.68rem;">Just now &bull; <i class="bi bi-globe-americas"></i></div>
+            </div>
+          </div>
+          <button class="btn btn-sm text-muted p-0 border-0"><i class="bi bi-three-dots"></i></button>
+        </div>
+
+        <!-- Post Content -->
+        <div class="linkedin-body-text small mb-3 text-light" id="previewLinkedinText" style="white-space: pre-wrap; line-height: 1.5; font-size: 0.88rem;">
+          {{ (sub.raw_content if sub is defined and sub.raw_content else 'Enter your campaign draft to see real-time LinkedIn post rendering with engagement indicators and hashtags.') }}
+        </div>
+
+        <!-- Visual Media if available -->
+        <div class="linkedin-media-box rounded-2 overflow-hidden mb-3 text-center {% if not (sub is defined and sub.file_path) %}d-none{% endif %}" id="previewLinkedinMediaBox" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+          <img src="{% if sub is defined and sub.file_path %}{{ url_for('static', filename=sub.file_path) }}{% endif %}" class="img-fluid rounded" id="previewLinkedinImage" style="max-height: 260px; object-fit: contain;" alt="Post Media">
+        </div>
+
+        <!-- Engagement Counts -->
+        <div class="d-flex justify-content-between align-items-center text-muted py-1 border-bottom border-secondary border-opacity-25 mb-2" style="font-size: 0.72rem;">
+          <div class="d-flex align-items-center gap-1">
+            <span class="badge rounded-circle p-1" style="background: #0077b5;"><i class="bi bi-hand-thumbs-up-fill text-white"></i></span>
+            <span class="badge rounded-circle p-1" style="background: #e06847;"><i class="bi bi-heart-fill text-white"></i></span>
+            <span class="badge rounded-circle p-1" style="background: #44a648;"><i class="bi bi-lightbulb-fill text-white"></i></span>
+            <span class="ms-1 text-light">184</span>
+          </div>
+          <div>24 comments &bull; 9 reposts</div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="d-flex justify-content-around text-muted small pt-1">
+          <button class="btn btn-sm text-light border-0 py-1 px-2 d-flex align-items-center gap-1"><i class="bi bi-hand-thumbs-up"></i> Like</button>
+          <button class="btn btn-sm text-light border-0 py-1 px-2 d-flex align-items-center gap-1"><i class="bi bi-chat-text"></i> Comment</button>
+          <button class="btn btn-sm text-light border-0 py-1 px-2 d-flex align-items-center gap-1"><i class="bi bi-repeat"></i> Repost</button>
+          <button class="btn btn-sm text-light border-0 py-1 px-2 d-flex align-items-center gap-1"><i class="bi bi-send"></i> Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. X / TWITTER TWEET CARD PREVIEW -->
+    <div class="tab-pane fade" id="preview-x" role="tabpanel">
+      <div class="twitter-card mx-auto rounded-3 p-3 text-start shadow" style="max-width: 540px; background: #000000; border: 1px solid rgba(255,255,255,0.18); color: #e7e9ea; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white" style="width: 42px; height: 42px; background: #1d9bf0;">
+              <i class="bi bi-twitter-x fs-6"></i>
+            </div>
+            <div>
+              <div class="fw-bold text-white small d-flex align-items-center gap-1">
+                <span>{{ current_user.name if current_user.is_authenticated else 'BrandGuard AI' }}</span>
+                <i class="bi bi-patch-check-fill text-info" style="font-size: 0.85rem;" title="Verified Account"></i>
+              </div>
+              <div class="text-muted" style="font-size: 0.74rem;">@{{ (current_user.email.split('@')[0]) if current_user.is_authenticated else 'brandguard_ai' }}</div>
+            </div>
+          </div>
+          <i class="bi bi-twitter-x text-muted fs-5"></i>
+        </div>
+
+        <!-- Tweet Body -->
+        <div class="tweet-body-text mb-3" id="previewXText" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.45; color: #f7f9f9;">
+          {{ (sub.raw_content if sub is defined and sub.raw_content else 'Type copy in the studio to see how your verified post looks on X / Twitter with formatted hashtags and character count limits.') }}
+        </div>
+
+        <!-- Media Preview -->
+        <div class="tweet-media-box rounded-3 overflow-hidden mb-3 text-center {% if not (sub is defined and sub.file_path) %}d-none{% endif %}" id="previewXMediaBox" style="border: 1px solid rgba(255,255,255,0.12);">
+          <img src="{% if sub is defined and sub.file_path %}{{ url_for('static', filename=sub.file_path) }}{% endif %}" class="img-fluid rounded" id="previewXImage" style="max-height: 240px; object-fit: contain;" alt="Tweet Media">
+        </div>
+
+        <!-- Timestamp & Status -->
+        <div class="text-muted py-2 border-bottom border-secondary border-opacity-25 mb-2" style="font-size: 0.75rem;">
+          <span id="xCardTimestamp">10:48 AM &bull; Oct 31, 2026</span> &bull; <strong class="text-light">28.4K</strong> Views
+        </div>
+
+        <!-- Metrics -->
+        <div class="d-flex justify-content-between text-muted px-2" style="font-size: 0.82rem;">
+          <span class="d-flex align-items-center gap-1 hover-cyan"><i class="bi bi-chat"></i> 42</span>
+          <span class="d-flex align-items-center gap-1 hover-green"><i class="bi bi-repeat"></i> 118</span>
+          <span class="d-flex align-items-center gap-1 hover-red"><i class="bi bi-heart"></i> 894</span>
+          <span class="d-flex align-items-center gap-1"><i class="bi bi-bookmark"></i> 67</span>
+          <span class="d-flex align-items-center gap-1"><i class="bi bi-share"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. GOOGLE SERP SEARCH RESULT PREVIEW -->
+    <div class="tab-pane fade" id="preview-google" role="tabpanel">
+      <div class="serp-card mx-auto rounded-3 p-3 text-start shadow" style="max-width: 620px; background: #202124; border: 1px solid rgba(255,255,255,0.12); color: #bdc1c6; font-family: arial, sans-serif;">
+        <!-- Breadcrumb & Favicon -->
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 26px; height: 26px; background: #303134; color: #8ab4f8;">
+            <i class="bi bi-shield-check" style="font-size: 0.85rem;"></i>
+          </div>
+          <div>
+            <div class="text-light small fw-semibold" style="font-size: 0.78rem; line-height: 1.1;">BrandGuard AI</div>
+            <div class="text-muted" style="font-size: 0.7rem; line-height: 1;">https://brandguard.ai &rsaquo; solutions &rsaquo; pre-publication</div>
+          </div>
+        </div>
+
+        <!-- Meta Title (Blue link) -->
+        <div class="serp-title mb-1">
+          <a href="javascript:void(0)" class="fw-semibold text-decoration-none" id="previewSerpTitle" style="color: #8ab4f8; font-size: 1.15rem; line-height: 1.3;">
+            {{ (sub.title if sub is defined and sub.title else 'Enterprise Brand Governance & Pre-Publish Compliance') }} — BrandGuard AI
+          </a>
+        </div>
+
+        <!-- Snippet Text -->
+        <div class="serp-snippet small text-light" id="previewSerpSnippet" style="color: #bdc1c6 !important; font-size: 0.86rem; line-height: 1.5;">
+          {{ (sub.raw_content[:155] if sub is defined and sub.raw_content else 'Audit marketing copy, campaign headlines, and digital creative before release. Ensure SEC AI-washing safe harbors, FTC truth-in-advertising, and brand voice.') }}...
+        </div>
+
+        <!-- SERP Rich Badges -->
+        <div class="d-flex align-items-center gap-2 mt-2 pt-2 border-top border-secondary border-opacity-25" style="font-size: 0.72rem;">
+          <span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
+          <span class="text-light">Rating: 4.9 &bull; 140+ enterprise audits</span>
+          <span class="badge bg-dark border text-cyan ms-auto">SOC 2 Type II Verified</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. INSTAGRAM POST CARD PREVIEW -->
+    <div class="tab-pane fade" id="preview-instagram" role="tabpanel">
+      <div class="instagram-card mx-auto rounded-3 text-start shadow overflow-hidden" style="max-width: 440px; background: #000000; border: 1px solid rgba(255,255,255,0.15); color: #fafafa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <!-- IG Header -->
+        <div class="d-flex align-items-center justify-content-between p-3 border-bottom border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle p-1" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">
+              <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center text-white fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                {{ current_user.name[0] if current_user.is_authenticated else 'B' }}
+              </div>
+            </div>
+            <div>
+              <div class="fw-bold text-white small d-flex align-items-center gap-1" style="font-size: 0.8rem;">
+                <span>{{ (current_user.email.split('@')[0]) if current_user.is_authenticated else 'brandguard.ai' }}</span>
+                <i class="bi bi-patch-check-fill text-info" style="font-size: 0.75rem;"></i>
+              </div>
+              <div class="text-muted" style="font-size: 0.68rem;">Sponsored &bull; Original audio</div>
+            </div>
+          </div>
+          <i class="bi bi-three-dots text-light"></i>
+        </div>
+
+        <!-- IG Media Canvas -->
+        <div class="ig-media-box d-flex align-items-center justify-content-center text-center p-3" id="previewIgMediaBox" style="min-height: 280px; background: linear-gradient(135deg, #0f172a, #1e1b4b, #311042); position: relative;">
+          {% if sub is defined and sub.file_path %}
+          <img src="{{ url_for('static', filename=sub.file_path) }}" class="img-fluid rounded" id="previewIgImage" style="max-height: 300px; object-fit: contain;" alt="Instagram Banner">
+          {% else %}
+          <div class="p-3 text-center" id="previewIgPlaceholder">
+            <div class="badge bg-primary bg-opacity-25 text-cyan border border-info border-opacity-25 mb-2 px-2 py-1 rounded-pill small">
+              <i class="bi bi-shield-check me-1"></i> VERIFIED ENTERPRISE
+            </div>
+            <h5 class="fw-bold text-white mb-2" id="previewIgCardTitle">{{ sub.title if sub is defined and sub.title else 'BrandGuard AI Compliance' }}</h5>
+            <p class="text-light small opacity-75 mb-0" id="previewIgCardExcerpt">Pre-publication brand safety & Stage-gate review</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- IG Actions -->
+        <div class="p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2 fs-5">
+            <div class="d-flex align-items-center gap-3 text-light">
+              <i class="bi bi-heart hover-red cursor-pointer"></i>
+              <i class="bi bi-chat hover-cyan cursor-pointer"></i>
+              <i class="bi bi-send hover-cyan cursor-pointer"></i>
+            </div>
+            <i class="bi bi-bookmark hover-cyan cursor-pointer"></i>
+          </div>
+
+          <div class="fw-bold small mb-1 text-light">1,248 likes</div>
+
+          <!-- IG Caption -->
+          <div class="small text-light" style="font-size: 0.82rem; line-height: 1.45;">
+            <strong class="text-white me-1">{{ (current_user.email.split('@')[0]) if current_user.is_authenticated else 'brandguard.ai' }}</strong>
+            <span id="previewIgCaption">{{ (sub.raw_content if sub is defined and sub.raw_content else 'Streamline your pre-publication marketing reviews with multi-modal governance.') }}</span>
+          </div>
+
+          <div class="text-muted mt-2" style="font-size: 0.7rem;">View all 34 comments</div>
+          <div class="text-muted text-uppercase" style="font-size: 0.62rem; letter-spacing: 0.05em;">2 HOURS AGO</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Reactive Script for Live Updates -->
+<script>
+function syncSocialPreviews(text, title) {
+  if (!text) text = '';
+  if (!title) title = '';
+
+  // 1. LinkedIn
+  const liElem = document.getElementById('previewLinkedinText');
+  if (liElem) {
+    liElem.innerText = text || 'Enter content to see real-time preview.';
+  }
+
+  // 2. X / Twitter
+  const xElem = document.getElementById('previewXText');
+  if (xElem) {
+    xElem.innerText = text || 'Enter content to see real-time preview.';
+  }
+
+  // 3. Google SERP
+  const serpTitle = document.getElementById('previewSerpTitle');
+  const serpSnippet = document.getElementById('previewSerpSnippet');
+  if (serpTitle && title) {
+    serpTitle.innerText = `${title} — BrandGuard AI`;
+  }
+  if (serpSnippet) {
+    const cleanSnippet = text.replace(/[\r\n]+/g, ' ').trim();
+    serpSnippet.innerText = cleanSnippet ? (cleanSnippet.substring(0, 155) + (cleanSnippet.length > 155 ? '...' : '')) : 'Pre-publication brand compliance and truth verification.';
+  }
+
+  // 4. Instagram
+  const igCaption = document.getElementById('previewIgCaption');
+  const igCardTitle = document.getElementById('previewIgCardTitle');
+  if (igCaption) {
+    igCaption.innerText = text || 'Streamline your pre-publication marketing reviews with multi-modal governance.';
+  }
+  if (igCardTitle && title) {
+    igCardTitle.innerText = title;
+  }
+}
+</script>

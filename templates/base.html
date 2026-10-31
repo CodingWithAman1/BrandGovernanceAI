@@ -122,8 +122,18 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link-custom {% if 'scanner' in request.endpoint %}active{% endif %}" href="{{ url_for('scanner.studio') }}">
+              <a class="nav-link-custom {% if 'scanner' in request.endpoint and request.endpoint == 'scanner.studio' %}active{% endif %}" href="{{ url_for('scanner.studio') }}">
                 <i class="bi bi-magic me-1"></i> Studio
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if request.endpoint == 'scanner.url_scan' %}active{% endif %}" href="{{ url_for('scanner.url_scan') }}">
+                <i class="bi bi-globe2 me-1"></i> URL Scanner
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if request.endpoint == 'analytics.audit_vault_export' %}active{% endif %}" href="{{ url_for('analytics.audit_vault_export') }}">
+                <i class="bi bi-shield-lock me-1"></i> Audit Vault
               </a>
             </li>
           </ul>
@@ -152,6 +162,16 @@
               </a>
             </li>
             <li class="nav-item">
+              <a class="nav-link-custom {% if request.endpoint == 'scanner.url_scan' %}active{% endif %}" href="{{ url_for('scanner.url_scan') }}">
+                <i class="bi bi-globe2 me-1"></i> URL Scanner
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if request.endpoint == 'analytics.audit_vault_export' %}active{% endif %}" href="{{ url_for('analytics.audit_vault_export') }}">
+                <i class="bi bi-shield-lock me-1"></i> Audit Vault
+              </a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link-custom {% if 'guidelines' in request.endpoint %}active{% endif %}" href="{{ url_for('guidelines.list_all') }}">
                 <i class="bi bi-journal-bookmark me-1"></i> Guidelines
               </a>
@@ -167,8 +187,13 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link-custom {% if 'scanner' in request.endpoint %}active{% endif %}" href="{{ url_for('scanner.studio') }}">
+              <a class="nav-link-custom {% if 'scanner' in request.endpoint and request.endpoint == 'scanner.studio' %}active{% endif %}" href="{{ url_for('scanner.studio') }}">
                 <i class="bi bi-magic me-1"></i> Pre-Publish Studio
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link-custom {% if request.endpoint == 'scanner.url_scan' %}active{% endif %}" href="{{ url_for('scanner.url_scan') }}">
+                <i class="bi bi-globe2 me-1"></i> Competitor Scanner
               </a>
             </li>
             <li class="nav-item">

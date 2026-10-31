@@ -17,6 +17,11 @@ class Config:
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif', 'pdf', 'txt', 'md', 'docx'}
+    BASE_DIR = BASE_DIR
+
+    # Google Gemini Intelligence Engine
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    GEMINI_TIMEOUT = int(os.environ.get('GEMINI_TIMEOUT', '20'))
 
     # Firebase Client SDK Configuration (BrandBuild AI Production Keys)
     FIREBASE_CONFIG = {

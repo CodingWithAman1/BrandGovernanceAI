@@ -34,7 +34,13 @@
           <span>✅</span> Fully Compliant Whitepaper
         </button>
         <button type="button" class="btn-sample-chip" onclick="loadPreset('ai_pitch')">
-          <span>🤖</span> AI-Generated Marketing Pitch
+          <span>🤖</span> AI Pitch
+        </button>
+        <button type="button" class="btn-sample-chip" onclick="loadPreset('sec_ai_wash')">
+          <span>⚖️</span> SEC AI-Washing Risk
+        </button>
+        <button type="button" class="btn-sample-chip" onclick="loadPreset('eu_ai_act')">
+          <span>🇪🇺</span> EU AI Act Biometrics
         </button>
       </div>
     </div>
@@ -43,10 +49,21 @@
     <div class="bg-card card-glow-shimmer p-4 p-md-5 shadow-sm border-cyber-glow fade-in-up stagger-2">
       <form id="auditForm" method="POST" action="{{ url_for('scanner.analyze') }}" enctype="multipart/form-data">
         
-        <!-- Title Input -->
-        <div class="mb-4">
-          <label class="form-label fw-bold text-dark mb-1">Campaign or Content Title</label>
-          <input type="text" name="title" id="inputTitle" class="form-control form-control-lg fs-6" placeholder="e.g. Q4 Cloud Product Announcement" required>
+        <!-- Title & Jurisdiction Selector Row -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-8">
+            <label class="form-label fw-bold text-dark mb-1">Campaign or Content Title</label>
+            <input type="text" name="title" id="inputTitle" class="form-control form-control-lg fs-6" placeholder="e.g. Q4 Cloud Product Announcement" required oninput="syncSocialPreviews(document.getElementById('inputContent').value, this.value)">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-dark mb-1"><i class="bi bi-bank text-info me-1"></i> Regulatory Jurisdiction</label>
+            <select name="jurisdiction" id="selectJurisdiction" class="form-select form-select-lg fs-6">
+              <option value="GLOBAL" selected>GLOBAL (US SEC • EU AI Act • UK CMA)</option>
+              <option value="US">US (FTC Sec 5 & SEC AI-Washing)</option>
+              <option value="EU">EU (EU AI Act Art. 50/52 & GDPR)</option>
+              <option value="UK">UK (CMA Green Claims Code)</option>
+            </select>
+          </div>
         </div>
 
         <!-- Text Input with Integrated AI Co-Pilot Toolbar -->
@@ -60,10 +77,18 @@
               <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-3 py-1 fw-bold" onclick="studioAiSafeHarbor()" style="font-size: 0.78rem;" title="Append FTC Safe Harbor Disclaimer">
                 <i class="bi bi-shield-check me-1"></i> + Safe Harbor
               </button>
+              <button type="button" class="btn btn-xs btn-outline-warning rounded-pill px-3 py-1 fw-bold" onclick="studioAiRegulatoryNotice()" style="font-size: 0.78rem;" title="Append Jurisdictional Regulatory Disclosure">
+                <i class="bi bi-bank me-1"></i> + Regulatory Notice
+              </button>
               <span class="text-muted small border-start ps-2" id="wordCountBadge">0 characters</span>
             </div>
           </div>
           <textarea name="content" id="inputContent" rows="8" class="form-control font-monospace p-3" style="font-size: 0.9rem; line-height: 1.6;" placeholder="Paste draft content here for multi-modal evaluation..." oninput="updateCharCount()"></textarea>
+        </div>
+
+        <!-- Omnichannel Live Previews Mockup -->
+        <div class="mb-4">
+          {% include 'scanner/social_previews_card.html' %}
         </div>
 
         <!-- Visual Asset / Graphic Upload -->
@@ -154,7 +179,35 @@
 <script>
 function updateCharCount() {
   const text = document.getElementById('inputContent').value;
+  const title = document.getElementById('inputTitle').value;
   document.getElementById('wordCountBadge').innerText = `${text.length} characters`;
+  if (typeof syncSocialPreviews === 'function') {
+    syncSocialPreviews(text, title);
+  }
+}
+
+function studioAiRegulatoryNotice() {
+  const text = document.getElementById('inputContent').value;
+  const jur = document.getElementById('selectJurisdiction').value;
+  if (!text) {
+    alert("Please enter draft copy first.");
+    return;
+  }
+  fetch('/api/v1/regulatory/disclaimer', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({text: text, jurisdiction: jur})
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.disclaimer) {
+      const contentEl = document.getElementById('inputContent');
+      contentEl.value = `${contentEl.value.trim()}\n\n---\n**REGULATORY NOTICE (${jur}):**\n${data.disclaimer}`;
+      updateCharCount();
+      if (window.showToast) window.showToast(`Appended ${jur} regulatory disclosure!`, 'success');
+    }
+  })
+  .catch(err => console.error(err));
 }
 
 function previewImage(event) {

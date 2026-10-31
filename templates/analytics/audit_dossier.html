@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}BrandGuard AI Compliance Audit Dossier — Executive Legal Vault{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-11 col-lg-12">
+    
+    <!-- Top Action Bar -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 fade-in-down">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25 px-2 py-1 small fw-bold">
+            <i class="bi bi-shield-lock-fill me-1"></i> LEGAL COMPLIANCE VAULT
+          </span>
+          <span class="text-muted small">&bull; Enterprise Audit Dossier &bull; Generated {{ dossier.timestamp[:10] }}</span>
+        </div>
+        <h3 class="fw-bold mb-0 text-white" style="letter-spacing: -0.03em;">BrandGuard AI &bull; Executive Compliance Dossier</h3>
+      </div>
+
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <a href="{{ url_for('analytics.index') }}" class="btn btn-outline-secondary rounded-pill px-3 fw-semibold">
+          <i class="bi bi-arrow-left me-1"></i> Back to Analytics
+        </a>
+        <a href="{{ url_for('analytics.audit_vault_export', format='json') }}" class="btn btn-outline-info rounded-pill px-3 fw-bold shadow-sm">
+          <i class="bi bi-download me-1"></i> Export JSON Vault
+        </a>
+        <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow" onclick="window.print()">
+          <i class="bi bi-printer me-2"></i> Print / Save PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Dossier Document Container -->
+    <div class="bg-card card-glow-shimmer border-cyber-glow p-4 p-md-5 mb-5 shadow-lg rounded-3 text-light" id="dossierPrintArea">
+      
+      <!-- Dossier Header Section -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start pb-4 border-bottom border-secondary border-opacity-25 gap-3 mb-4">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="p-2 rounded-3 bg-primary bg-opacity-20 text-cyan border border-info border-opacity-25">
+              <i class="bi bi-shield-check fs-3"></i>
+            </div>
+            <div>
+              <h4 class="fw-bold text-white mb-0">BrandGuard<span class="text-cyan">AI</span> Regulatory Audit Dossier</h4>
+              <div class="text-muted small">Pre-Publication Stage-Gate Governance & Evidentiary Attestation</div>
+            </div>
+          </div>
+          <div class="text-muted small">
+            <strong>Organization:</strong> {{ dossier.organization }} &bull; 
+            <strong>Auditor:</strong> {{ dossier.exported_by }} ({{ dossier.exported_by_role }})
+          </div>
+        </div>
+
+        <div class="text-md-end p-3 rounded-3 bg-dark border border-secondary border-opacity-25">
+          <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.05em;">Cryptographic Vault Seal (SHA-256)</div>
+          <code class="small text-cyan font-monospace d-block mt-1" style="font-size: 0.72rem; word-break: break-all;">
+            {{ dossier.cryptographic_seal }}
+          </code>
+          <div class="text-success small fw-semibold mt-1">
+            <i class="bi bi-patch-check-fill me-1"></i> Tamper-Evident Immutable Log
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Executive KPI Metrics -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 text-center">
+            <div class="display-6 fw-bold text-cyan">{{ dossier.compliance_governance_score }}%</div>
+            <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem;">Adherence Score</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 text-center">
+            <div class="display-6 fw-bold text-success">{{ dossier.cleared_prepublication_rate }}</div>
+            <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem;">Clearance Rate</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 text-center">
+            <div class="display-6 fw-bold text-warning">{{ dossier.total_submissions_audited }}</div>
+            <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem;">Audited Campaigns</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 text-center">
+            <div class="display-6 fw-bold text-info">{{ dossier.verified_truth_bank_claims }}</div>
+            <div class="text-muted small fw-bold text-uppercase" style="font-size: 0.68rem;">SQL Verified Claims</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Governing Regulatory Frameworks -->
+      <div class="mb-4 p-3 rounded-3 bg-dark border border-secondary border-opacity-25">
+        <h6 class="fw-bold text-white mb-2"><i class="bi bi-bank text-info me-2"></i>Governing Jurisdictional Frameworks Assessed:</h6>
+        <div class="row g-2">
+          {% for rf in dossier.regulatory_frameworks %}
+          <div class="col-md-6">
+            <div class="d-flex align-items-center gap-2 small text-light">
+              <i class="bi bi-check2-circle text-success"></i>
+              <span>{{ rf }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Submissions Audit Summary Table -->
+      <div class="mb-5">
+        <h5 class="fw-bold text-white mb-3"><i class="bi bi-journal-check text-cyan me-2"></i>Audited Marketing Collateral & Campaign Registry</h5>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-muted text-uppercase">
+              <tr>
+                <th>ID</th>
+                <th>Campaign Title</th>
+                <th>Creator & Dept</th>
+                <th>Status</th>
+                <th>Tone</th>
+                <th>Truth</th>
+                <th>Vision</th>
+                <th>Regulatory</th>
+                <th>Overall</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in submissions %}
+              <tr>
+                <td><span class="badge bg-dark font-monospace">#{{ s.id }}</span></td>
+                <td>
+                  <strong class="text-white small">{{ s.title }}</strong>
+                  <div class="text-muted" style="font-size: 0.72rem;">Jurisdiction: {{ s.jurisdiction or 'GLOBAL' }}</div>
+                </td>
+                <td class="small text-light">
+                  {{ s.creator.name if s.creator else 'Unknown' }}
+                  <div class="text-muted" style="font-size: 0.7rem;">{{ s.creator.department if s.creator else 'General' }}</div>
+                </td>
+                <td>
+                  <span class="badge {% if s.status == 'APPROVED' %}bg-success{% elif s.status == 'PENDING' %}bg-warning text-dark{% else %}bg-primary{% endif %}">
+                    {{ s.status }}
+                  </span>
+                </td>
+                <td class="font-monospace small text-cyan">{{ s.tone_score }}%</td>
+                <td class="font-monospace small text-danger">{{ s.claim_score }}%</td>
+                <td class="font-monospace small text-info">{{ s.visual_score }}%</td>
+                <td class="font-monospace small text-warning">{{ s.regulatory_score or 100 }}%</td>
+                <td class="fw-bold font-monospace {% if s.compliance_score >= 80 %}text-success{% elif s.compliance_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                  {{ s.compliance_score }}%
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Immutable Log History -->
+      <div>
+        <h5 class="fw-bold text-white mb-3"><i class="bi bi-clock-history text-warning me-2"></i>Recent Immutable Governance Audit Trail</h5>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle mb-0" style="font-size: 0.82rem;">
+            <thead class="table-light text-muted text-uppercase">
+              <tr>
+                <th>Timestamp (UTC)</th>
+                <th>Actor</th>
+                <th>Action</th>
+                <th>Audit Log Entry</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for l in recent_logs %}
+              <tr>
+                <td class="text-muted font-monospace">{{ l.timestamp.strftime('%Y-%m-%d %H:%M:%S') if l.timestamp else 'N/A' }}</td>
+                <td class="text-light fw-semibold">{{ l.actor.name if l.actor else 'System' }}</td>
+                <td>
+                  <span class="badge bg-secondary font-monospace" style="font-size: 0.68rem;">{{ l.action }}</span>
+                </td>
+                <td class="text-light">{{ l.comment }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Official Footer Signature Box -->
+      <div class="mt-5 pt-4 border-top border-secondary border-opacity-25 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div class="text-muted small">
+          <div><strong>BrandGuard AI Stage-Gate Governance Platform</strong></div>
+          <div style="font-size: 0.72rem;">Certified compliant with FTC Section 5, SEC AI-Washing & EU AI Act Article 50.</div>
+        </div>
+        <div class="text-center text-md-end">
+          <div class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill small fw-bold">
+            <i class="bi bi-shield-fill-check me-1"></i> EXECUTIVE CERTIFICATE OF VERIFICATION
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

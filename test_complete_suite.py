@@ -286,6 +286,159 @@ class CompleteBrandGuardTestSuite(unittest.TestCase):
             self.assertIn('initAmbientParticles', js_content)
             self.assertIn('showToast', js_content)
 
+    # =========================================================================
+    # 6. ENTERPRISE POWERHOUSE SUITE (REGULATORY, URL SCANNER, GATES, AMBIGUITY)
+    # =========================================================================
+
+    def test_13_regulatory_compliance_engine(self):
+        """RegulatoryComplianceEngine audits SEC AI-Washing, EU AI Act Art. 50/52, and UK CMA Green Claims"""
+        from engines.regulatory_engine import regulatory_engine
+
+        # Test SEC AI-Washing
+        sec_text = "Our fully autonomous platform operates with zero hallucinations and eliminates all errors."
+        sec_res = regulatory_engine.evaluate(sec_text, jurisdiction="US")
+        self.assertLess(sec_res['score'], 80, "SEC AI-washing text should deduct points")
+        self.assertTrue(any(f['rule_code'].startswith('SEC') for f in sec_res['flags']))
+
+        # Test EU AI Act
+        eu_text = "Our emotion recognition and synthetic persona features autonomous hiring filter technology."
+        eu_res = regulatory_engine.evaluate(eu_text, jurisdiction="EU")
+        self.assertTrue(any(f['rule_code'].startswith('EU') for f in eu_res['flags']))
+
+        # Test UK CMA Green Claims
+        uk_text = "Deploy on our 100% eco-friendly, zero carbon, climate-neutral cloud compute."
+        uk_res = regulatory_engine.evaluate(uk_text, jurisdiction="UK")
+        self.assertTrue(any(f['rule_code'].startswith('UK') for f in uk_res['flags']))
+
+        # Test Disclaimer generation
+        disclaimer = regulatory_engine.generate_tailored_disclaimer("AI model", jurisdiction="GLOBAL")
+        self.assertIn("GLOBAL REGULATORY COMPLIANCE DISCLOSURE", disclaimer)
+
+    def test_14_url_scanner_and_competitor_claims(self):
+        """URLScannerEngine parses HTML, audits competitor copy against SQL Truth Bank, and synthesizes battlecard"""
+        from engines.url_scanner import url_scanner_engine
+
+        competitor_copy = "We are the #1 unrivaled platform in the world with 100% guaranteed zero downtime and zero hallucinations."
+        with self.app.app_context():
+            approved_facts = ApprovedFact.query.all()
+            audit_res = url_scanner_engine.audit_competitor_claims(
+                content=competitor_copy,
+                title="Rival Announcement",
+                approved_facts=approved_facts,
+                competitor_name="RivalCorp"
+            )
+
+            self.assertTrue(audit_res['success'])
+            self.assertGreater(audit_res['vulnerability_score'], 50)
+            self.assertTrue(len(audit_res['vulnerabilities']) >= 2)
+            self.assertIn('battlecard', audit_res)
+            self.assertIn('sales_pitch', audit_res['battlecard'])
+            self.assertIn('linkedin_angle', audit_res['battlecard'])
+
+    def test_15_ci_cd_quality_gate(self):
+        """CI/CD Quality Gate (/api/v1/gate/check) blocks critical violations (HTTP 422) and passes compliant copy (HTTP 200)"""
+        # Blocked call (HTTP 422)
+        risky_payload = {
+            "content": "Our #1 tool guarantees 100% zero downtime with conscious AI and zero hallucinations.",
+            "threshold": 85,
+            "block_on_critical": True
+        }
+        resp_blocked = self.client.post('/api/v1/gate/check', json=risky_payload)
+        self.assertEqual(resp_blocked.status_code, 422)
+        data_blocked = resp_blocked.get_json()
+        self.assertFalse(data_blocked['pass'])
+        self.assertEqual(data_blocked['status'], 'BLOCKED_STAGE_GATE')
+        self.assertGreater(len(data_blocked['blocking_violations']), 0)
+
+        # Passing call (HTTP 200)
+        clean_payload = {
+            "content": "Inkloom Enterprise Cloud provides independently verified 99.95% availability for enterprise teams.",
+            "threshold": 75,
+            "block_on_critical": True
+        }
+        resp_pass = self.client.post('/api/v1/gate/check', json=clean_payload)
+        self.assertEqual(resp_pass.status_code, 200)
+        data_pass = resp_pass.get_json()
+        self.assertTrue(data_pass['pass'])
+        self.assertEqual(data_pass['status'], 'APPROVED_STAGE_GATE')
+
+    def test_16_ai_ambiguity_resolver(self):
+        """AI Ambiguity Resolver remediates disputed rules via API and resolves creator friction"""
+        from engines.ai_copilot import ai_copilot
+
+        res = ai_copilot.remediate_rule_ambiguity(
+            rule_code="BG-TONE-01",
+            current_title="Eliminate Robotic AI Jargon",
+            current_description="Avoid repetitive LLM cliches.",
+            current_patterns="delve into, rich tapestry",
+            current_replacement="explore",
+            override_reasons=["Rule is too aggressive on industry standard whitepapers."]
+        )
+        self.assertTrue(res['success'])
+        self.assertIn('amended_title', res)
+        self.assertIn('amended_description', res)
+
+        # Test API endpoint
+        api_res = self.client.post('/api/v1/guidelines/auto-remediate', json={"rule_code": "BG-TONE-01"})
+        self.assertEqual(api_res.status_code, 200)
+        self.assertTrue(api_res.get_json()['success'])
+
+    def test_17_brand_drift_and_audit_vault_export(self):
+        """Analytics calculates Department-level profiling, Brand Drift, and provides Audit Vault Dossier export"""
+        admin_c = self.app.test_client()
+        admin_c.post('/admin/login', data={'email': 'aman@synapse.ai', 'password': 'password123'})
+
+        # Analytics page with department heatmap
+        res_idx = admin_c.get('/analytics/')
+        self.assertEqual(res_idx.status_code, 200)
+        html_idx = res_idx.data.decode('utf-8')
+        self.assertIn('Department-Level Risk Profiling', html_idx)
+        self.assertIn('Brand Drift', html_idx)
+
+        # Audit Vault Dossier HTML View
+        res_dossier = admin_c.get('/analytics/audit-vault-export')
+        self.assertEqual(res_dossier.status_code, 200)
+        html_dossier = res_dossier.data.decode('utf-8')
+        self.assertIn('Regulatory Audit Dossier', html_dossier)
+        self.assertIn('Cryptographic Vault Seal', html_dossier)
+
+        # Audit Vault JSON Export
+        res_json = admin_c.get('/analytics/audit-vault-export?format=json')
+        self.assertEqual(res_json.status_code, 200)
+        self.assertEqual(res_json.mimetype, 'application/json')
+        vault_data = res_json.get_json()
+        self.assertIn('cryptographic_seal', vault_data)
+        self.assertIn('submissions_summary', vault_data)
+
+    def test_18_url_scanner_and_social_previews(self):
+        """Live URL scanner routes and social preview visual mockups render cleanly"""
+        client_c = self.app.test_client()
+        client_c.post('/client/login', data={'email': 'priya@inkloom.ai', 'password': 'password123'})
+
+        # URL Scanner GET
+        res_get = client_c.get('/scanner/url-scan')
+        self.assertEqual(res_get.status_code, 200)
+        self.assertIn('Live URL & Competitor Claim Scanner', res_get.data.decode('utf-8'))
+
+        # URL Scanner POST with competitor copy
+        res_post = client_c.post('/scanner/url-scan', data={
+            'competitor_name': 'RivalCloud',
+            'content': 'Our #1 platform guarantees zero downtime with conscious AI and zero hallucinations.'
+        })
+        self.assertEqual(res_post.status_code, 200)
+        html_post = res_post.data.decode('utf-8')
+        self.assertIn('Competitor Vulnerabilities', html_post)
+        self.assertIn('Counter-Messaging Battlecard', html_post)
+
+        # Studio with Social Previews
+        res_studio = client_c.get('/scanner/studio')
+        self.assertEqual(res_studio.status_code, 200)
+        html_studio = res_studio.data.decode('utf-8')
+        self.assertIn('Omnichannel Live Content Previews', html_studio)
+        self.assertIn('LinkedIn', html_studio)
+        self.assertIn('Google SERP', html_studio)
+
+
 
 if __name__ == '__main__':
     unittest.main()

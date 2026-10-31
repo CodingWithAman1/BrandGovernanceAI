@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% block title %}Live URL & Competitor Claim Scanner — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-10 col-lg-11">
+
+    <!-- Header -->
+    <div class="text-center mb-4 fade-in-down">
+      <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-10 text-cyan border border-info border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-globe2"></i> COMPETITIVE INTELLIGENCE & AD SCANNER
+      </div>
+      <h2 class="fw-bold mb-1" style="letter-spacing: -0.03em;">Live URL & Competitor Claim Scanner</h2>
+      <p class="text-muted small">Crawl competitor landing pages and ad copy to expose unsubstantiated claims and synthesize compliant battlecards</p>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="bg-card card-glow-shimmer p-3 mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 shadow-sm border-cyber-glow fade-in-up stagger-1">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-bullseye text-warning fs-5"></i>
+        <div>
+          <strong class="d-block small text-light">Instant Competitor Test Samples:</strong>
+          <span class="text-muted small" style="font-size: 0.75rem;">Load pre-configured competitor pitches with known vulnerabilities:</span>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn-sample-chip" onclick="loadCompetitorSample('hyperbolic_ai')">
+          <span>🤖</span> AI-Washing & Autonomy
+        </button>
+        <button type="button" class="btn-sample-chip" onclick="loadCompetitorSample('superlative_rank')">
+          <span>🏆</span> Unverified #1 Superlative
+        </button>
+        <button type="button" class="btn-sample-chip" onclick="loadCompetitorSample('green_claims')">
+          <span>🌱</span> UK CMA Green Claims
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Scanner Input Form -->
+    <div class="bg-card card-glow-shimmer p-4 p-md-5 mb-4 shadow-sm border-cyber-glow fade-in-up stagger-2">
+      <form method="POST" action="{{ url_for('scanner.url_scan') }}">
+        
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-light small mb-1">Competitor / Target Brand Name</label>
+            <input type="text" name="competitor_name" id="competitorNameInput" class="form-control" placeholder="e.g. RivalCloud AI" value="{{ competitor_name or 'Competitor' }}">
+          </div>
+          <div class="col-md-8">
+            <label class="form-label fw-bold text-light small mb-1">Target Live URL to Crawl & Parse</label>
+            <div class="input-group">
+              <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted"><i class="bi bi-link-45deg"></i></span>
+              <input type="text" name="url" id="urlInput" class="form-control" placeholder="https://competitor-product.com/announcement" value="{{ competitor_url or '' }}">
+            </div>
+            <small class="text-muted" style="font-size: 0.72rem;">BrandGuard's crawler strips scripts/chrome and extracts semantic body text.</small>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label fw-bold text-light small mb-0">Or Paste Competitor Ad Copy / Landing Page Text Directly</label>
+            <button type="button" class="btn btn-sm text-muted border-0 py-0" onclick="document.getElementById('contentInput').value=''"><i class="bi bi-trash"></i> Clear</button>
+          </div>
+          <textarea name="content" id="contentInput" rows="5" class="form-control font-monospace p-3 text-light" style="font-size: 0.88rem; line-height: 1.5; background: rgba(15, 23, 42, 0.75);" placeholder="Paste competitor marketing text, press releases, or display ad copy here...">{{ competitor_text or '' }}</textarea>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-2 text-muted small">
+            <i class="bi bi-database-check text-success"></i>
+            <span>Cross-referenced against our <strong>SQL Approved Fact Bank</strong></span>
+          </div>
+
+          <button type="submit" class="btn btn-gradient-primary px-4 py-2 fw-bold rounded-pill shadow">
+            <i class="bi bi-search me-2"></i> Scan & Benchmark Claims
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Scan Results Section -->
+    {% if scan_result %}
+    <div class="fade-in-up stagger-3">
+      
+      <!-- Top Metrics Banner -->
+      <div class="bg-card card-glow-shimmer border-cyber-glow p-4 mb-4 rounded-3 shadow">
+        <div class="row align-items-center g-3">
+          <div class="col-md-3 text-center border-end border-secondary border-opacity-25">
+            <div class="text-muted small text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">Vulnerability Score</div>
+            <div class="display-5 fw-bold {% if scan_result.vulnerability_score > 60 %}text-danger{% elif scan_result.vulnerability_score > 30 %}text-warning{% else %}text-success{% endif %}">
+              {{ scan_result.vulnerability_score }}<span class="fs-6 text-muted">/100</span>
+            </div>
+            <span class="badge {% if scan_result.vulnerability_score > 60 %}badge-critical{% elif scan_result.vulnerability_score > 30 %}badge-warning{% else %}bg-success{% endif %} px-3 py-1 rounded-pill">
+              {{ scan_result.vulnerability_level }} EXPOSURE
+            </span>
+          </div>
+
+          <div class="col-md-9 ps-md-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <h5 class="fw-bold mb-0 text-white">Competitor Claim Audit: {{ scan_result.competitor_name }}</h5>
+              <span class="badge bg-dark border text-cyan small">{{ scan_result.vulnerability_count }} Vulnerabilities Found</span>
+            </div>
+            <p class="text-muted small mb-0">
+              Audit reveals significant evidentiary vulnerabilities in competitor positioning. 
+              The competitor relies on unsubstantiated superlatives and regulatory oversights that our verified fact bank directly counters.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vulnerabilities & Battlecard Columns -->
+      <div class="row g-4 mb-5">
+        
+        <!-- Left: Identified Vulnerabilities -->
+        <div class="col-lg-6">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-white"><i class="bi bi-shield-slash text-danger me-2"></i>Competitor Vulnerabilities</h5>
+            <small class="text-muted">FTC Section 5 & SEC Exposure</small>
+          </div>
+
+          <div class="d-flex flex-column gap-3">
+            {% for v in scan_result.vulnerabilities %}
+            <div class="bg-card p-3 border-start border-4 {% if v.severity == 'CRITICAL' %}border-danger{% else %}border-warning{% endif %} rounded-2 shadow-sm">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge {% if v.severity == 'CRITICAL' %}badge-critical{% else %}badge-warning{% endif %} small">{{ v.severity }}</span>
+                <span class="text-muted small font-monospace" style="font-size: 0.72rem;">{{ v.citation }}</span>
+              </div>
+              <div class="p-2 my-2 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded font-monospace small text-danger">
+                "{{ v.snippet }}"
+              </div>
+              <div class="small text-light">
+                <strong class="text-warning">Vulnerability:</strong> {{ v.weakness }}
+              </div>
+            </div>
+            {% else %}
+            <div class="bg-card p-4 text-center text-muted">
+              <i class="bi bi-check-circle fs-2 text-success d-block mb-2"></i>
+              No severe regulatory vulnerabilities detected in this excerpt.
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Right: AI Competitive Battlecard & Counter-Messaging -->
+        <div class="col-lg-6">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-white"><i class="bi bi-stars text-cyan me-2"></i>AI Counter-Messaging Battlecard</h5>
+            <span class="badge bg-primary bg-opacity-20 text-cyan border border-info border-opacity-25 small">
+              {{ scan_result.battlecard.engine_used }}
+            </span>
+          </div>
+
+          <!-- Sales Battlecard -->
+          <div class="bg-card card-glow-shimmer border-cyber-glow p-4 rounded-3 shadow-sm mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-info small text-uppercase" style="letter-spacing: 0.05em;">
+                <i class="bi bi-person-badge me-1"></i> Sales Rep 1-Liner: Head-to-Head Pitch
+              </strong>
+              <button class="btn btn-sm btn-outline-info rounded-pill py-0 px-2" style="font-size: 0.72rem;" onclick="copyCardText('salesPitchText')">
+                <i class="bi bi-clipboard me-1"></i> Copy
+              </button>
+            </div>
+            <p class="text-light small mb-0 font-monospace" id="salesPitchText" style="line-height: 1.5;">
+              {{ scan_result.battlecard.sales_pitch }}
+            </p>
+          </div>
+
+          <!-- LinkedIn Thought Leadership Hook -->
+          <div class="bg-card p-4 rounded-3 shadow-sm mb-3 border border-secondary border-opacity-25">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-primary small text-uppercase" style="letter-spacing: 0.05em;">
+                <i class="bi bi-linkedin me-1"></i> LinkedIn Thought Leadership Response
+              </strong>
+              <button class="btn btn-sm btn-outline-primary rounded-pill py-0 px-2" style="font-size: 0.72rem;" onclick="copyCardText('linkedinAngleText')">
+                <i class="bi bi-clipboard me-1"></i> Copy
+              </button>
+            </div>
+            <p class="text-light small mb-0" id="linkedinAngleText" style="line-height: 1.5;">
+              {{ scan_result.battlecard.linkedin_angle }}
+            </p>
+          </div>
+
+          <!-- PR Positioning Statement -->
+          <div class="bg-card p-4 rounded-3 shadow-sm border border-secondary border-opacity-25">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <strong class="text-success small text-uppercase" style="letter-spacing: 0.05em;">
+                <i class="bi bi-megaphone me-1"></i> Executive PR & Market Stance
+              </strong>
+              <button class="btn btn-sm btn-outline-success rounded-pill py-0 px-2" style="font-size: 0.72rem;" onclick="copyCardText('prPositioningText')">
+                <i class="bi bi-clipboard me-1"></i> Copy
+              </button>
+            </div>
+            <p class="text-light small mb-0" id="prPositioningText" style="line-height: 1.5;">
+              {{ scan_result.battlecard.pr_positioning }}
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Fact Contrasts Table -->
+      {% if scan_result.fact_contrasts %}
+      <div class="bg-card card-glow-shimmer border-cyber-glow p-4 mb-4 rounded-3 shadow-sm">
+        <h5 class="fw-bold mb-3 text-white"><i class="bi bi-database-check text-success me-2"></i>Approved Fact Bank Contrasts</h5>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-muted text-uppercase">
+              <tr>
+                <th>Compliance Topic</th>
+                <th>Competitor Posture</th>
+                <th>BrandGuard Verified Fact (SQL Bank)</th>
+                <th>Audited Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for fc in scan_result.fact_contrasts %}
+              <tr>
+                <td class="fw-bold text-white small">{{ fc.topic }}</td>
+                <td><span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25">{{ fc.competitor_posture }}</span></td>
+                <td class="text-light small">{{ fc.our_verified_fact }}</td>
+                <td>
+                  <a href="{{ fc.evidence_link }}" target="_blank" class="text-cyan small text-decoration-none">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> {{ fc.evidence_link[:30] }}
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const SAMPLES = {
+  hyperbolic_ai: {
+    name: "OmniMind AI Platform",
+    url: "https://omnimind-ai.io/enterprise-pitch",
+    text: "OmniMind is the world's first fully autonomous AI operating system with zero hallucinations. Our patented conscious AI replaces all human judgment, eliminating all marketing errors and guaranteeing 10x ROI for enterprise teams within 30 days."
+  },
+  superlative_rank: {
+    name: "CloudPeak Systems",
+    url: "https://cloudpeak-systems.net/overview",
+    text: "CloudPeak is the #1 cloud platform in the world with unbeatable performance that never fails. We provide 100% guaranteed zero downtime and unrivaled processing speed that completely outperforms traditional legacy enterprise tools."
+  },
+  green_claims: {
+    name: "EcoCompute Cloud",
+    url: "https://ecocompute-green.org/cloud",
+    text: "Deploy your AI models on our 100% eco-friendly, green AI infrastructure. We offer carbon-negative cloud servers and zero emissions compute, making all your machine learning workloads planet-positive with completely sustainable architecture."
+  }
+};
+
+function loadCompetitorSample(key) {
+  const sample = SAMPLES[key];
+  if (sample) {
+    document.getElementById('competitorNameInput').value = sample.name;
+    document.getElementById('urlInput').value = sample.url;
+    document.getElementById('contentInput').value = sample.text;
+  }
+}
+
+function copyCardText(elementId) {
+  const elem = document.getElementById(elementId);
+  if (elem) {
+    navigator.clipboard.writeText(elem.innerText).then(() => {
+      alert("Battlecard counter-messaging copied to clipboard!");
+    });
+  }
+}
+</script>
+{% endblock %}
