@@ -512,11 +512,105 @@
     };
   }
 
+  // =========================================================================
+  // 5. 3D INTERACTIVE CARD PARALLAX TILT ENGINE
+  // =========================================================================
+  function init3DCardTilt() {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    const tiltCards = document.querySelectorAll(
+      '.bg-card, .portal-card-client, .portal-card-reviewer, .portal-card-admin, .stat-card, .dropzone-container, .card-3d-tilt, .dashboard-stat-card'
+    );
+
+    tiltCards.forEach((card) => {
+      card.classList.add('perspective-card');
+
+      let bounds;
+      function updateBounds() {
+        bounds = card.getBoundingClientRect();
+      }
+
+      card.addEventListener('mouseenter', () => {
+        updateBounds();
+        card.style.transition = 'transform 0.12s ease-out, box-shadow 0.25s ease-out';
+      });
+
+      card.addEventListener('mousemove', (e) => {
+        if (!bounds) updateBounds();
+        const mouseX = e.clientX - bounds.left;
+        const mouseY = e.clientY - bounds.top;
+
+        const xPct = mouseX / bounds.width - 0.5;
+        const yPct = mouseY / bounds.height - 0.5;
+
+        const tiltX = -yPct * 10;
+        const tiltY = xPct * 12;
+
+        card.style.transform = `perspective(1000px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translateZ(6px) scale3d(1.012, 1.012, 1.012)`;
+        card.style.setProperty('--sheen-x', `${mouseX}px`);
+        card.style.setProperty('--sheen-y', `${mouseY}px`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transition = 'transform 0.55s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.55s ease';
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)';
+      });
+    });
+  }
+
+  // =========================================================================
+  // 6. MAGNETIC BUTTONS (SUBTLE ACCELERATION TOWARDS CURSOR)
+  // =========================================================================
+  function initMagneticButtons() {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    const magneticElements = document.querySelectorAll(
+      '.btn-magnetic, .btn-gradient-primary, .btn-ai-glow, .ai-copilot-trigger, .btn-sample-chip'
+    );
+
+    magneticElements.forEach((btn) => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+
+        btn.style.transform = `translate3d(${x * 0.18}px, ${y * 0.18}px, 0)`;
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transition = 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
+        btn.style.transform = 'translate3d(0, 0, 0)';
+      });
+
+      btn.addEventListener('mouseenter', () => {
+        btn.style.transition = 'transform 0.08s ease-out';
+      });
+    });
+  }
+
+  // =========================================================================
+  // 7. DYNAMIC AUDIO EQUALIZER FREQUENCY BARS
+  // =========================================================================
+  function initEqualizerWaves() {
+    const bars = document.querySelectorAll('.eq-bar');
+    if (!bars.length) return;
+
+    setInterval(() => {
+      bars.forEach((bar) => {
+        const h = Math.floor(Math.random() * 75) + 25;
+        bar.style.height = `${h}%`;
+      });
+    }, 180);
+  }
+
   // Initialize once DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
     initCyberCursor();
     initAmbientParticles();
     initAiCopilotDrawer();
+    init3DCardTilt();
+    initMagneticButtons();
+    initEqualizerWaves();
   });
 
 })();

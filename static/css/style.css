@@ -1485,4 +1485,379 @@ body[data-user-role="MANAGER"] .cursor-glow-ring.cursor-hovering {
   transform: translateY(-2px);
 }
 
+/* ==========================================================================
+   20. ULTRA 3D & MOVING CYBER EFFECTS ENGINE (UI/UX HEAVY)
+   ========================================================================== */
+
+/* 1. Live Cyber Telemetry Ticker */
+.cyber-ticker-bar {
+  background: rgba(8, 12, 20, 0.95);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+  height: 32px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1020;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.cyber-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: cyberTickerScroll 38s linear infinite;
+}
+
+.cyber-ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.cyber-ticker-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-right: 16px;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ticker-sep {
+  color: rgba(56, 189, 248, 0.35);
+  font-size: 0.75rem;
+}
+
+@keyframes cyberTickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* 2. 3D Interactive Card Perspective & Specular Sheen */
+.perspective-card {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.perspective-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle 300px at var(--sheen-x, -500px) var(--sheen-y, -500px), rgba(56, 189, 248, 0.18), transparent 75%);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.perspective-card:hover::before {
+  opacity: 1;
+}
+
+.perspective-card > * {
+  transform: translateZ(8px);
+  position: relative;
+  z-index: 2;
+}
+
+/* 3. Hero 3D Card & Canvas Container */
+.hero-3d-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 27, 75, 0.72) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(56, 189, 248, 0.15) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+}
+
+.hero-3d-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  height: 320px;
+}
+
+.hero-3d-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hero-3d-badge-bar {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hero-metric-pill {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.hero-metric-pill:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 4. Active Laser Sweep Beam (Moving Scanner Line) */
+.laser-sweep-beam {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.4) 15%, #38bdf8 50%, rgba(56, 189, 248, 0.4) 85%, transparent 100%);
+  box-shadow: 0 0 16px #38bdf8, 0 0 32px rgba(56, 189, 248, 0.6);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  animation: laserSweepDown 6s ease-in-out infinite;
+}
+
+@keyframes laserSweepDown {
+  0% { top: -5%; opacity: 0; }
+  15% { opacity: 0.9; }
+  85% { opacity: 0.9; }
+  100% { top: 105%; opacity: 0; }
+}
+
+/* 5. 3D Floating Geometric Background Elements */
+.floating-3d-shape {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 8px;
+  opacity: 0.25;
+  filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.3));
+  transform-style: preserve-3d;
+}
+
+.shape-icosahedron {
+  width: 90px;
+  height: 90px;
+  top: 15%;
+  right: 6%;
+  border: 1.5px solid rgba(56, 189, 248, 0.5);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(99, 102, 241, 0.04));
+  animation: floatRotate3D1 16s ease-in-out infinite;
+}
+
+.shape-ring {
+  width: 120px;
+  height: 120px;
+  bottom: 20%;
+  left: 4%;
+  border: 2px dashed rgba(168, 85, 247, 0.45);
+  border-radius: 50%;
+  animation: floatRotate3D2 22s linear infinite;
+}
+
+.shape-diamond {
+  width: 70px;
+  height: 70px;
+  top: 55%;
+  right: 12%;
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.05);
+  transform: rotate(45deg);
+  animation: floatRotate3D1 18s ease-in-out infinite reverse;
+}
+
+.shape-octahedron {
+  width: 60px;
+  height: 60px;
+  top: 75%;
+  left: 20%;
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  animation: floatRotate3D2 15s ease-in-out infinite;
+}
+
+@keyframes floatRotate3D1 {
+  0% { transform: translateY(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  33% { transform: translateY(-24px) rotateX(120deg) rotateY(60deg) rotateZ(30deg); }
+  66% { transform: translateY(12px) rotateX(240deg) rotateY(180deg) rotateZ(60deg); }
+  100% { transform: translateY(0px) rotateX(360deg) rotateY(360deg) rotateZ(0deg); }
+}
+
+@keyframes floatRotate3D2 {
+  0% { transform: translateY(0px) rotateX(45deg) rotateY(0deg); }
+  50% { transform: translateY(-30px) rotateX(65deg) rotateY(180deg); }
+  100% { transform: translateY(0px) rotateX(45deg) rotateY(360deg); }
+}
+
+/* 6. Mini 3D Core Floating HUD Widget */
+.mini-3d-hud-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 1040;
+  user-select: none;
+}
+
+.mini-3d-hud-card {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.25);
+  border-radius: 20px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mini-3d-hud-card:hover {
+  transform: translateY(-4px) scale(1.04);
+  border-color: #38bdf8;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.45);
+}
+
+.mini-3d-canvas-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(8, 12, 20, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-3d-hud-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+}
+
+.mini-3d-hud-stats {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: #64748b;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 8px;
+}
+
+/* 7. Equalizer Frequency Audio Visualizer Bars */
+.eq-visualizer {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  width: 14px;
+  vertical-align: middle;
+}
+
+.eq-bar {
+  width: 3px;
+  background: #38bdf8;
+  border-radius: 2px;
+  height: 40%;
+  transition: height 0.18s ease-in-out;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
+}
+
+.eq-bar:nth-child(2) {
+  background: #818cf8;
+}
+
+.eq-bar:nth-child(3) {
+  background: #10b981;
+}
+
+/* 8. High-Tech Corner HUD Brackets for Studio & Review */
+.hud-corner-bracket {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: #38bdf8;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.hud-corner-bracket.top-left {
+  top: 8px;
+  left: 8px;
+  border-top: 2px solid #38bdf8;
+  border-left: 2px solid #38bdf8;
+}
+
+.hud-corner-bracket.top-right {
+  top: 8px;
+  right: 8px;
+  border-top: 2px solid #38bdf8;
+  border-right: 2px solid #38bdf8;
+}
+
+.hud-corner-bracket.bottom-left {
+  bottom: 8px;
+  left: 8px;
+  border-bottom: 2px solid #38bdf8;
+  border-left: 2px solid #38bdf8;
+}
+
+.hud-corner-bracket.bottom-right {
+  bottom: 8px;
+  right: 8px;
+  border-bottom: 2px solid #38bdf8;
+  border-right: 2px solid #38bdf8;
+}
+
+/* 9. Conic Gradient Chasing Neon Border */
+.border-conic-glow {
+  position: relative;
+}
+
+.border-conic-glow::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: conic-gradient(from 0deg, #38bdf8, #818cf8, #a855f7, #10b981, #38bdf8);
+  border-radius: inherit;
+  z-index: -1;
+  animation: rotateConicBorder 8s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes rotateConicBorder {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 

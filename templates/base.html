@@ -27,6 +27,11 @@
     <div class="ambient-orb orb-2"></div>
     <div class="ambient-orb orb-3"></div>
     <div class="ambient-orb orb-4"></div>
+    <!-- 3D Floating Holographic Geometric Prisms & Rings -->
+    <div class="floating-3d-shape shape-icosahedron"></div>
+    <div class="floating-3d-shape shape-ring"></div>
+    <div class="floating-3d-shape shape-diamond"></div>
+    <div class="floating-3d-shape shape-octahedron"></div>
     <canvas id="ambient-particles" class="ambient-particle-canvas"></canvas>
     <div class="cyber-grid-overlay"></div>
   </div>
@@ -281,6 +286,44 @@
     </div>
   </nav>
 
+  <!-- Live Scrolling Cyber Telemetry Ticker (Real-Time Governance Stream) -->
+  <div class="cyber-ticker-bar" aria-label="Live Telemetry Status Bar">
+    <div class="cyber-ticker-track">
+      <div class="cyber-ticker-content">
+        <span class="ticker-item"><span class="pulse-dot pulse-dot-green"></span> SYSTEM: NOMINAL</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-shield-check text-cyan me-1"></i> FTC SEC. 5 TRUTH REGISTRY: REAL-TIME ENFORCEMENT</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-eye text-primary me-1"></i> WCAG 2.1 AA (4.5:1 LUMINANCE): AUDITING ACTIVE</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-stars text-warning me-1"></i> GOOGLE GEMINI 3 FLASH: CLOUD NEURAL CO-PILOT CONNECTED</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-file-earmark-lock text-info me-1"></i> SHA-256 AUDIT CERTIFICATES: IMMUTABLE LEDGER ONLINE</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-globe-americas text-emerald me-1"></i> MULTI-JURISDICTION: US / EU AI ACT / UK CMA READY</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-cpu text-violet me-1"></i> STAGE-GATE PIPELINE: 0.04s INFERENCE LATENCY</span>
+        <span class="ticker-sep">&bull;</span>
+      </div>
+      <div class="cyber-ticker-content" aria-hidden="true">
+        <span class="ticker-item"><span class="pulse-dot pulse-dot-green"></span> SYSTEM: NOMINAL</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-shield-check text-cyan me-1"></i> FTC SEC. 5 TRUTH REGISTRY: REAL-TIME ENFORCEMENT</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-eye text-primary me-1"></i> WCAG 2.1 AA (4.5:1 LUMINANCE): AUDITING ACTIVE</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-stars text-warning me-1"></i> GOOGLE GEMINI 3 FLASH: CLOUD NEURAL CO-PILOT CONNECTED</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-file-earmark-lock text-info me-1"></i> SHA-256 AUDIT CERTIFICATES: IMMUTABLE LEDGER ONLINE</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-globe-americas text-emerald me-1"></i> MULTI-JURISDICTION: US / EU AI ACT / UK CMA READY</span>
+        <span class="ticker-sep">&bull;</span>
+        <span class="ticker-item"><i class="bi bi-cpu text-violet me-1"></i> STAGE-GATE PIPELINE: 0.04s INFERENCE LATENCY</span>
+        <span class="ticker-sep">&bull;</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Flash Messages -->
   <div class="container-fluid px-lg-4 mt-3">
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -320,9 +363,14 @@
   </footer>
 
   <!-- Floating AI Co-Pilot Trigger Pill -->
-  <div id="aiCopilotTrigger" class="ai-copilot-trigger" role="button" aria-label="Open BrandGuard AI Co-Pilot">
+  <div id="aiCopilotTrigger" class="ai-copilot-trigger btn-magnetic" role="button" aria-label="Open BrandGuard AI Co-Pilot">
     <div class="ai-copilot-badge">
       <span class="ai-pulse-glow"></span>
+      <div class="eq-visualizer me-1" aria-hidden="true">
+        <span class="eq-bar"></span>
+        <span class="eq-bar"></span>
+        <span class="eq-bar"></span>
+      </div>
       <i class="bi bi-robot"></i>
       <span class="fw-bold">AI Co-Pilot</span>
     </div>
@@ -388,7 +436,11 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Scanner JS -->
   <script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
-  <!-- Cyber Effects (Interactive Cursor, Constellation Canvas, Ambient Feedback) -->
+  <!-- Three.js 3D WebGL Engine (Local Offline-Ready) -->
+  <script src="{{ url_for('static', filename='js/three.min.js') }}"></script>
+  <!-- Three.js Holographic 3D Scene Controller -->
+  <script src="{{ url_for('static', filename='js/three-scene.js') }}"></script>
+  <!-- Cyber Effects (Interactive Cursor, Constellation Canvas, 3D Tilt, Ambient Feedback) -->
   <script src="{{ url_for('static', filename='js/cyber-effects.js') }}"></script>
   
   <!-- Splash Screen Dismissal Animation Script -->

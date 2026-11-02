@@ -46,7 +46,15 @@
     </div>
 
     <!-- Main Studio Card -->
-    <div class="bg-card card-glow-shimmer p-4 p-md-5 shadow-sm border-cyber-glow fade-in-up stagger-2">
+    <div class="bg-card card-glow-shimmer p-4 p-md-5 shadow-sm border-cyber-glow fade-in-up stagger-2 position-relative">
+      <!-- Active Laser Scanning Beam -->
+      <div class="laser-sweep-beam"></div>
+      <!-- HUD High-Tech Corner Brackets -->
+      <div class="hud-corner-bracket top-left"></div>
+      <div class="hud-corner-bracket top-right"></div>
+      <div class="hud-corner-bracket bottom-left"></div>
+      <div class="hud-corner-bracket bottom-right"></div>
+
       <form id="auditForm" method="POST" action="{{ url_for('scanner.analyze') }}" enctype="multipart/form-data">
         
         <!-- Title & Jurisdiction Selector Row -->
@@ -71,19 +79,26 @@
           <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
             <label class="form-label fw-bold text-dark mb-0">Textual Copy (Articles, Social Posts, Ad Copy, Emails)</label>
             <div class="d-flex align-items-center gap-2">
-              <button type="button" class="btn btn-xs btn-ai-glow rounded-pill px-3 py-1 fw-bold" onclick="studioAiHarmonize()" style="font-size: 0.78rem;" title="AI Deep Context Rewrite">
+              <button type="button" class="btn btn-xs btn-ai-glow btn-magnetic rounded-pill px-3 py-1 fw-bold d-inline-flex align-items-center" onclick="studioAiHarmonize()" style="font-size: 0.78rem;" title="AI Deep Context Rewrite">
+                <div class="eq-visualizer me-1" aria-hidden="true">
+                  <span class="eq-bar"></span>
+                  <span class="eq-bar"></span>
+                  <span class="eq-bar"></span>
+                </div>
                 <i class="bi bi-stars me-1"></i> AI Deep Harmonize
               </button>
-              <button type="button" class="btn btn-xs btn-outline-info rounded-pill px-3 py-1 fw-bold" onclick="studioAiSafeHarbor()" style="font-size: 0.78rem;" title="Append FTC Safe Harbor Disclaimer">
+              <button type="button" class="btn btn-xs btn-outline-info btn-magnetic rounded-pill px-3 py-1 fw-bold" onclick="studioAiSafeHarbor()" style="font-size: 0.78rem;" title="Append FTC Safe Harbor Disclaimer">
                 <i class="bi bi-shield-check me-1"></i> + Safe Harbor
               </button>
-              <button type="button" class="btn btn-xs btn-outline-warning rounded-pill px-3 py-1 fw-bold" onclick="studioAiRegulatoryNotice()" style="font-size: 0.78rem;" title="Append Jurisdictional Regulatory Disclosure">
+              <button type="button" class="btn btn-xs btn-outline-warning btn-magnetic rounded-pill px-3 py-1 fw-bold" onclick="studioAiRegulatoryNotice()" style="font-size: 0.78rem;" title="Append Jurisdictional Regulatory Disclosure">
                 <i class="bi bi-bank me-1"></i> + Regulatory Notice
               </button>
               <span class="text-muted small border-start ps-2" id="wordCountBadge">0 characters</span>
             </div>
           </div>
-          <textarea name="content" id="inputContent" rows="8" class="form-control font-monospace p-3" style="font-size: 0.9rem; line-height: 1.6;" placeholder="Paste draft content here for multi-modal evaluation..." oninput="updateCharCount()"></textarea>
+          <div class="position-relative">
+            <textarea name="content" id="inputContent" rows="8" class="form-control font-monospace p-3" style="font-size: 0.9rem; line-height: 1.6;" placeholder="Paste draft content here for multi-modal evaluation..." oninput="updateCharCount()"></textarea>
+          </div>
         </div>
 
         <!-- Omnichannel Live Previews Mockup -->

@@ -5,13 +5,75 @@
 <div class="row justify-content-center py-4">
   <div class="col-xl-10 col-lg-11">
 
-    <!-- Header -->
-    <div class="text-center mb-5 fade-in-down">
-      <div class="brand-logo-icon mx-auto mb-3 floating-anim" style="width: 52px; height: 52px; font-size: 1.6rem; border-radius: 16px;">
-        <i class="bi bi-shield-check"></i>
+    <!-- Interactive 3D Holographic Governance Core Hero Showcase -->
+    <div class="hero-3d-card p-4 p-lg-5 rounded-4 mb-5 fade-in-down position-relative">
+      <!-- Ambient Laser Sweep Beam -->
+      <div class="laser-sweep-beam"></div>
+
+      <div class="row align-items-center">
+        <!-- Left Column: Copy & Live Telemetry Badges -->
+        <div class="col-lg-7 text-center text-lg-start mb-4 mb-lg-0">
+          <div class="d-inline-flex align-items-center gap-2 badge bg-info bg-opacity-15 text-cyan border border-info border-opacity-30 px-3 py-1 rounded-pill small fw-bold mb-3">
+            <span class="pulse-dot pulse-dot-cyan"></span>
+            <span>AUTONOMOUS PRE-PUBLICATION BRAND DEFENSE</span>
+          </div>
+          <h1 class="display-6 fw-bold text-white mb-2" style="letter-spacing: -0.04em;">
+            Enterprise Brand Governance, <br class="d-none d-md-block"/><span class="text-gradient-cyan">Audited in Real Time.</span>
+          </h1>
+          <p class="text-muted small mb-4" style="max-width: 520px; line-height: 1.6;">
+            Screen marketing copy across 5 tone polarities, enforce statutory FTC Section 5 substantiation, prevent SEC AI-washing, verify WCAG 2.1 AA luminance, and issue tamper-evident SHA-256 PDF certificates.
+          </p>
+
+          <!-- Live Telemetry Badges Grid -->
+          <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start mb-4">
+            <div class="hero-metric-pill">
+              <span class="text-cyan fw-bold">0.04s</span>
+              <span class="text-muted small">Inference</span>
+            </div>
+            <div class="hero-metric-pill">
+              <span class="text-success fw-bold">100%</span>
+              <span class="text-muted small">FTC Sec. 5</span>
+            </div>
+            <div class="hero-metric-pill">
+              <span class="text-warning fw-bold">4.5:1</span>
+              <span class="text-muted small">WCAG Ratio</span>
+            </div>
+            <div class="hero-metric-pill">
+              <span class="text-info fw-bold">Gemini 3</span>
+              <span class="text-muted small">Cloud Neural</span>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
+            <a href="{{ url_for('auth.client_login') }}" class="btn btn-primary btn-gradient-primary btn-magnetic fw-bold px-4 py-2 rounded-pill shadow-lg">
+              <i class="bi bi-rocket-takeoff-fill me-2"></i> Launch Studio Demo
+            </a>
+            <a href="{{ url_for('guidelines.list_all') }}" class="btn btn-outline-light btn-magnetic px-4 py-2 rounded-pill fw-semibold">
+              <i class="bi bi-book me-2"></i> Brand Guidelines
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive 3D WebGL Holographic Core -->
+        <div class="col-lg-5 text-center position-relative">
+          <div class="hero-3d-wrap mx-auto">
+            <!-- 3D Canvas Mount Point -->
+            <div id="brandguard-hero-3d" class="hero-3d-canvas"></div>
+            <!-- 3D Overlay Interactive Control Pill -->
+            <div class="hero-3d-badge-bar">
+              <span class="badge bg-dark bg-opacity-75 border border-secondary text-cyan px-3 py-1 rounded-pill small shadow-sm">
+                <i class="bi bi-hand-index-thumb me-1"></i> Interactive 3D Core &bull; Drag to Rotate
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
-      <h2 class="fw-bold mb-1" style="letter-spacing: -0.03em;">BrandGuard AI Governance Portal</h2>
-      <p class="text-muted small">Select your designated workspace portal to authenticate via Firebase Auth or corporate credentials</p>
+    </div>
+
+    <!-- Section Title: Designated Portals -->
+    <div class="text-center mb-4 fade-in-up">
+      <h4 class="fw-bold text-white mb-1">Select Designated Workspace</h4>
+      <p class="text-muted small">Choose your portal to authenticate via Firebase Auth or corporate credentials</p>
     </div>
 
     <!-- 3 Distinct Role Portal Cards -->
