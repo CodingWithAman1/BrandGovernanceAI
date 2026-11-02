@@ -12,7 +12,10 @@
   // 1. ULTRA-RESPONSIVE HARDWARE-ACCELERATED CYBER CURSOR (0ms LAG)
   // =========================================================================
   function initCyberCursor() {
-    if (!window.matchMedia('(pointer: fine)').matches) return;
+    // Only skip on pure touch mobile devices with coarse pointer
+    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(pointer: fine)').matches) {
+      return;
+    }
 
     const dot = document.getElementById('cyberCursorDot');
     const ring = document.getElementById('cyberCursorRing');
@@ -25,45 +28,55 @@
     let isVisible = false;
     let rafActive = false;
 
-    // Use pointermove: updates synchronously on physical mouse movement with zero latency
-    window.addEventListener('pointermove', (e) => {
-      targetX = e.clientX;
-      targetY = e.clientY;
+    function handlePointer(clientX, clientY) {
+      targetX = clientX;
+      targetY = clientY;
 
       if (!isVisible) {
         isVisible = true;
+        document.body.classList.add('cyber-cursor-ready');
         dot.style.opacity = '1';
         ring.style.opacity = '1';
         ringX = targetX;
         ringY = targetY;
       }
 
-      // Dot moves locked 1:1 with hardware pointer (zero delay)
-      dot.style.transform = `translate3d(${targetX - 3}px, ${targetY - 3}px, 0)`;
+      // Dot moves locked 1:1 with hardware pointer (zero delay, perfectly centered)
+      dot.style.transform = `translate3d(${targetX - 4}px, ${targetY - 4}px, 0)`;
 
       if (!rafActive) {
         rafActive = true;
         requestAnimationFrame(renderRing);
       }
+    }
+
+    // Support both pointermove and mousemove for 100% universal browser compatibility
+    window.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return;
+      handlePointer(e.clientX, e.clientY);
     }, { passive: true });
 
-    document.addEventListener('pointerleave', () => {
+    window.addEventListener('mousemove', (e) => {
+      handlePointer(e.clientX, e.clientY);
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => {
       isVisible = false;
       dot.style.opacity = '0';
       ring.style.opacity = '0';
     });
 
-    document.addEventListener('pointerenter', () => {
+    document.addEventListener('mouseenter', () => {
       isVisible = true;
       dot.style.opacity = '1';
       ring.style.opacity = '1';
     });
 
-    window.addEventListener('pointerdown', () => {
+    window.addEventListener('mousedown', () => {
       ring.classList.add('cursor-click');
     }, { passive: true });
 
-    window.addEventListener('pointerup', () => {
+    window.addEventListener('mouseup', () => {
       ring.classList.remove('cursor-click');
     }, { passive: true });
 
@@ -77,7 +90,7 @@
       ringX += (targetX - ringX) * 0.45;
       ringY += (targetY - ringY) * 0.45;
 
-      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+      ring.style.transform = `translate3d(${ringX - 18}px, ${ringY - 18}px, 0)`;
 
       // Stop RAF when at rest to conserve GPU
       const dist = Math.abs(targetX - ringX) + Math.abs(targetY - ringY);
