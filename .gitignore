@@ -21,3 +21,6 @@ venv.bak/
 htmlcov/
 .DS_Store
 Thumbs.db
+static/uploads/certificates/
+*.png
+

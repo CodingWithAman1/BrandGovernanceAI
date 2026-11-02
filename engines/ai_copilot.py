@@ -111,10 +111,10 @@ class AICopilotEngine:
 
         # Verified working models in order of speed and response reliability
         models = [
-            "gemini-3.1-flash-lite",
-            "gemini-flash-lite-latest",
-            "gemini-3.5-flash-lite",
             "gemini-3-flash-preview",
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
+            "gemini-3.1-flash-lite",
             "gemini-2.5-flash",
         ]
 
@@ -219,9 +219,10 @@ class AICopilotEngine:
         test_prompt = "Reply with exactly the word: CONNECTED"
         models_tried = []
         models = [
+            "gemini-3-flash-preview",
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
             "gemini-3.1-flash-lite",
-            "gemini-flash-lite-latest",
-            "gemini-3.5-flash-lite",
         ]
 
         for model in models:

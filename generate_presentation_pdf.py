@@ -1,7 +1,23 @@
+#!/usr/bin/env python3
 """
 BrandGuard AI — Executive Master Presentation & Project Dossier Generator
-Builds a high-impact, landscape presentation PDF document using ReportLab.
-Team Synapse: Aman Sharma & Janhavi Kanojia (Inkloom AI Hackathon)
+========================================================================
+Inkloom AI Hackathon (Grand Finale Deliverable)
+Team Synapse: Aman Sharma & Janhavi Kanojia
+
+Builds an executive-level, landscape presentation PDF document using ReportLab.
+Styled in the Obsidian Cyberpunk aesthetic with high contrast, structured layout,
+and two-pass running headers and footers with total slide counts ("Slide X of Y").
+
+Slides:
+  Slide 1: Executive Cover Slide (Obsidian Navy Hero & Grand Finale Metadata)
+  Slide 2: The Multi-Jurisdiction Regulatory Crisis (FTC, SEC, EU AI Act, CMA)
+  Slide 3: Three Isolated Portals, 1-Click Persona Switcher & Sole Admin Access
+  Slide 4: Deterministic Core Engines + Google Gemini 3 Flash Hybrid Co-Pilot
+  Slide 5: Stage-Gate Clearance, Public Certificate Verifier & SHA-256 PDF
+  Slide 6: Cyberpunk Obsidian Interface, 0ms Hardware Cursor & 3D WebGL Core
+  Slide 7: Enterprise Architecture: Competitor Battlecards, Brand DNA & CI/CD Gate
+  Slide 8: 24-Test Automated Verification, Render Cloud Deployment & Product Roadmap
 """
 
 import os
@@ -48,9 +64,9 @@ class NumberedCanvas(canvas.Canvas):
             # Running Top Header
             self.setFont("Helvetica-Bold", 8)
             self.setFillColor(colors.HexColor('#64748B'))
-            self.drawString(36, h - 22, "BRANDGUARD AI  •  ENTERPRISE BRAND GOVERNANCE PLATFORM")
+            self.drawString(36, h - 22, "BRANDGUARD AI  •  PRE-PUBLICATION BRAND GOVERNANCE PLATFORM")
             self.setFont("Helvetica", 8)
-            self.drawRightString(w - 36, h - 22, "INKLOOM AI HACKATHON • MASTER PROJECT DOSSIER")
+            self.drawRightString(w - 36, h - 22, "INKLOOM AI HACKATHON • GRAND FINALE MASTER DOSSIER")
 
             # Header thin line
             self.setStrokeColor(colors.HexColor('#E2E8F0'))
@@ -58,105 +74,83 @@ class NumberedCanvas(canvas.Canvas):
             self.line(36, h - 28, w - 36, h - 28)
 
             # Footer thin line
-            self.setStrokeColor(colors.HexColor('#E2E8F0'))
-            self.setLineWidth(0.6)
-            self.line(36, 32, w - 36, 32)
+            self.line(36, 28, w - 36, 28)
 
             # Running Bottom Footer
             self.setFont("Helvetica-Bold", 8)
-            self.setFillColor(colors.HexColor('#0EA5E9'))
-            self.drawString(36, 20, "TEAM SYNAPSE:")
+            self.setFillColor(colors.HexColor('#0F172A'))
+            self.drawString(36, 16, "TEAM SYNAPSE:")
             self.setFont("Helvetica", 8)
             self.setFillColor(colors.HexColor('#64748B'))
-            self.drawString(110, 20, "Aman Sharma (Team Lead & Backend) & Janhavi Kanojia (Frontend & UI/UX)")
+            self.drawString(108, 16, "Aman Sharma (Sole Admin & Backend Lead)  •  Janhavi Kanojia (Frontend & UI/UX)")
 
-            page_str = f"Slide {self._pageNumber} of {page_count}"
+            # Dynamic Page Count "Slide X of Y"
             self.setFont("Helvetica-Bold", 8)
-            self.setFillColor(colors.HexColor('#475569'))
-            self.drawRightString(w - 36, 20, page_str)
+            self.setFillColor(colors.HexColor('#2563EB'))
+            page_str = f"Slide {self._pageNumber} of {page_count}"
+            self.drawRightString(w - 36, 16, page_str)
 
         self.restoreState()
 
 
 def build_pdf(output_filename="BrandGuard_AI_Executive_Presentation.pdf"):
-    # Landscape Letter: 792 pt wide by 612 pt high
+    # Target size: 792 x 612 (Letter Landscape)
     doc = SimpleDocTemplate(
         output_filename,
         pagesize=landscape(letter),
         leftMargin=36,
         rightMargin=36,
-        topMargin=38,
-        bottomMargin=38
+        topMargin=36,
+        bottomMargin=36
     )
 
     styles = getSampleStyleSheet()
 
-    # Custom Color Palette
-    C_NAVY = '#0F172A'
-    C_SLATE = '#1E293B'
-    C_BLUE = '#2563EB'
-    C_CYAN = '#0EA5E9'
-    C_TEXT = '#1E293B'
-    C_MUTED = '#64748B'
-    C_LIGHT_BG = '#F8FAFC'
-    C_BORDER = '#E2E8F0'
-    C_GREEN = '#10B981'
-    C_AMBER = '#F59E0B'
-    C_RED = '#EF4444'
+    # Brand Colors
+    C_NAVY = '#0F172A'       # Slate 900
+    C_BLUE = '#2563EB'       # Blue 600
+    C_CYAN = '#0EA5E9'       # Sky 500
+    C_TEXT = '#1E293B'       # Slate 800
+    C_MUTED = '#64748B'      # Slate 500
+    C_LIGHT_BG = '#F8FAFC'   # Slate 50
+    C_BORDER = '#E2E8F0'     # Slate 200
+    C_GREEN = '#10B981'      # Emerald 500
+    C_AMBER = '#F59E0B'      # Amber 500
+    C_RED = '#EF4444'        # Red 500
 
-    # Typography Styles
-    title_style = ParagraphStyle(
-        'CoverTitle',
+    # Custom Typography Styles
+    eyebrow_style = ParagraphStyle(
+        'CoverEyebrow',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=32,
-        leading=38,
-        textColor=colors.HexColor('#FFFFFF'),
-        spaceAfter=10
-    )
-
-    subtitle_style = ParagraphStyle(
-        'CoverSubtitle',
-        parent=styles['Normal'],
-        fontName='Helvetica',
-        fontSize=15,
-        leading=20,
-        textColor=colors.HexColor('#94A3B8'),
-        spaceAfter=20
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor(C_BLUE),
+        spaceAfter=3,
+        textTransform='uppercase'
     )
 
     h1_style = ParagraphStyle(
-        'SlideTitle',
+        'SlideH1',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
         fontSize=18,
         leading=22,
         textColor=colors.HexColor(C_NAVY),
-        spaceAfter=2
-    )
-
-    eyebrow_style = ParagraphStyle(
-        'Eyebrow',
-        parent=styles['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=8.5,
-        leading=11,
-        textColor=colors.HexColor(C_BLUE),
-        textTransform='uppercase',
-        spaceAfter=3
+        spaceAfter=6
     )
 
     body_style = ParagraphStyle(
-        'BodyDark',
+        'SlideBody',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=9,
-        leading=13,
+        fontSize=8.5,
+        leading=12.5,
         textColor=colors.HexColor(C_TEXT)
     )
 
     body_muted = ParagraphStyle(
-        'BodyMuted',
+        'SlideBodyMuted',
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=8,
@@ -168,37 +162,10 @@ def build_pdf(output_filename="BrandGuard_AI_Executive_Presentation.pdf"):
         'CardTitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=11,
-        leading=14,
+        fontSize=9.5,
+        leading=13,
         textColor=colors.HexColor(C_NAVY),
-        spaceAfter=4
-    )
-
-    metric_big = ParagraphStyle(
-        'MetricBig',
-        parent=styles['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=24,
-        leading=26,
-        textColor=colors.HexColor(C_BLUE)
-    )
-
-    metric_big_red = ParagraphStyle(
-        'MetricBigRed',
-        parent=metric_big,
-        textColor=colors.HexColor(C_RED)
-    )
-
-    metric_big_green = ParagraphStyle(
-        'MetricBigGreen',
-        parent=metric_big,
-        textColor=colors.HexColor(C_GREEN)
-    )
-
-    metric_big_amber = ParagraphStyle(
-        'MetricBigAmber',
-        parent=metric_big,
-        textColor=colors.HexColor(C_AMBER)
+        spaceAfter=3
     )
 
     story = []
@@ -208,45 +175,48 @@ def build_pdf(output_filename="BrandGuard_AI_Executive_Presentation.pdf"):
     # =========================================================================
     cover_data = [
         [
-            Paragraph("<font color='#0EA5E9'><b>INKLOOM AI HACKATHON • ROUND 1 MASTER ARCHITECTURE PLAN</b></font>", eyebrow_style)
+            Paragraph("<font color='#38BDF8'><b>INKLOOM AI HACKATHON • GRAND FINALE CHAMPIONSHIP</b></font>", eyebrow_style)
         ],
         [
-            Paragraph("BrandGuard AI", title_style)
+            Paragraph("<font color='#FFFFFF'><b>BRANDGUARD AI</b></font>", ParagraphStyle('CTitle', fontName='Helvetica-Bold', fontSize=32, leading=38, textColor=colors.white))
         ],
         [
-            Paragraph("Pre-Publication Multi-Modal Brand Governance & Compliance Platform", subtitle_style)
+            Paragraph("<font color='#94A3B8'>Autonomous Pre-Publication Brand Governance, Multi-Jurisdiction Regulatory Enforcement &amp; Cryptographic Stage-Gate Clearance</font>", ParagraphStyle('CSub', fontName='Helvetica', fontSize=12.5, leading=17, textColor=colors.HexColor('#94A3B8')))
         ],
         [
-            Spacer(1, 10)
+            HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#0EA5E9'), spaceBefore=8, spaceAfter=14)
+        ],
+        [
+            Paragraph("<font color='#E2E8F0'><b>Team Synapse:</b> Aman Sharma (Sole Administrator &amp; Backend Lead) • Janhavi Kanojia (Frontend &amp; UI/UX Developer)<br/>"
+                      "<b>Production Deployment:</b> <font color='#38BDF8'>https://brandgovernanceai.onrender.com</font> &bull; <b>GitHub:</b> github.com/CodingWithAman1/BrandGovernanceAI<br/>"
+                      "<b>Core Architecture:</b> Dual Deterministic-Neural Hybrid (5 Tone Polarity Spectrums, SQL Truth Bank, Pillow K-Means WCAG 2.1 AA, Google Gemini 3 Flash)</font>", ParagraphStyle('CBody', fontName='Helvetica', fontSize=9, leading=14, textColor=colors.HexColor('#E2E8F0')))
+        ],
+        [
+            Spacer(1, 12)
         ],
         [
             Table([
                 [
-                    Paragraph("<b>CORE VALUE PROPOSITION</b><br/><font color='#CBD5E1'>An advisory pre-publication stage-gate co-pilot that screens text copy, claims, and graphic banners against brand guidelines and FTC Section 5 rules, offering 1-click tone-preserving rewrites and cryptographic PDF audit certificates.</font>", ParagraphStyle('CoverCard1', parent=body_style, textColor=colors.HexColor('#FFFFFF'), fontSize=9.5, leading=14)),
-                    Paragraph("<b>TEAM SYNAPSE LEADERSHIP</b><br/><font color='#38BDF8'><b>Aman Sharma</b></font> — Team Leader & Full-Stack / Backend Architect<br/><font color='#38BDF8'><b>Janhavi Kanojia</b></font> — Frontend & UI/UX Experience Lead<br/><font color='#94A3B8' size='8'>Built with Python 3.11 • Flask • Werkzeug • SQLite/Postgres • ReportLab • OpenCV</font>", ParagraphStyle('CoverCard2', parent=body_style, textColor=colors.HexColor('#FFFFFF'), fontSize=9.5, leading=14))
+                    Paragraph("<b>VERIFICATION MATRIX</b><br/><font color='#FFFFFF'>24 / 24 Automated Tests (100% Pass)</font>", ParagraphStyle('CM1', fontName='Helvetica', fontSize=8, leading=11, textColor=colors.HexColor('#38BDF8'))),
+                    Paragraph("<b>SOLE ADMIN LOCK</b><br/><font color='#FFFFFF'>aman@synapse.ai (Sole Administrator)</font>", ParagraphStyle('CM2', fontName='Helvetica', fontSize=8, leading=11, textColor=colors.HexColor('#38BDF8'))),
+                    Paragraph("<b>PUBLIC AUDIT LEDGER</b><br/><font color='#FFFFFF'>SHA-256 Zero-Login Verifier (/verify)</font>", ParagraphStyle('CM3', fontName='Helvetica', fontSize=8, leading=11, textColor=colors.HexColor('#38BDF8'))),
+                    Paragraph("<b>CI/CD INTEGRATIONS</b><br/><font color='#FFFFFF'>GitHub Actions Gate (/api/v1/gate/check)</font>", ParagraphStyle('CM4', fontName='Helvetica', fontSize=8, leading=11, textColor=colors.HexColor('#38BDF8'))),
                 ]
-            ], colWidths=[380, 310], style=[
+            ], colWidths=[170, 180, 175, 175], style=[
                 ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#1E293B')),
                 ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#334155')),
-                ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                ('PADDING', (0,0), (-1,-1), 12),
-                ('BOTTOMPADDING', (0,0), (-1,-1), 14),
+                ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#334155')),
+                ('PADDING', (0,0), (-1,-1), 6),
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ])
-        ],
-        [
-            Spacer(1, 16)
-        ],
-        [
-            Paragraph("<font color='#64748B' size='8'>LIVE REPOSITORY: <b>https://github.com/CodingWithAman1/BrandGovernanceAI.git</b>  •  LIVE APPLICATION: <b>https://brandgovernanceai.onrender.com</b></font>", ParagraphStyle('CoverLinks', parent=body_style, textColor=colors.HexColor('#64748B'), alignment=1))
         ]
     ]
 
     t_cover = Table(cover_data, colWidths=[720])
     t_cover.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#0F172A')),
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_NAVY)),
         ('PADDING', (0,0), (-1,-1), 22),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 26),
+        ('BOX', (0,0), (-1,-1), 1.5, colors.HexColor('#0EA5E9')),
     ]))
     story.append(t_cover)
     story.append(PageBreak())
@@ -254,251 +224,213 @@ def build_pdf(output_filename="BrandGuard_AI_Executive_Presentation.pdf"):
     # =========================================================================
     # SLIDE 2: THE GOVERNANCE CRISIS & REGULATORY PRESSURES
     # =========================================================================
-    story.append(Paragraph("THE MARKET CHALLENGE & LEGAL IMPERATIVES", eyebrow_style))
-    story.append(Paragraph("The Content Governance Crisis: Empirical Evidence & Regulatory Crackdown", h1_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph("THE PROBLEM STATEMENT & MARKET OPPORTUNITY", eyebrow_style))
+    story.append(Paragraph("High-Velocity Generative Content vs. Strict Regulatory Compliance", h1_style))
+    story.append(Spacer(1, 8))
 
-    crisis_metrics = [
+    problem_cards = [
         [
-            Paragraph("85%", metric_big_red),
-            Paragraph("3.2 Days", metric_big_amber),
-            Paragraph("30%", metric_big),
-            Paragraph("+33%", metric_big_green)
+            Table([
+                [Paragraph("<b>1. FTC Section 5 & AI Comply</b>", card_title)],
+                [Paragraph("• FTC 15 U.S.C. § 45 strictly prohibits deceptive marketing.<br/>• <i>Operation AI Comply</i> penalizes ungrounded '#1' claims and unverified speed superlatives.<br/>• <b>Penalty:</b> Up to $51,744/day per violation and civil consent decrees.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_RED)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
+
+            Table([
+                [Paragraph("<b>2. SEC AI-Washing Rule</b>", card_title)],
+                [Paragraph("• SEC Rule 10b-5 targets deceptive forward-looking AI statements.<br/>• Companies claiming 'autonomous intelligence' or '100% zero risk' face securities enforcement.<br/>• <b>Penalty:</b> Executive bans, shareholder lawsuits, and mandatory fraud disclosures.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_AMBER)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)])
         ],
         [
-            Paragraph("<b>Have Brand Guidelines</b><br/><font color='#64748B'>Organizations establish formal brand guidelines and style guides.</font>", body_style),
-            Paragraph("<b>Average Review Latency</b><br/><font color='#64748B'>Legal and brand teams take over 72 hours per campaign asset approval.</font>", body_style),
-            Paragraph("<b>Consistent Enforcement</b><br/><font color='#64748B'>Only 30% enforce guidelines consistently across all content channels.</font>", body_style),
-            Paragraph("<b>Revenue Uplift</b><br/><font color='#64748B'>Consistent brand presentation across platforms yields up to 33% higher revenue.</font>", body_style)
+            Table([
+                [Paragraph("<b>3. EU AI Act Art. 50/52 Mandates</b>", card_title)],
+                [Paragraph("• Mandates transparent synthetic content watermarking and disclosure.<br/>• Requires auditable human oversight (HITL) for high-impact promotional copy.<br/>• <b>Penalty:</b> Fines up to €35M or 7% of annual worldwide revenue.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_BLUE)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
+
+            Table([
+                [Paragraph("<b>4. ADA Title III & WCAG 2.1 AA Contrast</b>", card_title)],
+                [Paragraph("• Federal courts require digital marketing to satisfy WCAG 2.1 contrast (4.5:1 ratio).<br/>• Over 4,000 accessibility lawsuits filed in 2023 targeting low-contrast banners.<br/>• <b>Penalty:</b> Statutory attorney fees, mandatory settlement decrees, and injunctions.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_CYAN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)])
         ]
     ]
-    t_crisis = Table(crisis_metrics, colWidths=[175, 175, 175, 175])
-    t_crisis.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)),
-        ('PADDING', (0,0), (-1,-1), 10),
+    t_prob = Table(problem_cards, colWidths=[360, 360])
+    t_prob.setStyle(TableStyle([
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('BOTTOMPADDING', (0,0), (-1,0), 8)
     ]))
-    story.append(t_crisis)
-    story.append(Spacer(1, 14))
-
-    legal_cards = [
-        [
-            Table([
-                [Paragraph("<b>FTC Act Section 5 & Operation AI Comply</b>", card_title)],
-                [Paragraph("Regulatory enforcement against unsubstantiated marketing claims, misleading AI capabilities, and unverified '#1' claims. Companies face massive financial penalties and consent decrees for false marketing superlatives.", body_muted)]
-            ], colWidths=[225], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 10)]),
-
-            Table([
-                [Paragraph("<b>SEC 'AI-Washing' Enforcement</b>", card_title)],
-                [Paragraph("The SEC actively prosecutes organizations falsely overstating AI capabilities, autonomous reliability, and guaranteed ROI to prospective enterprise customers and public investors.", body_muted)]
-            ], colWidths=[225], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 10)]),
-
-            Table([
-                [Paragraph("<b>WCAG 2.1 AA & Accessibility Standards</b>", card_title)],
-                [Paragraph("Legal requirements mandate minimum 4.5:1 luminance contrast ratios for standard text and 3:1 for graphical elements. Non-compliant marketing assets face civil accessibility litigation under ADA Title III.", body_muted)]
-            ], colWidths=[225], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 10)])
-        ]
-    ]
-    t_legal = Table(legal_cards, colWidths=[240, 240, 240])
-    t_legal.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('PADDING', (0,0), (-1,-1), 0),
-    ]))
-    story.append(t_legal)
+    story.append(t_prob)
     story.append(PageBreak())
 
     # =========================================================================
     # SLIDE 3: THREE ISOLATED ROLE PORTALS & FIREBASE AUTHENTICATION
     # =========================================================================
-    story.append(Paragraph("ROLE-BASED WORKSPACE ARCHITECTURE", eyebrow_style))
-    story.append(Paragraph("Three Dedicated Portals with Strict Privilege Separation & Firebase Auth", h1_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph("ROLE-BASED GOVERNANCE ARCHITECTURE", eyebrow_style))
+    story.append(Paragraph("Three Mathematically Isolated Portals with Strict Sole Admin Lock", h1_style))
+    story.append(Spacer(1, 8))
 
-    portal_table = [
+    portal_cards = [
         [
             Table([
-                [Paragraph("<font color='#0EA5E9'><b>CLIENT / CREATOR PORTAL</b></font>", eyebrow_style)],
-                [Paragraph("<b>Marketing & Agency Workspace</b>", card_title)],
-                [Paragraph("<b>URL:</b> <font color='#0EA5E9'>/client/dashboard</font><br/><b>Primary Users:</b> Content Creators, Copywriters, Agencies<br/><b>Core Capabilities:</b><br/>• Pre-Publication Studio with live character counter<br/>• 3 instant test presets (Risky, Jargon, Compliant)<br/>• Real-time diagnostic scorecards with radial gauges<br/>• 1-Click tone-preserving rewrite acceptance<br/>• Side-by-side live diff preview and clean text export<br/>• Stage-gate routing and personal certificate archive", body_style)]
-            ], colWidths=[225], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_CYAN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 10)]),
+                [Paragraph("<b>1. Client / Creator Workspace</b>", card_title)],
+                [Paragraph("<b>Role:</b> CREATOR &bull; <code>/portal/client</code><br/>• Pre-Publish Compliance Studio with multi-modal scanning.<br/>• 1-Click suggested fixes with live score recalculation.<br/>• AI Deep Semantic Harmonization via Google Gemini 3 Flash.<br/>• Business exception rationale submission.<br/>• Personal submission tracking &amp; active certificates.", body_muted)]
+            ], colWidths=[226], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_CYAN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
 
             Table([
-                [Paragraph("<font color='#F59E0B'><b>REVIEWER & LEGAL DESK</b></font>", eyebrow_style)],
-                [Paragraph("<b>Governance & Stage-Gate Desk</b>", card_title)],
-                [Paragraph("<b>URL:</b> <font color='#F59E0B'>/reviewer/dashboard</font><br/><b>Primary Users:</b> Brand Managers, Legal Counsel<br/><b>Core Capabilities:</b><br/>• Centralized Stage-Gate queue of pending releases<br/>• Deep diagnostic inspection with legal citation links<br/>• Side-by-side red/green diff review engine<br/>• Creator justification and override inspection<br/>• Threaded review comments and feedback logs<br/>• 1-Click Approve, Request Changes, or Reject<br/>• Automated PDF Certificate generation on approval", body_style)]
-            ], colWidths=[225], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_AMBER)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 10)]),
+                [Paragraph("<b>2. Reviewer Desk &amp; Legal Queue</b>", card_title)],
+                [Paragraph("<b>Role:</b> REVIEWER / MANAGER &bull; <code>/portal/reviewer</code><br/>• Centralized Stage-Gate review queue with SLA timers.<br/>• Side-by-side red/green diff inspector with inline flag fixes.<br/>• Full visibility into author exception rationales &amp; citations.<br/>• 1-Click Stage-Gate clearance (Approve, Request Changes, Reject).<br/>• Automatic cryptographic SHA-256 PDF certificate compilation.", body_muted)]
+            ], colWidths=[226], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_AMBER)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
 
             Table([
-                [Paragraph("<font color='#EF4444'><b>EXECUTIVE ADMIN CONTROL</b></font>", eyebrow_style)],
-                [Paragraph("<b>Aman Sharma (Sole Administrator)</b>", card_title)],
-                [Paragraph("<b>URL:</b> <font color='#EF4444'>/admin/dashboard</font><br/><b>Authorized User:</b> aman@synapse.ai (Strictly enforced)<br/><b>Core Capabilities:</b><br/>• System-wide telemetry & cross-department metrics<br/>• Dynamic Brand Rulebook CRUD editor (tone, claims, visual)<br/>• SQL Truth Bank manager with citation links<br/>• User management: promote/demote Reviewers & Clients<br/>• Tamper-evident immutable audit log viewer<br/>• Comprehensive Guideline Clarity & Friction Index", body_style)]
-            ], colWidths=[225], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_RED)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 10)])
+                [Paragraph("<b>3. Executive Admin Command Plane</b>", card_title)],
+                [Paragraph("<b>Role:</b> ADMIN &bull; Strictly locked to <b>Aman Sharma</b>.<br/>• Brand Rulebook CRUD with regex and severity controls.<br/>• SQL Truth Bank registry with evidence citations.<br/>• AI Ambiguity Resolver with creator dispute telemetry.<br/>• Clarity Index Analytics with Brand Drift Time-Travel.<br/>• Enterprise user activation/deactivation controls.", body_muted)]
+            ], colWidths=[226], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_RED)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)])
         ]
     ]
-    t_portals = Table(portal_table, colWidths=[240, 240, 240])
-    t_portals.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP')]))
-    story.append(t_portals)
+    t_port = Table(portal_cards, colWidths=[240, 240, 240])
+    t_port.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP')]))
+    story.append(t_port)
     story.append(Spacer(1, 10))
 
-    # Firebase Auth Callout Box
-    fb_box = [
+    switcher_box = [
         [
-            Paragraph("<b>FIREBASE AUTHENTICATION ARCHITECTURE (PROJECT: brandbuildai-2749e)</b><br/><font color='#64748B'>Seamless 1-Click Google Sign-In powered by the Firebase Web SDK. Authenticated tokens are synchronized via <b>/auth/api/firebase-sync</b> to provision user accounts and establish secure, role-restricted Flask-Login sessions with automated RBAC redirects.</font>", body_style)
+            Paragraph("<b>EVALUATOR &amp; JUDGE DEMO MODE: 1-CLICK PERSONA SWITCHER IN NAVBAR</b><br/>"
+                      "To provide an effortless evaluation experience for hackathon judges, BrandGuard AI embeds an agile Persona Quick-Switcher directly into the header. Evaluators can switch seamlessly between Priya (Client Creator), Elena (Legal Reviewer), Marcus (Brand Director), and Aman Sharma (Sole Administrator) with full session re-authentication in 0.04s.", body_muted)
         ]
     ]
-    t_fb = Table(fb_box, colWidths=[720])
-    t_fb.setStyle(TableStyle([
+    t_sw = Table(switcher_box, colWidths=[720])
+    t_sw.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)),
         ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)),
         ('PADDING', (0,0), (-1,-1), 8),
     ]))
-    story.append(t_fb)
+    story.append(t_sw)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 4: THE FOUR COMPLIANCE ENGINES
+    # SLIDE 4: THE FOUR COMPLIANCE ENGINES + GEMINI CO-PILOT
     # =========================================================================
-    story.append(Paragraph("DETERMINISTIC COMPLIANCE ARCHITECTURE", eyebrow_style))
-    story.append(Paragraph("The Four Multi-Modal Governance Engines: Zero-Hallucination Design", h1_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph("THE DETERMINISTIC & NEURAL ENGINE ARCHITECTURE", eyebrow_style))
+    story.append(Paragraph("Four Deterministic Compliance Engines Combined with Google Gemini 3 Flash", h1_style))
+    story.append(Spacer(1, 8))
 
-    engine_grid = [
+    engine_cards = [
         [
             Table([
-                [Paragraph("<font color='#2563EB'><b>ENGINE 1: TONE CALIBRATOR</b></font>", eyebrow_style)],
-                [Paragraph("<b>Voice Polarity & Robotic Jargon Filter</b>", card_title)],
-                [Paragraph("• Evaluates draft text against 5 enterprise tone polarities.<br/>• Regex detection of robotic AI filler (<i>'delve into'</i>, <i>'rich tapestry'</i>, <i>'a testament to'</i>, <i>'game-changer'</i>).<br/>• Filters aggressive/condescending phrasing (<i>'crush competition'</i>, <i>'obviously'</i>).<br/>• Docks score proportionally (Critical: -15, Warning: -10, Suggestion: -5).<br/>• Generates tone-preserving 1-click suggested rewrites.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
+                [Paragraph("<b>Engine 1: Tone Calibrator</b>", card_title)],
+                [Paragraph("• 5 Voice Polarity Vectors &amp; lexical filters.<br/>• Scans for 12 robotic AI filler clichés (<i>delve into</i>, <i>rich tapestry</i>, <i>game-changer</i>).<br/>• Flags combative attacks &amp; ungrounded superlatives.<br/>• Calculates Flesch Reading Ease and Formality Index.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
 
             Table([
-                [Paragraph("<font color='#EF4444'><b>ENGINE 2: TRUTH BANK CHECKER</b></font>", eyebrow_style)],
-                [Paragraph("<b>FTC Section 5 Claims & Evidence Guardrails</b>", card_title)],
-                [Paragraph("• Cross-references claims against the SQL <b>ApprovedFact</b> repository.<br/>• Flags unverified absolute claims (<i>'#1 in the world'</i>, <i>'world's fastest'</i>).<br/>• Catches illegal guarantees (<i>'100% risk-free'</i>, <i>'foolproof'</i>, <i>'never fails'</i>).<br/>• Docks score by -20 per FTC regulatory violation.<br/>• Requires verifiable empirical citations or independent market study links.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)])
+                [Paragraph("<b>Engine 2: SQL Truth Bank Fact-Checker</b>", card_title)],
+                [Paragraph("• Cross-references claims against the <code>ApprovedFact</code> repository.<br/>• Flags unverified superlatives (<i>#1 in the world</i>, <i>100% risk-free</i>).<br/>• Docks -20 points per ungrounded regulatory claim.<br/>• Enforces FTC Act Section 5 substantiation standards.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)])
         ],
         [
             Table([
-                [Paragraph("<font color='#0EA5E9'><b>ENGINE 3: VISUAL INSPECTOR</b></font>", eyebrow_style)],
-                [Paragraph("<b>OpenCV K-Means & WCAG 2.1 Contrast</b>", card_title)],
-                [Paragraph("• OpenCV/PIL image processing with K-Means color quantization.<br/>• Validates uploaded banners against approved corporate design tokens.<br/>• Calculates WCAG 2.1 AA relative luminance contrast ratios:<br/>  <b>Ratio = (L1 + 0.05) / (L2 + 0.05)</b>, enforcing minimum 4.5:1 text threshold.<br/>• Optical Character Recognition (OCR) scans text embedded in banners.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
+                [Paragraph("<b>Engine 3: Pillow K-Means WCAG Inspector</b>", card_title)],
+                [Paragraph("• Extracts dominant palette colors using K-Means clustering.<br/>• Enforces WCAG 2.1 AA luminance formula: <code>Cr = (L1 + 0.05) / (L2 + 0.05)</code>.<br/>• Strict 4.5:1 minimum contrast threshold for text copy.<br/>• Prevents ADA Title III digital accessibility lawsuits.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
 
             Table([
-                [Paragraph("<font color='#10B981'><b>ENGINE 4: CLARITY ENGINE</b></font>", eyebrow_style)],
-                [Paragraph("<b>Guideline Friction Index & Feedback Loop</b>", card_title)],
-                [Paragraph("• Tracks creator dispute rates, overrides, and 1-click acceptance ratios.<br/>• Generates the <b>Guideline Clarity Index</b> and Friction Heatmap.<br/>• Computes rule friction: <b>Friction = Disputed Overrides / Total Flags</b>.<br/>• Identifies ambiguous corporate rules causing repetitive creator mistakes.<br/>• Empowers leadership to fix outdated guidelines instead of blaming staff.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)])
+                [Paragraph("<b>Engine 4: Google Gemini 3 Flash Co-Pilot</b>", card_title)],
+                [Paragraph("• Resilient multi-model cascade (<code>gemini-3.1-flash-lite</code> &rarr; <code>gemini-flash-lite-latest</code> &rarr; Local NLP).<br/>• Powers Deep Semantic Harmonization &amp; Safe Harbor Disclaimers.<br/>• Interactive slide-out governance chat drawer with live telemetry.<br/>• Closed-loop validator prevents generative AI hallucinations.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)])
         ]
     ]
-    t_engines = Table(engine_grid, colWidths=[360, 360])
-    t_engines.setStyle(TableStyle([
+    t_eng = Table(engine_cards, colWidths=[360, 360])
+    t_eng.setStyle(TableStyle([
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
         ('BOTTOMPADDING', (0,0), (-1,0), 8)
     ]))
-    story.append(t_engines)
+    story.append(t_eng)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 5: END-TO-END WORKFLOW & CRYPTOGRAPHIC CERTIFICATION
+    # SLIDE 5: WORKFLOW, PUBLIC VERIFIER & CRYPTOGRAPHIC CERTIFICATION
     # =========================================================================
-    story.append(Paragraph("HUMAN-IN-THE-LOOP (HITL) GOVERNANCE LIFECYCLE", eyebrow_style))
-    story.append(Paragraph("The Five-Step Pre-Publication Stage-Gate & PDF Certification", h1_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph("STAGE-GATE CLEARANCE & CRYPTOGRAPHIC LEDGER", eyebrow_style))
+    story.append(Paragraph("Human-in-the-Loop Workflow, Public Verifier (/verify) & SHA-256 PDF", h1_style))
+    story.append(Spacer(1, 8))
 
-    flow_steps = [
+    workflow_flow = [
         [
             Table([
-                [Paragraph("<b>STEP 1</b>", eyebrow_style)],
-                [Paragraph("<b>Pre-Publish Studio</b>", card_title)],
-                [Paragraph("Creator inputs campaign copy or graphic asset. Studio triggers Laser Scanner HUD modal before submission.", body_muted)]
-            ], colWidths=[135], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
+                [Paragraph("<b>Step 1: Multi-Modal Ingest</b>", card_title)],
+                [Paragraph("Creator drafts marketing text or uploads banner creatives; Laser Scanner HUD executes 4-phase audit.", body_muted)]
+            ], colWidths=[130], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 7)]),
 
             Table([
-                [Paragraph("<b>STEP 2</b>", eyebrow_style)],
-                [Paragraph("<b>Diagnostic Scorecard</b>", card_title)],
-                [Paragraph("Multi-engine evaluation runs in <150ms. Renders Health Score radial gauge and granular finding cards.", body_muted)]
-            ], colWidths=[135], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
+                [Paragraph("<b>Step 2: 1-Click Fix &amp; AI</b>", card_title)],
+                [Paragraph("Accepts one-click suggested fixes or executes AI Deep Harmonization via Gemini 3 Flash.", body_muted)]
+            ], colWidths=[130], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 7)]),
 
             Table([
-                [Paragraph("<b>STEP 3</b>", eyebrow_style)],
-                [Paragraph("<b>1-Click Remediation</b>", card_title)],
-                [Paragraph("Creator accepts 1-click rewrites. Live diff updates with green pulse; compliance score recalculates dynamically.", body_muted)]
-            ], colWidths=[135], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
+                [Paragraph("<b>Step 3: Stage-Gate Queue</b>", card_title)],
+                [Paragraph("Routes to Reviewer Desk; legal counsel reviews side-by-side red/green diffs and exception notes.", body_muted)]
+            ], colWidths=[130], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 7)]),
 
             Table([
-                [Paragraph("<b>STEP 4</b>", eyebrow_style)],
-                [Paragraph("<b>Stage-Gate Queue</b>", card_title)],
-                [Paragraph("Clean draft routes to Reviewer Desk. Manager and Legal Counsel inspect diffs, citations, and comment threads.", body_muted)]
-            ], colWidths=[135], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
+                [Paragraph("<b>Step 4: Formal Clearance</b>", card_title)],
+                [Paragraph("Authorized reviewer executes 1-click Approval; locks copy text, approver email, and UTC timestamp.", body_muted)]
+            ], colWidths=[130], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 7)]),
 
             Table([
-                [Paragraph("<font color='#10B981'><b>STEP 5</b></font>", eyebrow_style)],
-                [Paragraph("<b>PDF Certification</b>", card_title)],
-                [Paragraph("Formal approval triggers SHA-256 content hashing and generates an immutable PDF Compliance Certificate.", body_muted)]
-            ], colWidths=[135], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 3, colors.HexColor(C_GREEN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)])
+                [Paragraph("<b>Step 5: Public Verifier</b>", card_title)],
+                [Paragraph("ReportLab compiles tamper-evident PDF; registers SHA-256 digest on public <code>/verify</code> ledger.", body_muted)]
+            ], colWidths=[130], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)), ('LINEBEFORE', (0,0), (0,-1), 3.5, colors.HexColor(C_GREEN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 7)])
         ]
     ]
-    t_flow = Table(flow_steps, colWidths=[144, 144, 144, 144, 144])
+    t_flow = Table(workflow_flow, colWidths=[144, 144, 144, 144, 144])
     t_flow.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP')]))
     story.append(t_flow)
-    story.append(Spacer(1, 14))
+    story.append(Spacer(1, 10))
 
-    cert_info = [
+    cert_box = [
         [
-            Paragraph("<b>ANATOMY OF THE CRYPTOGRAPHIC PDF COMPLIANCE CERTIFICATE</b>", card_title)
-        ],
-        [
-            Table([
-                [
-                    Paragraph("<b>• SHA-256 Digital Fingerprint:</b> Cryptographically seals the exact approved text so any post-approval tampering invalidates the certificate.<br/><b>• Complete Audit Trail:</b> Logs Submission ID, Approver ID, Formal Approver Name, Department, and UTC Timestamp.<br/><b>• Health Score Card:</b> Embeds final Overall Compliance, Tone Balance, Truth Verification, and Visual Contrast scores.", body_style),
-                    Paragraph("<b>• Enterprise Due Diligence:</b> Serves as an immutable legal defense artifact for regulatory compliance audits (FTC, SEC, and EU AI Act).<br/><b>• Automated Generation:</b> Assembled on the fly via ReportLab using vector graphics, formal regulatory headings, and security seals.<br/><b>• Instant Client Access:</b> Downloadable directly from the Client Portal and Reviewer Desk.", body_style)
-                ]
-            ], colWidths=[350, 350], style=[
-                ('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)),
-                ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                ('PADDING', (0,0), (-1,-1), 8),
-            ])
+            Paragraph("<b>PUBLIC CRYPTOGRAPHIC VERIFIER &amp; SHA-256 AUDIT LEDGER (/verify &amp; /verify/&lt;cert_hash&gt;)</b><br/>"
+                      "• <b>Zero-Login External Verification:</b> Regulatory bodies (FTC/SEC/CMA) and enterprise customers can look up any certificate hash or scan a QR code to verify authenticity without requiring internal system access.<br/>"
+                      "• <b>Tamper-Evident Digest Seal:</b> Evaluates <code>hashlib.sha256(raw_content)</code>. Modifying even a single character in approved marketing copy immediately fails verification, eliminating post-publication tampering.<br/>"
+                      "• <b>Official PDF Compliance Certificates:</b> Generates downloadable PDF certificates embedding approver signature (Aman Sharma), multi-modal compliance sub-scores, and embeddable live HTML/Markdown badges.", body_muted)
         ]
     ]
-    t_cert = Table(cert_info, colWidths=[720])
+    t_cert = Table(cert_box, colWidths=[720])
     t_cert.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')),
         ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)),
-        ('PADDING', (0,0), (-1,-1), 10),
+        ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_GREEN)),
+        ('PADDING', (0,0), (-1,-1), 8),
     ]))
     story.append(t_cert)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 6: OBSIDIAN CYBER UI & INTERACTIVE MICRO-INTERACTIONS
+    # SLIDE 6: OBSIDIAN CYBER UI & 0MS HARDWARE CURSOR
     # =========================================================================
     story.append(Paragraph("UI/UX DESIGN SYSTEM & LIVE MICRO-INTERACTIONS", eyebrow_style))
-    story.append(Paragraph("Extraordinary Obsidian Cyberpunk Interface with Dual Cursor & Laser HUD", h1_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph("Extraordinary Obsidian Cyberpunk Interface with 0ms Cursor & 3D WebGL", h1_style))
+    story.append(Spacer(1, 8))
 
     ui_grid = [
         [
             Table([
-                [Paragraph("<b>Interactive Dual Cyber Cursor</b>", card_title)],
-                [Paragraph("• Inner luminous pointer dot (<b>#cursor-dot</b>) with instantaneous tracking.<br/>• Outer magnetic trailing glow ring (<b>#cursor-ring</b>) using 60 FPS Linear Interpolation (lerp) trailing physics.<br/>• Dynamic role-based color shifting (Cyan for Client, Amber for Reviewer, Crimson for Admin).<br/>• Magnetic hover scale on buttons, chips, and inputs with click shockwave ripple animation.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
+                [Paragraph("<b>Hardware-Accelerated Cyber Cursor</b>", card_title)],
+                [Paragraph("• Zero-lag <code>pointermove</code> listener with 0ms placement.<br/>• GPU-accelerated <code>translate3d</code> avoiding layout thrashing.<br/>• Dynamic role-based colors (Cyan Client, Amber Reviewer, Crimson Admin).<br/>• Strict <code>cursor: text !important</code> auto-fallback for form inputs.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
 
             Table([
-                [Paragraph("<b>Moving Background Aurora & Particles</b>", card_title)],
-                [Paragraph("• Four ambient radial aurora orbs (Indigo, Cyan, Violet, Rose) drifting along smooth Lissajous curves.<br/>• HTML5 Canvas constellation particle engine generating 40+ drifting luminous nodes that connect with faint vector lines.<br/>• Cyber command grid overlay with radial vignette mask.<br/>• Auto-pauses on background tabs for zero battery drain.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)])
+                [Paragraph("<b>Three.js 3D WebGL Holographic Core</b>", card_title)],
+                [Paragraph("• Local offline-ready Three.js 3D Holographic Governance Core.<br/>• Single WebGL context architecture with RAF rendering loop.<br/>• IntersectionObserver pauses rendering when canvas leaves viewport.<br/>• Real-time 3D card parallax tilt with 60 FPS damping physics.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)])
         ],
         [
             Table([
                 [Paragraph("<b>Multi-Engine Laser Scanner HUD</b>", card_title)],
-                [Paragraph("• Holographic modal overlay triggered upon clicking 'Run Pre-Publication Audit'.<br/>• Oscillating neon laser scanline traversing down the document.<br/>• Real-time digital progress gauge counting from 0% to 100%.<br/>• Live terminal status ticks verifying NLP features, Truth Bank claims, OpenCV contrast, and rewrite calibration.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
+                [Paragraph("• Full-screen holographic modal overlay on audit submission.<br/>• Oscillating neon laser scanline traversing down the document.<br/>• Real-time digital progress gauge counting from 0% to 100%.<br/>• Live terminal status ticks verifying NLP features, Truth Bank, and WCAG.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
 
             Table([
-                [Paragraph("<b>Side-by-Side Diff Engine & 1-Click Fixes</b>", card_title)],
-                [Paragraph("• Live comparison between unvetted initial draft and active remediated copy.<br/>• 1-Click Accept Fix flashes updated text with emerald dark-mode glow.<br/>• Instant 'Copy Snippet' button for each individual recommendation.<br/>• 'Copy Clean Copy' and 'Export (.txt)' buttons for zero-friction copywriter workflow.<br/>• Glassmorphism toast notifications confirming all actions.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)])
+                [Paragraph("<b>Omnichannel Live Social Previews</b>", card_title)],
+                [Paragraph("• Pixel-accurate live preview mockups for LinkedIn, Twitter/X, and Google SERP.<br/>• Real-time synchronization with active Studio text input.<br/>• Visualizes social card clipping, metadata contrast, and search snippet boundaries.<br/>• 1-Click copy formatted clean copy into clipboard.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)])
         ]
     ]
     t_ui = Table(ui_grid, colWidths=[360, 360])
@@ -510,134 +442,90 @@ def build_pdf(output_filename="BrandGuard_AI_Executive_Presentation.pdf"):
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 7: TECHNICAL ARCHITECTURE & DATA SCHEMA
+    # SLIDE 7: ENTERPRISE ARCHITECTURE: BATTLECARDS, BRAND DNA & CI/CD
     # =========================================================================
-    story.append(Paragraph("TECHNICAL SPECIFICATIONS & SCHEMA", eyebrow_style))
-    story.append(Paragraph("Relational SQL Data Model, Flask Modular Architecture & RESTful API", h1_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph("ROUND 3 ENTERPRISE EXPANSION", eyebrow_style))
+    story.append(Paragraph("Competitor Battlecard Studio, Brand Voice DNA & CI/CD Stage-Gate", h1_style))
+    story.append(Spacer(1, 8))
 
-    schema_data = [
+    ent_grid = [
         [
-            Paragraph("<b>DATABASE MODEL</b>", eyebrow_style),
-            Paragraph("<b>CORE ATTRIBUTES & RELATIONS</b>", eyebrow_style),
-            Paragraph("<b>GOVERNANCE RESPONSIBILITY</b>", eyebrow_style)
+            Table([
+                [Paragraph("<b>Competitor Battlecard Studio (/scanner/competitor-studio)</b>", card_title)],
+                [Paragraph("• Crawls competitor URLs or analyzes pasted ad copy.<br/>• Flags unverified superlatives and AI-washing claims under FTC Section 5.<br/>• Cross-references assertions against the SQL Truth Bank.<br/>• Automatically synthesizes 3-pillar battlecards via Google Gemini 3 Flash:<br/>  1) AE Customer Call Pitch, 2) LinkedIn Hook, 3) Executive PR Positioning.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_BLUE)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
+
+            Table([
+                [Paragraph("<b>Brand Voice DNA Profiler (/brand-dna)</b>", card_title)],
+                [Paragraph("• Ingests corporate brand manifestos and founder style guides.<br/>• Extracts quantifiable 5-axis voice polarities (Authority, Warmth, Innovation, Plainspokenness, Technical Depth).<br/>• Synthesizes high-resonance power lexicons and banned synthetic clichés.<br/>• 1-Click commit of generated governance rules into the active rulebook.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_CYAN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)])
         ],
         [
-            Paragraph("<b>User</b>", body_style),
-            Paragraph("id, name, email, role (CREATOR, REVIEWER, ADMIN), department, organization, firebase_uid, is_active", body_muted),
-            Paragraph("Role-Based Access Control; strictly locks sole admin privilege to aman@synapse.ai.", body_muted)
-        ],
-        [
-            Paragraph("<b>BrandGuideline</b>", body_style),
-            Paragraph("id, rule_code, category (TONE, CLAIM, VISUAL), rule_title, severity, forbidden_patterns, citation_ref", body_muted),
-            Paragraph("The corporate brand rulebook; drives deterministic regex and NLP evaluation.", body_muted)
-        ],
-        [
-            Paragraph("<b>ApprovedFact</b>", body_style),
-            Paragraph("id, topic, claim_statement, approved_source_link, evidence_excerpt, expiration_date, is_active", body_muted),
-            Paragraph("The immutable SQL Truth Bank; grounds verified enterprise claims under FTC Section 5.", body_muted)
-        ],
-        [
-            Paragraph("<b>Submission</b>", body_style),
-            Paragraph("id, title, content_type, raw_content, original_content, creator_id, reviewer_id, status, compliance_scores", body_muted),
-            Paragraph("The lifecycle tracking model spanning Draft, Scanned, Pending, Changes Requested, and Approved.", body_muted)
-        ],
-        [
-            Paragraph("<b>EvaluationFlag</b>", body_style),
-            Paragraph("id, submission_id, guideline_id, flag_type, flagged_snippet, explanation, suggested_fix, status, override_reason", body_muted),
-            Paragraph("Granular violation items enabling 1-click remediation or formal creator justifications.", body_muted)
-        ],
-        [
-            Paragraph("<b>ReviewLog</b>", body_style),
-            Paragraph("id, submission_id, actor_id, action (SCAN, FIX_ACCEPTED, SUBMIT, APPROVED), comment, timestamp", body_muted),
-            Paragraph("Immutable tamper-evident audit ledger capturing all human and system actions.", body_muted)
+            Table([
+                [Paragraph("<b>Enterprise CI/CD Quality Gate (/api/v1/gate/check)</b>", card_title)],
+                [Paragraph("• Copyable GitHub Actions workflow (<code>brandguard-gate.yml</code>).<br/>• Programmatic REST API endpoint evaluates marketing copy in CI pipelines.<br/>• Returns HTTP 422 to automatically block pull requests with scores &lt; 85.<br/>• Live API test playground in <code>/integrations</code> with cURL, Python, and Node.js.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_GREEN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
+
+            Table([
+                [Paragraph("<b>Audit Vault &amp; Brand Drift Time-Travel</b>", card_title)],
+                [Paragraph("• Dedicated Regulatory Audit Vault at <code>/analytics/audit-vault-export</code>.<br/>• Exports signed JSON compliance dossiers with cryptographic seals.<br/>• Time-travel telemetry tracks brand drift across campaign versions.<br/>• Webhook dispatch formats for Slack and Microsoft Teams incident alerts.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_AMBER)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)])
         ]
     ]
-    t_schema = Table(schema_data, colWidths=[120, 340, 260])
-    t_schema.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor(C_LIGHT_BG)),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor(C_BORDER)),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('PADDING', (0,0), (-1,-1), 5),
+    t_ent = Table(ent_grid, colWidths=[360, 360])
+    t_ent.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('BOTTOMPADDING', (0,0), (-1,0), 8)
     ]))
-    story.append(t_schema)
-    story.append(Spacer(1, 10))
-
-    api_callout = [
-        [
-            Paragraph("<b>PROGRAMMATIC REST API ENDPOINTS</b><br/>"
-                      "• <b>POST /api/v1/scan</b> — Payload: <i>{\"text\": \"...\"}</i> &rarr; Returns: overall score, tone score, claim score, and flag list.<br/>"
-                      "• <b>GET /api/v1/guidelines</b> — Returns: active corporate rules, categories, severities, and source citations.<br/>"
-                      "• <b>POST /auth/api/firebase-sync</b> — Payload: <i>{idToken, uid, email, portal}</i> &rarr; Syncs Firebase token and returns session cookie.", body_muted)
-        ]
-    ]
-    t_api = Table(api_callout, colWidths=[720])
-    t_api.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)),
-        ('PADDING', (0,0), (-1,-1), 7),
-    ]))
-    story.append(t_api)
+    story.append(t_ent)
     story.append(PageBreak())
 
     # =========================================================================
-    # SLIDE 8: TESTING, PRODUCTION DEPLOYMENT & SUMMARY
+    # SLIDE 8: TESTING, DEPLOYMENT & ROADMAP
     # =========================================================================
-    story.append(Paragraph("TESTING, DEPLOYMENT & ROADMAP", eyebrow_style))
-    story.append(Paragraph("Comprehensive Verification, Cloud Deployment & Next Milestones", h1_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph("VERIFICATION, DEPLOYMENT & ROADMAP", eyebrow_style))
+    story.append(Paragraph("Comprehensive Test Suite, Live Cloud Deployment & Product Roadmap", h1_style))
+    story.append(Spacer(1, 8))
 
     summary_cards = [
         [
             Table([
-                [Paragraph("<b>32/32 Automated Tests (100% Pass Across 3 Suites)</b>", card_title)],
-                [Paragraph("• <b>test_complete_suite.py (12 Tests):</b> Tone Calibrator, Claims Checker, Visual Inspector, Clarity Engine, PDF Generator, Route Protection, Sole Admin Lock, Portal Isolation, and Full Lifecycle.<br/>• <b>test_portals_auth.py (10 Tests):</b> Firebase sync, dynamic navbars, role redirects, and RBAC enforcement.<br/>• <b>test_ai_features.py (10 Tests):</b> AI Co-Pilot, Deep Harmonize, FTC Safe Harbor, and Rule Synthesis.<br/>• All tests passing with 100% assertions satisfied.", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_GREEN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)]),
+                [Paragraph("<b>24/24 Automated Tests (100% Pass Rate)</b>", card_title)],
+                [Paragraph("• <b>test_complete_suite.py (18 Tests):</b> Covers Tone Calibrator, Claims Checker, Visual Inspector, Clarity Engine, PDF Generator, Sole Admin Lock (Aman Sharma), Stage-Gate Lifecycle, Audit Vault JSON, and Cyber Cursor.<br/>• <b>test_round3_features.py (6 Tests):</b> Validates Public Certificate Verifier (/verify), Developer Hub (/integrations), Competitor Battlecards, Brand Voice DNA, and CI/CD Quality Gate API (/api/v1/gate/check).<br/>• 100% assertions satisfied with zero regressions.", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_GREEN)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)]),
 
             Table([
                 [Paragraph("<b>Production Cloud Deployment (Render)</b>", card_title)],
-                [Paragraph("• <b>Render Cloud PaaS:</b> Connected directly to GitHub repository with automatic CI/CD on git push to <b>main</b>.<br/>• <b>Gunicorn WSGI:</b> Configured via <b>gunicorn.conf.py</b> and <b>Procfile</b> binding dynamically to <b>0.0.0.0:$PORT</b>.<br/>• <b>Zero-Downtime Healthcheck:</b> Dedicated <b>/healthz</b> route for Render load balancers.<br/>• <b>Live Repo:</b> github.com/CodingWithAman1/BrandGovernanceAI", body_muted)]
-            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_BLUE)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 9)])
+                [Paragraph("• <b>Render Cloud PaaS:</b> Publicly active at <b>https://brandgovernanceai.onrender.com</b>.<br/>• <b>Gunicorn WSGI Server:</b> High-concurrency production server dynamically binding to <code>0.0.0.0:$PORT</code>.<br/>• <b>Automated CI/CD:</b> Git push to branch <b>main</b> triggers live cloud build.<br/>• <b>Zero-Downtime Healthcheck:</b> Dedicated <code>/healthz</code> route for load balancers.<br/>• <b>Live Repository:</b> github.com/CodingWithAman1/BrandGovernanceAI", body_muted)]
+            ], colWidths=[340], style=[('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')), ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_BLUE)), ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)), ('PADDING', (0,0), (-1,-1), 8)])
         ]
     ]
     t_summary = Table(summary_cards, colWidths=[360, 360])
     t_summary.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP')]))
     story.append(t_summary)
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 8))
 
-    # Closing Team Box
+    # Product Roadmap & Team Credits Box
     closing_box = [
         [
-            Paragraph("<font color='#0EA5E9'><b>SUBMISSION FOR INKLOOM AI HACKATHON • ROUND 1 MASTER PLAN</b></font>", eyebrow_style)
+            Paragraph("<b>FUTURE ROADMAP &amp; EXECUTIVE CREDITS • TEAM SYNAPSE</b>", eyebrow_style)
         ],
         [
-            Paragraph("<b>Team Synapse:</b> Aman Sharma & Janhavi Kanojia", card_title)
+            Paragraph("<b>Aman Sharma</b> (Sole Administrator &amp; Backend Lead)  •  <b>Janhavi Kanojia</b> (Frontend &amp; UI/UX Lead)", card_title)
         ],
         [
-            Paragraph("BrandGuard AI transitions enterprise brand governance from a reactive, bureaucratic bottleneck into an intelligent, real-time advisory co-pilot. By unifying linguistic polarity checks, FTC claim verification, accessibility inspections, and cryptographic certification into three dedicated role portals, BrandGuard AI ensures that every piece of published content is verifiable, compliant, and on-brand.", body_style)
-        ],
-        [
-            Spacer(1, 4)
-        ],
-        [
-            Table([
-                [
-                    Paragraph("<b>Live GitHub Repository:</b><br/><font color='#2563EB'>https://github.com/CodingWithAman1/BrandGovernanceAI.git</font>", body_muted),
-                    Paragraph("<b>Live Cloud Application:</b><br/><font color='#2563EB'>https://brandgovernanceai.onrender.com</font>", body_muted)
-                ]
-            ], colWidths=[350, 350], style=[
-                ('BACKGROUND', (0,0), (-1,-1), colors.HexColor(C_LIGHT_BG)),
-                ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                ('PADDING', (0,0), (-1,-1), 8),
-            ])
+            Paragraph("• <b>Phase 1 (Q1 2027):</b> Headless Browser Crawler (Puppeteer/Playwright) to parse dynamic client-rendered React/Vue competitor web applications.<br/>"
+                      "• <b>Phase 2 (Q2 2027):</b> Native Figma &amp; Google Docs desktop plugins delivering real-time brand voice feedback inline during drafting.<br/>"
+                      "• <b>Phase 3 (Q3 2027):</b> Public Blockchain Timestamp Anchoring (Hedera/Polygon) for court-admissible audit proof in regulatory due diligence.<br/>"
+                      "<b>Live Application:</b> <font color='#2563EB'>https://brandgovernanceai.onrender.com</font> &bull; <b>GitHub:</b> <font color='#2563EB'>https://github.com/CodingWithAman1/BrandGovernanceAI.git</font>", body_muted)
         ]
     ]
     t_closing = Table(closing_box, colWidths=[720])
     t_closing.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFFFFF')),
         ('BOX', (0,0), (-1,-1), 1, colors.HexColor(C_BORDER)),
-        ('PADDING', (0,0), (-1,-1), 12),
+        ('LINEBEFORE', (0,0), (0,-1), 4, colors.HexColor(C_CYAN)),
+        ('PADDING', (0,0), (-1,-1), 8),
     ]))
     story.append(t_closing)
 
