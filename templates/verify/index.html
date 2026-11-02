@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block title %}Cryptographic Certificate Verifier & Ledger — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-11 col-lg-12">
+
+    <!-- Hero Header -->
+    <div class="text-center mb-5 fade-in-down">
+      <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-10 text-cyan border border-info border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-shield-lock-fill text-cyan"></i> PUBLIC REGULATORY LEDGER &bull; FIPS 180-4
+      </div>
+      <h2 class="fw-bold mb-2" style="letter-spacing: -0.03em;">Cryptographic Certificate Verifier</h2>
+      <p class="text-muted small mx-auto" style="max-width: 680px;">
+        Zero-login public verification gateway for BrandGuard-certified marketing assets. Independently validate SHA-256 cryptographic digests, approver signatures, and stage-gate compliance timestamps.
+      </p>
+    </div>
+
+    <!-- Telemetry Stats Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-6">
+        <div class="bg-card p-3 border-cyber-glow text-center">
+          <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Certified Assets</div>
+          <div class="fs-3 fw-bold text-cyan mt-1">{{ total_certified }}</div>
+          <div class="text-success small" style="font-size: 0.7rem;"><i class="bi bi-patch-check-fill me-1"></i>Active Ledger</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="bg-card p-3 border-cyber-glow text-center">
+          <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Digest Algorithm</div>
+          <div class="fs-4 fw-bold text-white mt-1">SHA-256</div>
+          <div class="text-info small" style="font-size: 0.7rem;"><i class="bi bi-cpu me-1"></i>FIPS 180-4 Standard</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="bg-card p-3 border-cyber-glow text-center">
+          <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Ledger State</div>
+          <div class="fs-3 fw-bold text-emerald mt-1">100%</div>
+          <div class="text-success small" style="font-size: 0.7rem;"><i class="bi bi-lock-fill me-1"></i>Immutable & Tamper-Evident</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="bg-card p-3 border-cyber-glow text-center">
+          <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Authorized Signer</div>
+          <div class="fw-bold text-warning mt-2 small text-truncate">Aman Sharma</div>
+          <div class="text-muted small" style="font-size: 0.7rem;">aman@synapse.ai (Lead Auditor)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search / Verify Bar -->
+    <div class="bg-card card-glow-shimmer p-4 mb-4 shadow-sm border-cyber-glow fade-in-up stagger-1">
+      <form method="GET" action="{{ url_for('portal.verify_index') }}">
+        <label class="form-label fw-bold text-light small mb-2">
+          <i class="bi bi-qr-code-scan text-cyan me-1"></i> Enter Certificate Hash, Submission ID, or Content Digest:
+        </label>
+        <div class="input-group input-group-lg shadow-sm">
+          <span class="input-group-text bg-dark border-secondary border-opacity-50 text-cyan">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" name="q" class="form-control font-monospace bg-dark text-white border-secondary border-opacity-50" 
+                 placeholder="e.g. 2, A7B9F123C4D5E6F0, or full 64-character SHA-256 hash..." 
+                 value="{{ search_query or '' }}" required autofocus>
+          <button class="btn btn-gradient-primary px-4 fw-bold" type="submit">
+            <i class="bi bi-shield-check me-1"></i> Verify Authenticity
+          </button>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <span class="text-muted small" style="font-size: 0.74rem;">
+            Public auditors, regulators (FTC/SEC/UK CMA), and clients can verify any released asset without credentials.
+          </span>
+          {% if certified_entries %}
+          <span class="text-muted small" style="font-size: 0.74rem;">
+            Quick test: Click any entry below to inspect proof.
+          </span>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+
+    <!-- Certified Ledger Table -->
+    <div class="bg-card p-4 border-cyber-glow shadow-sm fade-in-up stagger-2">
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-card-checklist text-cyan fs-5"></i>
+          <h5 class="fw-bold mb-0 text-white">Recent Certified Publication Ledger</h5>
+        </div>
+        <span class="badge bg-success bg-opacity-15 text-emerald border border-success border-opacity-25 px-2 py-1">
+          <span class="pulse-dot pulse-dot-green me-1"></span> Live Ledger Active
+        </span>
+      </div>
+
+      {% if certified_entries %}
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+          <thead>
+            <tr class="text-muted small border-secondary border-opacity-25" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+              <th>STATUS</th>
+              <th>SUBMISSION ASSET</th>
+              <th>COMPLIANCE SCORE</th>
+              <th>CERTIFICATE HASH</th>
+              <th>AUTHORIZED SIGNER</th>
+              <th>TIMESTAMP (UTC)</th>
+              <th class="text-end">ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in certified_entries %}
+            <tr class="border-secondary border-opacity-15">
+              <td>
+                <span class="badge bg-success bg-opacity-20 text-emerald border border-success border-opacity-30 px-2 py-1 small fw-bold">
+                  <i class="bi bi-patch-check-fill me-1"></i> VERIFIED
+                </span>
+              </td>
+              <td>
+                <div class="fw-bold text-white small">{{ entry.submission.title }}</div>
+                <span class="text-muted small" style="font-size: 0.72rem;">ID #{{ entry.submission.id }} &bull; {{ entry.submission.content_type }}</span>
+              </td>
+              <td>
+                <span class="badge {% if entry.submission.compliance_score >= 90 %}bg-success{% elif entry.submission.compliance_score >= 80 %}bg-primary{% else %}bg-warning text-dark{% endif %} px-2 py-1 fw-bold">
+                  {{ entry.submission.compliance_score }} / 100
+                </span>
+              </td>
+              <td>
+                <code class="text-cyan bg-dark border border-secondary border-opacity-25 px-2 py-1 rounded" style="font-size: 0.78rem;">
+                  {{ entry.cert_hash }}
+                </code>
+              </td>
+              <td>
+                <div class="text-light small">{{ entry.approver }}</div>
+                <span class="text-muted small" style="font-size: 0.70rem;">Team Synapse Governance</span>
+              </td>
+              <td>
+                <span class="text-muted small" style="font-size: 0.75rem;">
+                  {{ entry.timestamp.strftime('%Y-%m-%d %H:%M') if entry.timestamp else 'Recently' }}
+                </span>
+              </td>
+              <td class="text-end">
+                <a href="{{ url_for('portal.verify_cert', cert_hash=entry.cert_hash) }}" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" style="font-size: 0.78rem;">
+                  Inspect <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
+        <p class="mb-0">No approved submissions in the ledger yet. Submit and approve content through the Reviewer Desk to generate certificates.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

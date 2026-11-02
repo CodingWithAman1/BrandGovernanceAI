@@ -151,3 +151,100 @@ def remediate_rule(rule_id):
         flash("AI Ambiguity Resolver could not process amendment at this time.", "warning")
 
     return redirect(url_for('guidelines.list_all'))
+
+
+# =============================================================================
+# BRAND VOICE DNA PROFILER & ARCHETYPE CALIBRATOR
+# =============================================================================
+
+@guidelines_bp.route('/brand-dna', methods=['GET', 'POST'])
+@login_required
+def brand_dna():
+    """
+    Brand Voice DNA Profiler:
+    Extracts voice polarities, power lexicons, and prohibited synthetic clichés
+    from unstructured brand manifestos, with 1-click rulebook commitment.
+    """
+    from engines.ai_copilot import ai_copilot
+
+    archetypes = {
+        'stripe': {
+            'name': 'Enterprise Consultative (Stripe / AWS)',
+            'sample': (
+                "We believe infrastructure should be invisible, dependable, and rigorously architected. "
+                "Our tone is consultative, clear, and grounded in empirical data. We avoid marketing fluff, "
+                "unsubstantiated '#1' claims, and aggressive hype. We explain complex systems simply and treat "
+                "developers and CFOs as discerning partners."
+            )
+        },
+        'apple': {
+            'name': 'Minimalist Precision (Apple / Braun)',
+            'sample': (
+                "Simplicity is the ultimate sophistication. Every word must earn its place. We craft experiences "
+                "that feel intuitive, human, and thoughtfully restrained. We avoid corporate buzzwords, excessive adjectives, "
+                "and synthetic filler. Our products speak with quiet confidence and meticulous craft."
+            )
+        },
+        'nike': {
+            'name': 'Bold Challenger (Nike / Liquid Death)',
+            'sample': (
+                "We champion the relentless pursuit of greatness. We speak with urgency, conviction, and fearless energy. "
+                "We challenge the status quo, destroy complacency, and celebrate grit. Our voice is raw, direct, and unapologetic. "
+                "Passive language has no place here."
+            )
+        }
+    }
+
+    dna_profile = None
+    input_text = ""
+    selected_archetype = ""
+
+    if request.method == 'POST':
+        action = request.form.get('action', 'analyze')
+        
+        if action == 'save_rule':
+            if current_user.role not in ['MANAGER', 'ADMIN']:
+                flash("Only Managers and Admins can commit brand rules to the official rulebook.", "warning")
+            else:
+                rule_title = request.form.get('rule_title', 'Voice DNA Calibrated Rule').strip()
+                rule_desc = request.form.get('rule_desc', '').strip()
+                banned = request.form.get('banned_patterns', '').strip()
+                replacement = request.form.get('replacement', '').strip()
+                
+                existing_count = BrandGuideline.query.filter(BrandGuideline.rule_code.like('BG-DNA-%')).count()
+                rule_code = f"BG-DNA-{existing_count + 1:02d}"
+
+                new_rule = BrandGuideline(
+                    rule_code=rule_code,
+                    category='TONE',
+                    rule_title=rule_title,
+                    rule_description=rule_desc,
+                    severity='WARNING',
+                    forbidden_patterns=banned,
+                    recommended_replacement=replacement,
+                    citation_ref=f"Brand Voice DNA § {rule_code}"
+                )
+                db.session.add(new_rule)
+                db.session.commit()
+                flash(f"Brand Voice Rule '{rule_code}: {rule_title}' successfully committed to Rulebook!", "success")
+                return redirect(url_for('guidelines.list_all'))
+
+        selected_archetype = request.form.get('archetype', '')
+        if selected_archetype in archetypes and not request.form.get('manifesto_text', '').strip():
+            input_text = archetypes[selected_archetype]['sample']
+        else:
+            input_text = request.form.get('manifesto_text', '').strip()
+
+        if input_text:
+            dna_profile = ai_copilot.extract_brand_dna(input_text)
+            flash(f"Brand Voice DNA Profile extracted via {dna_profile.get('engine_used', 'AI Engine')}!", "info")
+        else:
+            flash("Please enter manifesto text or select a voice archetype.", "warning")
+
+    return render_template(
+        'guidelines/brand_dna.html',
+        archetypes=archetypes,
+        dna_profile=dna_profile,
+        input_text=input_text,
+        selected_archetype=selected_archetype
+    )

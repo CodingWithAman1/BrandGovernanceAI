@@ -311,4 +311,8 @@ class URLScannerEngine:
 
 
 # Global singleton instance
-url_scanner_engine = URLScannerEngine()
+try:
+    from engines.ai_copilot import ai_copilot
+    url_scanner_engine = URLScannerEngine(ai_copilot=ai_copilot)
+except Exception:
+    url_scanner_engine = URLScannerEngine()

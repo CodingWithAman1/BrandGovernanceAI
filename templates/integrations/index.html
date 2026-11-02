@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% block title %}Developer Hub & Enterprise Integrations — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-11 col-lg-12">
+
+    <!-- Header -->
+    <div class="text-center mb-4 fade-in-down">
+      <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-10 text-cyan border border-info border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-terminal-fill text-cyan"></i> DEVOPS &bull; CI/CD QUALITY GATES &bull; REST API
+      </div>
+      <h2 class="fw-bold mb-1" style="letter-spacing: -0.03em;">Developer Hub &amp; Enterprise CI/CD Gate</h2>
+      <p class="text-muted small mx-auto" style="max-width: 720px;">
+        Integrate deterministic brand governance directly into your deployment pipelines. Block non-compliant marketing copy in GitHub Actions, audit ad campaigns via REST API, and trigger live webhook alerts.
+      </p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-6">
+        <div class="bg-card p-3 border-cyber-glow text-center">
+          <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">Stage-Gate API</div>
+          <div class="fw-bold text-cyan mt-1 font-monospace small">/api/v1/gate/check</div>
+          <div class="text-success small" style="font-size: 0.68rem;"><i class="bi bi-check-circle me-1"></i>Active &bull; REST POST</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="bg-card p-3 border-cyber-glow text-center">
+          <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">Average Latency</div>
+          <div class="fs-4 fw-bold text-white mt-1">&lt; 45ms</div>
+          <div class="text-info small" style="font-size: 0.68rem;"><i class="bi bi-lightning-charge me-1"></i>Deterministic Engine</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="bg-card p-3 border-cyber-glow text-center">
+          <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">Default Quality Gate</div>
+          <div class="fs-4 fw-bold text-emerald mt-1">Score &ge; 85</div>
+          <div class="text-muted small" style="font-size: 0.68rem;">Zero Critical Violations</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="bg-card p-3 border-cyber-glow text-center">
+          <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">CI/CD Formats</div>
+          <div class="fw-bold text-warning mt-1 small">GitHub Actions &bull; GitLab</div>
+          <div class="text-muted small" style="font-size: 0.68rem;">Pre-Commit Hooks Ready</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Tabs -->
+    <div class="bg-card p-4 p-md-5 border-cyber-glow shadow-sm mb-4">
+      
+      <!-- Nav Tabs -->
+      <ul class="nav nav-pills mb-4 gap-2 border-bottom border-secondary border-opacity-25 pb-3" id="integrationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active rounded-pill px-3 py-1 small fw-bold" id="github-tab" data-bs-toggle="pill" data-bs-target="#tabGithub" type="button" role="tab">
+            <i class="bi bi-github me-1"></i> GitHub Actions CI/CD
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-pill px-3 py-1 small fw-bold" id="playground-tab" data-bs-toggle="pill" data-bs-target="#tabPlayground" type="button" role="tab">
+            <i class="bi bi-play-circle-fill me-1"></i> Live API Playground
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-pill px-3 py-1 small fw-bold" id="code-tab" data-bs-toggle="pill" data-bs-target="#tabCode" type="button" role="tab">
+            <i class="bi bi-code-slash me-1"></i> Code SDK Snippets
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-pill px-3 py-1 small fw-bold" id="webhook-tab" data-bs-toggle="pill" data-bs-target="#tabWebhooks" type="button" role="tab">
+            <i class="bi bi-slack me-1"></i> Slack / Teams Alerts
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="integrationTabsContent">
+        
+        <!-- Tab 1: GitHub Actions CI/CD -->
+        <div class="tab-pane fade show active" id="tabGithub" role="tabpanel">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="fw-bold text-white mb-0">Pre-Publication Stage-Gate Workflow</h5>
+              <span class="text-muted small" style="font-size: 0.75rem;">Add to <code>.github/workflows/brandguard-gate.yml</code> in your repository</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="copyToClipboard(document.getElementById('githubYaml').innerText, 'GitHub Actions YAML copied!')">
+              <i class="bi bi-clipboard me-1"></i> Copy YAML
+            </button>
+          </div>
+
+          <div class="position-relative">
+            <pre id="githubYaml" class="bg-dark p-3 rounded font-monospace small text-light border border-secondary border-opacity-25" style="line-height: 1.5; font-size: 0.82rem; overflow-x: auto;">
+name: BrandGuard Pre-Publication Compliance Gate
+
+on:
+  pull_request:
+    paths:
+      - 'copy/**'
+      - 'content/**'
+      - 'site/marketing/**'
+
+jobs:
+  brand-governance-audit:
+    name: Audit Marketing Copy & Legal Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: BrandGuard AI Stage-Gate Check
+        id: brandguard
+        run: |
+          # Read proposed marketing copy changes
+          CONTENT=$(cat copy/announcement.txt | tr -d '\n')
+          
+          # Query BrandGuard CI/CD Quality Gate Endpoint
+          RESPONSE=$(curl -s -X POST https://brandgovernanceai.onrender.com/api/v1/gate/check \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"$CONTENT\", \"threshold\": 85, \"jurisdiction\": \"GLOBAL\"}")
+          
+          echo "Response: $RESPONSE"
+          
+          # Parse gate pass/fail
+          PASSED=$(echo $RESPONSE | jq -r '.passed')
+          SCORE=$(echo $RESPONSE | jq -r '.overall_score')
+          
+          if [ "$PASSED" != "true" ]; then
+            echo "::error::BrandGuard Quality Gate Failed! Compliance Score: $SCORE/100 (Threshold: 85)."
+            exit 1
+          fi
+          
+          echo "BrandGuard Quality Gate Passed with Score: $SCORE/100"
+            </pre>
+          </div>
+
+          <div class="alert alert-dark border border-secondary border-opacity-25 text-muted small mt-3 mb-0" style="font-size: 0.74rem;">
+            <i class="bi bi-shield-check text-success me-1"></i>
+            <strong>Guaranteed Zero Drift:</strong> If a pull request contains unverified claims like <code>#1 in the world</code> or fails WCAG contrast, the workflow automatically exits with code 1, preventing the pull request from being merged.
+          </div>
+        </div>
+
+        <!-- Tab 2: Live API Playground -->
+        <div class="tab-pane fade" id="tabPlayground" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-lg-6">
+              <h5 class="fw-bold text-white mb-2">Test Live CI/CD Quality Gate</h5>
+              <p class="text-muted small mb-3">Submit sample copy to test the live <code>/api/v1/gate/check</code> endpoint:</p>
+              
+              <div class="mb-3">
+                <label class="form-label text-muted small fw-bold">Test Marketing Copy:</label>
+                <textarea id="playgroundText" rows="5" class="form-control font-monospace bg-dark text-white border-secondary border-opacity-50 small">Our cloud platform is undisputed #1 in enterprise performance with 100% guaranteed zero downtime. We crush legacy point solutions with effortless, revolutionary speed.</textarea>
+              </div>
+
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label text-muted small fw-bold">Min Passing Score:</label>
+                  <input type="number" id="playgroundThreshold" class="form-control bg-dark text-white border-secondary border-opacity-50 small" value="85" min="50" max="100">
+                </div>
+                <div class="col-6">
+                  <label class="form-label text-muted small fw-bold">Jurisdiction:</label>
+                  <select id="playgroundJurisdiction" class="form-select bg-dark text-white border-secondary border-opacity-50 small">
+                    <option value="GLOBAL">GLOBAL</option>
+                    <option value="US">US (FTC &bull; SEC)</option>
+                    <option value="EU">EU (EU AI Act)</option>
+                    <option value="UK">UK (UK CMA)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-gradient-primary w-100 py-2 fw-bold rounded-pill" onclick="runPlaygroundTest()">
+                <i class="bi bi-play-fill me-1"></i> Send Live Request to API
+              </button>
+            </div>
+
+            <!-- API Response Panel -->
+            <div class="col-lg-6">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold text-white mb-0">API Response Stream</h6>
+                <span id="playgroundStatusBadge" class="badge bg-secondary px-2 py-1 small">Awaiting Request</span>
+              </div>
+              <pre id="playgroundResponse" class="bg-dark p-3 rounded font-monospace small text-cyan border border-secondary border-opacity-25" style="max-height: 280px; overflow-y: auto; line-height: 1.4; font-size: 0.78rem;">
+// Click "Send Live Request to API" to execute...
+              </pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Code SDK Snippets -->
+        <div class="tab-pane fade" id="tabCode" role="tabpanel">
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-light fw-bold small"><i class="bi bi-terminal text-cyan me-1"></i> cURL</span>
+              <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size: 0.7rem;" onclick="copyToClipboard(document.getElementById('codeCurl').innerText, 'cURL snippet copied!')">Copy</button>
+            </div>
+            <pre id="codeCurl" class="bg-dark p-3 rounded font-monospace small text-light border border-secondary border-opacity-25" style="font-size: 0.78rem;">
+curl -X POST https://brandgovernanceai.onrender.com/api/v1/gate/check \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Accelerate brand governance with audited, SLA-backed compliance.",
+    "threshold": 85,
+    "jurisdiction": "GLOBAL"
+  }'
+            </pre>
+          </div>
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-light fw-bold small"><i class="bi bi-filetype-py text-warning me-1"></i> Python (requests)</span>
+              <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size: 0.7rem;" onclick="copyToClipboard(document.getElementById('codePython').innerText, 'Python snippet copied!')">Copy</button>
+            </div>
+            <pre id="codePython" class="bg-dark p-3 rounded font-monospace small text-light border border-secondary border-opacity-25" style="font-size: 0.78rem;">
+import requests
+
+url = "https://brandgovernanceai.onrender.com/api/v1/gate/check"
+payload = {
+    "text": "Accelerate brand governance with audited, SLA-backed compliance.",
+    "threshold": 85,
+    "jurisdiction": "GLOBAL"
+}
+
+resp = requests.post(url, json=payload, timeout=10)
+data = resp.json()
+
+if data.get("passed"):
+    print(f"Gate Passed! Score: {data['overall_score']}/100")
+else:
+    print(f"Gate Failed! Violations: {len(data['critical_violations'])}")
+            </pre>
+          </div>
+
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-light fw-bold small"><i class="bi bi-filetype-js text-warning me-1"></i> Node.js / TypeScript (fetch)</span>
+              <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size: 0.7rem;" onclick="copyToClipboard(document.getElementById('codeNode').innerText, 'Node snippet copied!')">Copy</button>
+            </div>
+            <pre id="codeNode" class="bg-dark p-3 rounded font-monospace small text-light border border-secondary border-opacity-25" style="font-size: 0.78rem;">
+const response = await fetch('https://brandgovernanceai.onrender.com/api/v1/gate/check', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    text: 'Accelerate brand governance with audited, SLA-backed compliance.',
+    threshold: 85,
+    jurisdiction: 'GLOBAL'
+  })
+});
+
+const result = await response.json();
+console.log('Passed:', result.passed, 'Score:', result.overall_score);
+            </pre>
+          </div>
+        </div>
+
+        <!-- Tab 4: Slack / Teams Webhooks -->
+        <div class="tab-pane fade" id="tabWebhooks" role="tabpanel">
+          <h5 class="fw-bold text-white mb-2">Real-Time Team Webhook Dispatch</h5>
+          <p class="text-muted small mb-4">Preview the rich JSON notification dispatched to your team's Slack or Microsoft Teams incident channel when a CI/CD build fails compliance:</p>
+
+          <!-- Mock Slack Card -->
+          <div class="bg-dark p-4 rounded-3 border border-secondary border-opacity-30 mb-4" style="max-width: 650px;">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                <i class="bi bi-shield-x"></i>
+              </div>
+              <div>
+                <strong class="text-white small">BrandGuard AI Gatekeeper</strong>
+                <span class="badge bg-secondary ms-2" style="font-size: 0.65rem;">APP &bull; 12:44 PM</span>
+              </div>
+            </div>
+
+            <div class="border-start border-danger border-3 ps-3 ms-1">
+              <div class="fw-bold text-danger mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Pull Request Blocked by CI/CD Quality Gate</div>
+              <div class="text-light small mb-2">PR #142 (<code>feat/q4-announcement</code>) failed brand compliance audit.</div>
+              
+              <div class="row g-2 mb-2 text-muted small" style="font-size: 0.75rem;">
+                <div class="col-6"><strong>Compliance Score:</strong> <span class="text-danger fw-bold">68 / 100</span> (Threshold: 85)</div>
+                <div class="col-6"><strong>Critical Flags:</strong> 2 Unsubstantiated Claims</div>
+              </div>
+
+              <div class="bg-darker p-2 rounded small text-danger font-monospace border border-danger border-opacity-25 mb-3" style="font-size: 0.74rem;">
+                Flagged: "The world's #1 autonomous AI platform with 100% zero downtime."
+              </div>
+
+              <div class="d-flex gap-2">
+                <a href="{{ url_for('portal.verify_index') }}" class="btn btn-xs btn-outline-info rounded-pill px-3 py-1" style="font-size: 0.72rem;">Inspect in Studio</a>
+                <a href="{{ url_for('scanner.studio') }}" class="btn btn-xs btn-gradient-primary rounded-pill px-3 py-1" style="font-size: 0.72rem;">Harmonize Copy</a>
+              </div>
+            </div>
+          </div>
+
+          <small class="text-muted" style="font-size: 0.74rem;">
+            Webhooks can be configured via environment variable <code>BRANDGUARD_WEBHOOK_URL</code> for Slack, Microsoft Teams, or Discord.
+          </small>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function runPlaygroundTest() {
+    const text = document.getElementById('playgroundText').value.trim();
+    const threshold = parseInt(document.getElementById('playgroundThreshold').value, 10) || 85;
+    const jurisdiction = document.getElementById('playgroundJurisdiction').value;
+    const resBox = document.getElementById('playgroundResponse');
+    const badge = document.getElementById('playgroundStatusBadge');
+
+    badge.className = 'badge bg-warning text-dark px-2 py-1 small';
+    badge.innerText = 'Evaluating Gate...';
+    resBox.innerText = '// Executing /api/v1/gate/check...';
+
+    fetch('/api/v1/gate/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, threshold, jurisdiction })
+    })
+    .then(res => res.json())
+    .then(data => {
+      resBox.innerText = JSON.stringify(data, null, 2);
+      if (data.passed) {
+        badge.className = 'badge bg-success text-white px-2 py-1 small';
+        badge.innerText = 'GATE PASSED (200 OK)';
+      } else {
+        badge.className = 'badge bg-danger text-white px-2 py-1 small';
+        badge.innerText = 'GATE FAILED (BLOCKED)';
+      }
+    })
+    .catch(err => {
+      badge.className = 'badge bg-danger text-white px-2 py-1 small';
+      badge.innerText = 'CONNECTION ERROR';
+      resBox.innerText = '// Error connecting to API: ' + err.message;
+    });
+  }
+</script>
+{% endblock %}

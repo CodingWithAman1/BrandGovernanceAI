@@ -436,3 +436,60 @@ def url_scan():
         competitor_name=competitor_name
     )
 
+
+# =============================================================================
+# COMPETITIVE INTELLIGENCE & SALES BATTLECARD STUDIO
+# =============================================================================
+
+@scanner_bp.route('/competitor-studio', methods=['GET', 'POST'])
+@login_required
+def competitor_studio():
+    """
+    Dedicated Sales & Marketing Battlecard Studio:
+    Analyzes competitor claims against the enterprise Truth Bank,
+    detects regulatory exposure, and synthesizes battlecards with live Gemini intelligence.
+    """
+    scan_result = None
+    competitor_url = ""
+    competitor_text = ""
+    competitor_name = "Competitor"
+
+    if request.method == 'POST':
+        competitor_url = request.form.get('url', '').strip()
+        competitor_text = request.form.get('content', '').strip()
+        competitor_name = request.form.get('competitor_name', 'Competitor').strip() or "Competitor"
+
+        extracted_data = None
+        if competitor_url:
+            fetch_res = url_scanner_engine.fetch_url_content(competitor_url)
+            if not fetch_res.get('success'):
+                flash(fetch_res.get('error', 'Failed to retrieve URL content.'), 'danger')
+            else:
+                extracted_data = fetch_res
+                competitor_text = fetch_res.get('content', '')
+                if not competitor_name or competitor_name == "Competitor":
+                    competitor_name = fetch_res.get('title', 'Competitor')[:40]
+
+        if competitor_text:
+            approved_facts = ApprovedFact.query.filter_by(is_active=True).all()
+            url_scanner_engine.ai_copilot = ai_copilot
+            scan_result = url_scanner_engine.audit_competitor_claims(
+                content=competitor_text,
+                title=extracted_data.get('title', 'Competitor Claims') if extracted_data else f"{competitor_name} Copy",
+                approved_facts=approved_facts,
+                competitor_name=competitor_name
+            )
+            if extracted_data:
+                scan_result['url_meta'] = extracted_data
+            flash(f"Battlecard synthesized successfully for '{competitor_name}'!", "success")
+        elif request.method == 'POST' and not competitor_url:
+            flash("Please provide a competitor URL or paste competitor copy to generate a battlecard.", "warning")
+
+    return render_template(
+        'scanner/competitor_studio.html',
+        scan_result=scan_result,
+        competitor_url=competitor_url,
+        competitor_text=competitor_text,
+        competitor_name=competitor_name
+    )
+

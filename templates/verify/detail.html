@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_valid %}Verified Certificate #{{ cert_hash }} — BrandGuard AI{% else %}Verification Failed — BrandGuard AI{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-10 col-lg-11">
+
+    <!-- Back Navigation -->
+    <div class="mb-4">
+      <a href="{{ url_for('portal.verify_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 text-light">
+        <i class="bi bi-arrow-left me-1"></i> Back to Public Ledger
+      </a>
+    </div>
+
+    {% if is_valid %}
+    <!-- Verification Status Banner -->
+    <div class="bg-card p-4 p-md-5 mb-4 border-cyber-glow shadow-sm text-center fade-in-down" style="border-color: rgba(16, 185, 129, 0.4) !important;">
+      <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-20 text-emerald rounded-circle mb-3" style="width: 72px; height: 72px; border: 2px solid rgba(16, 185, 129, 0.5);">
+        <i class="bi bi-patch-check-fill fs-1"></i>
+      </div>
+      <h3 class="fw-bold text-white mb-1" style="letter-spacing: -0.02em;">CRYPTOGRAPHICALLY VERIFIED & CERTIFIED</h3>
+      <p class="text-emerald small mb-2 fw-semibold">
+        <i class="bi bi-shield-check me-1"></i> This asset has been verified against the BrandGuard AI immutable publication ledger.
+      </p>
+      <div class="d-inline-block bg-dark border border-secondary border-opacity-30 rounded-pill px-3 py-1 font-monospace text-cyan small">
+        CERTIFICATE ID: <strong>{{ cert_hash }}</strong>
+      </div>
+    </div>
+
+    <!-- Main Detail Matrix -->
+    <div class="row g-4">
+      
+      <!-- Left: Asset & Audit Information -->
+      <div class="col-lg-7">
+        <div class="bg-card p-4 border-cyber-glow shadow-sm h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+            <h5 class="fw-bold text-white mb-0">Certified Content Specification</h5>
+            <span class="badge bg-success text-white px-2 py-1 small">
+              {{ submission.compliance_score }} / 100 COMPLIANT
+            </span>
+          </div>
+
+          <div class="mb-3">
+            <label class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Content Title</label>
+            <div class="fs-5 fw-bold text-white">{{ submission.title }}</div>
+            <span class="text-muted small">Submission ID #{{ submission.id }} &bull; Content Type: {{ submission.content_type }}</span>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+              <label class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Authorized Lead Auditor</label>
+              <div class="fw-bold text-light small">{{ approver_name }}</div>
+              <div class="text-info small" style="font-size: 0.75rem;">{{ approver_email }}</div>
+            </div>
+            <div class="col-sm-6">
+              <label class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Approval Timestamp</label>
+              <div class="fw-bold text-light small">{{ submission.updated_at.strftime('%Y-%m-%d %H:%M:%S UTC') if submission.updated_at else 'Verified' }}</div>
+              <div class="text-muted small" style="font-size: 0.75rem;">Stage-Gate Clearance Confirmed</div>
+            </div>
+          </div>
+
+          <!-- Score Breakdown -->
+          <div class="bg-dark bg-opacity-60 p-3 rounded-3 border border-secondary border-opacity-25 mb-4">
+            <div class="text-muted small text-uppercase fw-semibold mb-2" style="font-size: 0.70rem;">Multi-Modal Dimension Clearance</div>
+            <div class="row g-2 text-center">
+              <div class="col-3">
+                <div class="text-muted" style="font-size: 0.68rem;">TONE</div>
+                <div class="fw-bold text-info">{{ submission.tone_score }}/100</div>
+              </div>
+              <div class="col-3">
+                <div class="text-muted" style="font-size: 0.68rem;">CLAIMS (FTC)</div>
+                <div class="fw-bold text-emerald">{{ submission.claim_score }}/100</div>
+              </div>
+              <div class="col-3">
+                <div class="text-muted" style="font-size: 0.68rem;">WCAG 2.1</div>
+                <div class="fw-bold text-warning">{{ submission.visual_score }}/100</div>
+              </div>
+              <div class="col-3">
+                <div class="text-muted" style="font-size: 0.68rem;">REGULATORY</div>
+                <div class="fw-bold text-cyan">{{ submission.regulatory_score or 100 }}/100</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Certified Text Content -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="text-muted small text-uppercase fw-semibold mb-0" style="font-size: 0.72rem;">Certified Text Digest (Exact Copy Approved)</label>
+              <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size: 0.7rem;" onclick="copyToClipboard(document.getElementById('certifiedContent').innerText, 'Copy snippet copied!')">
+                <i class="bi bi-clipboard me-1"></i> Copy
+              </button>
+            </div>
+            <div id="certifiedContent" class="bg-dark p-3 rounded font-monospace small text-light border border-secondary border-opacity-25" style="max-height: 180px; overflow-y: auto; line-height: 1.5; white-space: pre-wrap;">{{ submission.raw_content }}</div>
+          </div>
+
+          <!-- PDF Download Action -->
+          {% if cert_pdf %}
+          <div class="pt-2">
+            <a href="{{ url_for('static', filename=cert_pdf) }}" target="_blank" class="btn btn-gradient-primary w-100 py-2 fw-bold rounded-pill shadow-sm">
+              <i class="bi bi-file-earmark-pdf-fill me-2"></i> Download Official PDF Compliance Certificate
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right: Cryptographic Digest & Proof Vault -->
+      <div class="col-lg-5">
+        <div class="bg-card p-4 border-cyber-glow shadow-sm h-100">
+          <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+            <i class="bi bi-fingerprint text-cyan fs-5"></i>
+            <h5 class="fw-bold text-white mb-0">Cryptographic Digest Vault</h5>
+          </div>
+
+          <!-- Full Hash -->
+          <div class="mb-3">
+            <label class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Certificate SHA-256 Hash</label>
+            <div class="d-flex align-items-center gap-2 mt-1">
+              <code class="text-cyan bg-dark p-2 rounded small text-break w-100 border border-secondary border-opacity-25 font-monospace" style="font-size: 0.75rem;">
+                {{ full_hash }}
+              </code>
+              <button type="button" class="btn btn-sm btn-dark border border-secondary" onclick="copyToClipboard('{{ full_hash }}', 'SHA-256 hash copied!')" title="Copy Hash">
+                <i class="bi bi-clipboard"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Content Digest -->
+          <div class="mb-4">
+            <label class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Certified Text Content SHA-256</label>
+            <div class="d-flex align-items-center gap-2 mt-1">
+              <code class="text-emerald bg-dark p-2 rounded small text-break w-100 border border-secondary border-opacity-25 font-monospace" style="font-size: 0.75rem;">
+                {{ content_digest }}
+              </code>
+              <button type="button" class="btn btn-sm btn-dark border border-secondary" onclick="copyToClipboard('{{ content_digest }}', 'Content digest copied!')" title="Copy Digest">
+                <i class="bi bi-clipboard"></i>
+              </button>
+            </div>
+            <small class="text-muted" style="font-size: 0.70rem;">Any single character modification to the copy changes this digest, preventing post-publication tampering.</small>
+          </div>
+
+          <!-- Embeddable Seal -->
+          <div class="bg-dark bg-opacity-75 p-3 rounded-3 border border-secondary border-opacity-25 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-light small fw-bold"><i class="bi bi-code-slash text-warning me-1"></i> Embed Public Badge</span>
+              <button type="button" class="btn btn-xs text-info border-0 p-0" style="font-size: 0.72rem;" onclick="copyToClipboard(document.getElementById('embedBadgeCode').value, 'Badge HTML copied!')">
+                Copy Code
+              </button>
+            </div>
+            <textarea id="embedBadgeCode" rows="3" class="form-control font-monospace text-muted small bg-dark border-secondary border-opacity-25 p-2" style="font-size: 0.70rem;" readonly>&lt;a href="{{ request.url }}" target="_blank"&gt;
+  &lt;img src="https://img.shields.io/badge/BrandGuard%20AI-Certified%20{{ submission.compliance_score }}%2F100-10b981?logo=shield-check&amp;style=flat-square" alt="BrandGuard Certified" /&gt;
+&lt;/a&gt;</textarea>
+          </div>
+
+          <!-- Verification Link -->
+          <div class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-4" onclick="copyToClipboard(window.location.href, 'Public verification URL copied!')">
+              <i class="bi bi-link-45deg me-1"></i> Copy Public Verification URL
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    {% else %}
+    <!-- Verification Failure Card -->
+    <div class="bg-card p-5 border-cyber-glow shadow-sm text-center fade-in-down" style="border-color: rgba(239, 68, 68, 0.4) !important;">
+      <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-20 text-danger rounded-circle mb-3" style="width: 72px; height: 72px; border: 2px solid rgba(239, 68, 68, 0.5);">
+        <i class="bi bi-x-circle-fill fs-1"></i>
+      </div>
+      <h3 class="fw-bold text-white mb-2" style="letter-spacing: -0.02em;">CERTIFICATE VERIFICATION FAILED</h3>
+      <p class="text-muted small mb-3 mx-auto" style="max-width: 540px;">
+        No active approved certificate record matches identifier <code class="text-danger font-monospace">{{ cert_hash }}</code>. This asset may not have cleared stage-gate approval, or the text digest has been modified after review.
+      </p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('portal.verify_index') }}" class="btn btn-gradient-primary px-4 rounded-pill fw-bold">
+          <i class="bi bi-search me-1"></i> Search Public Ledger
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

@@ -383,7 +383,7 @@ def api_ci_cd_quality_gate():
     - HTTP 422 with { pass: false, ... } if content is blocked.
     """
     data = request.get_json() or {}
-    content = data.get('content', '').strip()
+    content = (data.get('content') or data.get('text') or '').strip()
     title = data.get('title', 'CI/CD Pipeline Content').strip()
     threshold = int(data.get('threshold', 85))
     jurisdiction = data.get('jurisdiction', 'GLOBAL').strip().upper()
@@ -393,6 +393,7 @@ def api_ci_cd_quality_gate():
     if not content:
         return jsonify({
             'pass': False,
+            'passed': False,
             'status': 'REJECTED_EMPTY_CONTENT',
             'error': 'Missing content parameter in request body'
         }), 400
@@ -421,9 +422,12 @@ def api_ci_cd_quality_gate():
 
     response_payload = {
         'pass': passed,
+        'passed': passed,
         'status': 'APPROVED_STAGE_GATE' if passed else 'BLOCKED_STAGE_GATE',
         'score': overall_score,
+        'overall_score': overall_score,
         'threshold': threshold,
+        'critical_violations': critical_violations,
         'tone_score': tone_res['score'],
         'claim_score': claim_res['score'],
         'regulatory_score': reg_res['score'],

@@ -830,6 +830,7 @@ body {
 /* ==========================================================================
    10. ULTRA-RESPONSIVE HARDWARE-ACCELERATED CYBER CURSOR
    ========================================================================== */
+.cursor-dot,
 .cyber-cursor-dot {
   position: fixed;
   top: 0;
@@ -847,6 +848,7 @@ body {
   transition: opacity 0.15s ease, background-color 0.2s ease, width 0.15s ease, height 0.15s ease;
 }
 
+.cursor-glow-ring,
 .cyber-cursor-ring {
   position: fixed;
   top: 0;

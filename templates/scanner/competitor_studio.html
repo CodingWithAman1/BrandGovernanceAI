@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% block title %}Sales Battlecard Studio & Competitor Intelligence — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-11 col-lg-12">
+
+    <!-- Header -->
+    <div class="text-center mb-4 fade-in-down">
+      <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-10 text-cyan border border-info border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-shield-shaded text-warning"></i> REVENUE ACCELERATOR &bull; COMPETITIVE INTELLIGENCE
+      </div>
+      <h2 class="fw-bold mb-1" style="letter-spacing: -0.03em;">Competitor Intelligence & Sales Battlecard Studio</h2>
+      <p class="text-muted small mx-auto" style="max-width: 720px;">
+        Expose competitor claim vulnerabilities, contrast assertions against your verified SQL Truth Bank, and automatically synthesize high-converting sales battlecards powered by Google Gemini 3 Flash.
+      </p>
+    </div>
+
+    <!-- Quick Sample Presets -->
+    <div class="bg-card card-glow-shimmer p-3 mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 shadow-sm border-cyber-glow fade-in-up stagger-1">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+        <div>
+          <strong class="d-block small text-light">Instant Competitor Test Pitches:</strong>
+          <span class="text-muted small" style="font-size: 0.74rem;">Load common competitor claim postures with known regulatory exposure:</span>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn-sample-chip" onclick="loadBattlecardPreset('ai_washing')">
+          <span>🤖</span> AI-Washing & Autonomy
+        </button>
+        <button type="button" class="btn-sample-chip" onclick="loadBattlecardPreset('unverified_superlative')">
+          <span>🏆</span> #1 Market Superlative
+        </button>
+        <button type="button" class="btn-sample-chip" onclick="loadBattlecardPreset('zero_risk_guarantee')">
+          <span>🛡️</span> 100% Guaranteed Uptime
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Input Form -->
+    <div class="bg-card card-glow-shimmer p-4 p-md-5 mb-4 shadow-sm border-cyber-glow fade-in-up stagger-2">
+      <form method="POST" action="{{ url_for('scanner.competitor_studio') }}">
+        
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-light small mb-1">Competitor / Product Name</label>
+            <input type="text" name="competitor_name" id="compNameInput" class="form-control bg-dark text-white border-secondary border-opacity-50" placeholder="e.g. RivalCloud AI" value="{{ competitor_name or 'Competitor' }}">
+          </div>
+          <div class="col-md-8">
+            <label class="form-label fw-bold text-light small mb-1">Competitor Landing Page URL (Optional Web Crawl)</label>
+            <div class="input-group">
+              <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted"><i class="bi bi-link-45deg"></i></span>
+              <input type="text" name="url" id="compUrlInput" class="form-control bg-dark text-white border-secondary border-opacity-50" placeholder="https://competitor.com/product" value="{{ competitor_url or '' }}">
+            </div>
+            <small class="text-muted" style="font-size: 0.72rem;">BrandGuard will crawl the page, extract text copy, and audit against truth registries.</small>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label fw-bold text-light small mb-0">Competitor Copy / Ad Claims to Analyze</label>
+            <button type="button" class="btn btn-sm text-muted border-0 py-0" onclick="document.getElementById('compContentInput').value=''"><i class="bi bi-trash"></i> Clear</button>
+          </div>
+          <textarea name="content" id="compContentInput" rows="5" class="form-control font-monospace p-3 text-light bg-dark border-secondary border-opacity-50" style="font-size: 0.88rem; line-height: 1.5;" placeholder="Paste competitor marketing copy, display ad scripts, or press release claims here..." required>{{ competitor_text or '' }}</textarea>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-2 text-muted small">
+            <i class="bi bi-database-check text-success"></i>
+            <span>Evaluated against <strong>SQL Truth Bank</strong> &amp; <strong>FTC Section 5</strong> standards</span>
+          </div>
+
+          <button type="submit" class="btn btn-gradient-primary px-4 py-2 fw-bold rounded-pill shadow">
+            <i class="bi bi-cpu-fill me-2"></i> Synthesize Sales Battlecard
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Battlecard Output Section -->
+    {% if scan_result %}
+    <div id="battlecardResults" class="fade-in-up">
+      
+      <!-- Vulnerability Header Metric -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="bg-card p-4 border-cyber-glow h-100 text-center">
+            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Competitor Vulnerability Index</div>
+            <div class="fs-1 fw-bold {% if scan_result.vulnerability_score >= 70 %}text-danger{% elif scan_result.vulnerability_score >= 40 %}text-warning{% else %}text-info{% endif %} mt-1">
+              {{ scan_result.vulnerability_score }} / 100
+            </div>
+            <span class="badge {% if scan_result.vulnerability_score >= 70 %}bg-danger{% elif scan_result.vulnerability_score >= 40 %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} px-3 py-1 fw-bold">
+              {{ scan_result.vulnerability_level }} REGULATORY EXPOSURE
+            </span>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="bg-card p-4 border-cyber-glow h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-primary bg-opacity-20 text-cyan border border-primary border-opacity-30 px-2 py-1 small">
+                  <i class="bi bi-stars me-1"></i> {{ scan_result.battlecard.engine_used }}
+                </span>
+                <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-3 py-0" style="font-size: 0.75rem;" onclick="copyFullBattlecard()">
+                  <i class="bi bi-clipboard me-1"></i> Copy Battlecard
+                </button>
+              </div>
+              <h5 class="fw-bold text-white mb-1">Strategic Battlecard Dossier: {{ scan_result.competitor_name }}</h5>
+              <p class="text-muted small mb-0">
+                Found <strong>{{ scan_result.vulnerability_count }}</strong> vulnerable marketing assertions. Below are compliant counter-positioning angles for revenue teams:
+              </p>
+            </div>
+            <div class="d-flex gap-2 mt-3 pt-2 border-top border-secondary border-opacity-20 text-muted small" style="font-size: 0.74rem;">
+              <span><i class="bi bi-check2-circle text-success me-1"></i>FTC Section 5 Compliant</span>
+              <span>&bull;</span>
+              <span><i class="bi bi-check2-circle text-success me-1"></i>Truth Bank Substantiated</span>
+              <span>&bull;</span>
+              <span><i class="bi bi-check2-circle text-success me-1"></i>Zero Competitor Slander Risk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Pillar Tactical Battlecard -->
+      <div class="row g-4 mb-4">
+        
+        <!-- Pillar 1: AE Sales Script -->
+        <div class="col-lg-4">
+          <div class="bg-card p-4 border-cyber-glow shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30 px-2 py-1 small fw-bold">
+                  <i class="bi bi-telephone-outbound-fill me-1"></i> AE SALES TALKING POINT
+                </span>
+                <button type="button" class="btn btn-xs btn-outline-warning py-0 px-2" style="font-size: 0.7rem;" onclick="copyToClipboard(document.getElementById('aeSalesPitch').innerText, 'Sales script copied!')">
+                  Copy
+                </button>
+              </div>
+              <h6 class="fw-bold text-white mb-2">Live Customer Call Pitch</h6>
+              <div id="aeSalesPitch" class="text-light small font-monospace bg-dark p-3 rounded border border-secondary border-opacity-25" style="line-height: 1.5; font-size: 0.82rem;">
+                "{{ scan_result.battlecard.sales_pitch }}"
+              </div>
+            </div>
+            <div class="text-muted small mt-3" style="font-size: 0.72rem;">
+              Use when prospects bring up competitor's unverified superlatives or speed guarantees.
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 2: LinkedIn Thought Leadership -->
+        <div class="col-lg-4">
+          <div class="bg-card p-4 border-cyber-glow shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-30 px-2 py-1 small fw-bold">
+                  <i class="bi bi-linkedin me-1"></i> SOCIAL POSITIONING
+                </span>
+                <button type="button" class="btn btn-xs btn-outline-info py-0 px-2" style="font-size: 0.7rem;" onclick="copyToClipboard(document.getElementById('linkedinAngle').innerText, 'LinkedIn angle copied!')">
+                  Copy
+                </button>
+              </div>
+              <h6 class="fw-bold text-white mb-2">LinkedIn Authority Hook</h6>
+              <div id="linkedinAngle" class="text-light small font-monospace bg-dark p-3 rounded border border-secondary border-opacity-25" style="line-height: 1.5; font-size: 0.82rem;">
+                "{{ scan_result.battlecard.linkedin_angle }}"
+              </div>
+            </div>
+            <div class="text-muted small mt-3" style="font-size: 0.72rem;">
+              Ideal for executive ghostwriting and product marketing organic social distribution.
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 3: Executive PR Statement -->
+        <div class="col-lg-4">
+          <div class="bg-card p-4 border-cyber-glow shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-success bg-opacity-20 text-emerald border border-success border-opacity-30 px-2 py-1 small fw-bold">
+                  <i class="bi bi-megaphone-fill me-1"></i> EXECUTIVE PR POSITIONING
+                </span>
+                <button type="button" class="btn btn-xs btn-outline-success py-0 px-2" style="font-size: 0.7rem;" onclick="copyToClipboard(document.getElementById('prPositioning').innerText, 'PR positioning copied!')">
+                  Copy
+                </button>
+              </div>
+              <h6 class="fw-bold text-white mb-2">Market Leadership Stance</h6>
+              <div id="prPositioning" class="text-light small font-monospace bg-dark p-3 rounded border border-secondary border-opacity-25" style="line-height: 1.5; font-size: 0.82rem;">
+                "{{ scan_result.battlecard.pr_positioning }}"
+              </div>
+            </div>
+            <div class="text-muted small mt-3" style="font-size: 0.72rem;">
+              Equips C-suite spokespeople with defensible, high-integrity talking points.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Vulnerabilities Detected Table -->
+      <div class="bg-card p-4 border-cyber-glow shadow-sm mb-4">
+        <h5 class="fw-bold text-white mb-3">Audited Competitor Vulnerabilities</h5>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+            <thead>
+              <tr class="text-muted small border-secondary border-opacity-25" style="font-size: 0.75rem;">
+                <th>SEVERITY</th>
+                <th>FLAGGED COMPETITOR SNIPPET</th>
+                <th>REGULATORY EXPOSURE</th>
+                <th>GOVERNING STANDARD</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for v in scan_result.vulnerabilities %}
+              <tr class="border-secondary border-opacity-15">
+                <td>
+                  <span class="badge {% if v.severity == 'CRITICAL' %}bg-danger{% else %}bg-warning text-dark{% endif %} px-2 py-1 small fw-bold">
+                    {{ v.severity }}
+                  </span>
+                </td>
+                <td>
+                  <code class="text-danger bg-dark px-2 py-1 rounded small border border-danger border-opacity-25">
+                    "{{ v.snippet }}"
+                  </code>
+                </td>
+                <td>
+                  <span class="text-light small">{{ v.weakness }}</span>
+                </td>
+                <td>
+                  <span class="text-cyan small"><i class="bi bi-book me-1"></i>{{ v.citation }}</span>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="4" class="text-center py-3 text-muted">No explicit regulatory violations found in this sample.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SQL Truth Bank Contrasts -->
+      {% if scan_result.fact_contrasts %}
+      <div class="bg-card p-4 border-cyber-glow shadow-sm">
+        <h5 class="fw-bold text-white mb-3">Verified SQL Truth Bank Contrasts</h5>
+        <div class="row g-3">
+          {% for contrast in scan_result.fact_contrasts %}
+          <div class="col-md-6">
+            <div class="bg-dark p-3 rounded-3 border border-secondary border-opacity-25 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-warning small fw-bold">{{ contrast.topic }}</span>
+                <span class="badge bg-success bg-opacity-20 text-emerald small"><i class="bi bi-shield-check me-1"></i>Verified</span>
+              </div>
+              <div class="mb-2">
+                <div class="text-muted" style="font-size: 0.70rem;">COMPETITOR POSTURE:</div>
+                <div class="text-danger small">{{ contrast.competitor_posture }}</div>
+              </div>
+              <div class="mb-2">
+                <div class="text-muted" style="font-size: 0.70rem;">OUR AUDITED FACT:</div>
+                <div class="text-emerald fw-semibold small">{{ contrast.our_verified_fact }}</div>
+              </div>
+              <div class="text-muted" style="font-size: 0.70rem;">
+                Evidence Vault: <span class="text-info">{{ contrast.evidence_link }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function loadBattlecardPreset(type) {
+    const nameInput = document.getElementById('compNameInput');
+    const contentInput = document.getElementById('compContentInput');
+    
+    if (type === 'ai_washing') {
+      nameInput.value = 'OmniAgent Pro';
+      contentInput.value = 'OmniAgent Pro is the world\'s #1 autonomous AI workforce. Our proprietary synthetic neural architecture guarantees 100% zero-error marketing copy generation with zero human oversight. We crush legacy point solutions with effortless, revolutionary automation that never fails.';
+    } else if (type === 'unverified_superlative') {
+      nameInput.value = 'HyperCloud Solutions';
+      contentInput.value = 'HyperCloud is undisputed #1 in enterprise cloud reliability. Unlike outdated competitors, our revolutionary quantum infrastructure guarantees unbeatable 100% risk-free uptime. Join the miraculous platform that delivers instant 10x ROI on day one.';
+    } else if (type === 'zero_risk_guarantee') {
+      nameInput.value = 'SentinelGuard Security';
+      contentInput.value = 'SentinelGuard provides the world\'s best cyber threat immunity. Our foolproof AI firewall delivers 100% guaranteed breach prevention and zero downtime, completely eliminating all security risks with zero configuration.';
+    }
+    contentInput.focus();
+  }
+
+  function copyFullBattlecard() {
+    const ae = document.getElementById('aeSalesPitch') ? document.getElementById('aeSalesPitch').innerText : '';
+    const li = document.getElementById('linkedinAngle') ? document.getElementById('linkedinAngle').innerText : '';
+    const pr = document.getElementById('prPositioning') ? document.getElementById('prPositioning').innerText : '';
+    
+    const markdown = `# BrandGuard AI Sales Battlecard\n\n## 1. Account Executive Talking Point\n${ae}\n\n## 2. LinkedIn Thought Leadership Hook\n${li}\n\n## 3. Executive PR Positioning\n${pr}\n`;
+    copyToClipboard(markdown, 'Full battlecard markdown copied!');
+  }
+</script>
+{% endblock %}

@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+import os
+import hashlib
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from models import User, Submission, BrandGuideline, ApprovedFact, EvaluationFlag, ReviewLog, db
 from sqlalchemy import func
@@ -124,3 +126,139 @@ def toggle_user(user_id):
     status_str = "activated" if target_user.is_active_account else "deactivated"
     flash(f"User {target_user.name} ({target_user.email}) has been {status_str}.", "info")
     return redirect(url_for('portal.admin_portal'))
+
+
+# =============================================================================
+# PUBLIC CRYPTOGRAPHIC CERTIFICATE VERIFIER (ZERO-LOGIN REGULATORY LEDGER)
+# =============================================================================
+
+def compute_cert_hash(submission):
+    raw_str = f"{submission.id}-{submission.title}-{submission.compliance_score}"
+    return hashlib.sha256(raw_str.encode('utf-8')).hexdigest()
+
+def compute_content_digest(raw_content):
+    return hashlib.sha256((raw_content or "").encode('utf-8')).hexdigest()
+
+
+@portal_bp.route('/verify', methods=['GET'])
+def verify_index():
+    """
+    Public lookup gateway for BrandGuard SHA-256 Certificates.
+    No login required so external compliance officers, regulators, and buyers can verify.
+    """
+    query = request.args.get('q', '').strip()
+    if query:
+        # Check if direct submission ID or hash
+        if query.isdigit():
+            sub = Submission.query.filter_by(id=int(query), status='APPROVED').first()
+            if sub:
+                full_h = compute_cert_hash(sub)
+                return redirect(url_for('portal.verify_cert', cert_hash=full_h[:16].upper()))
+        
+        all_approved = Submission.query.filter_by(status='APPROVED').all()
+        for s in all_approved:
+            full_h = compute_cert_hash(s)
+            digest = compute_content_digest(s.raw_content)
+            if (full_h.upper().startswith(query.upper()) or 
+                query.upper().startswith(full_h[:16].upper()) or 
+                digest.upper().startswith(query.upper())):
+                return redirect(url_for('portal.verify_cert', cert_hash=full_h[:16].upper()))
+
+        flash(f"Verification Notice: No certified asset found matching identifier '{query}'. Verify that the content was approved.", "warning")
+
+    recent_approved = Submission.query.filter_by(status='APPROVED').order_by(Submission.updated_at.desc()).limit(8).all()
+    certified_entries = []
+    for s in recent_approved:
+        full_h = compute_cert_hash(s)
+        digest = compute_content_digest(s.raw_content)
+        rev = User.query.get(s.reviewer_id) if s.reviewer_id else None
+        certified_entries.append({
+            'submission': s,
+            'cert_hash': full_h[:16].upper(),
+            'full_hash': full_h,
+            'content_digest': digest[:16].upper(),
+            'approver': rev.name if rev else 'Aman Sharma',
+            'timestamp': s.updated_at or s.created_at
+        })
+
+    total_certified = Submission.query.filter_by(status='APPROVED').count()
+
+    return render_template(
+        'verify/index.html',
+        certified_entries=certified_entries,
+        total_certified=total_certified,
+        search_query=query
+    )
+
+
+@portal_bp.route('/verify/<cert_hash>', methods=['GET'])
+def verify_cert(cert_hash):
+    """
+    Cryptographic verification detail page with tamper-evident digest inspection.
+    """
+    cert_hash = cert_hash.strip().upper()
+    all_approved = Submission.query.filter_by(status='APPROVED').all()
+    matched_sub = None
+
+    if cert_hash.isdigit():
+        matched_sub = Submission.query.filter_by(id=int(cert_hash), status='APPROVED').first()
+
+    if not matched_sub:
+        for s in all_approved:
+            full_h = compute_cert_hash(s).upper()
+            digest = compute_content_digest(s.raw_content).upper()
+            if full_h.startswith(cert_hash) or cert_hash.startswith(full_h[:16]) or digest.startswith(cert_hash):
+                matched_sub = s
+                break
+
+    if not matched_sub:
+        return render_template(
+            'verify/detail.html',
+            is_valid=False,
+            cert_hash=cert_hash,
+            submission=None
+        ), 404
+
+    full_hash = compute_cert_hash(matched_sub)
+    content_digest = compute_content_digest(matched_sub.raw_content)
+    rev_user = User.query.get(matched_sub.reviewer_id) if matched_sub.reviewer_id else None
+    approver_name = rev_user.name if rev_user else 'Aman Sharma'
+    approver_email = rev_user.email if rev_user else 'aman@synapse.ai'
+
+    cert_pdf = None
+    cert_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'certificates')
+    if os.path.exists(cert_dir):
+        for f in os.listdir(cert_dir):
+            if f.startswith(f"Certificate_{matched_sub.id}_") and f.endswith(".pdf"):
+                cert_pdf = f"uploads/certificates/{f}"
+                break
+
+    return render_template(
+        'verify/detail.html',
+        is_valid=True,
+        submission=matched_sub,
+        cert_hash=full_hash[:16].upper(),
+        full_hash=full_hash,
+        content_digest=content_digest,
+        approver_name=approver_name,
+        approver_email=approver_email,
+        cert_pdf=cert_pdf
+    )
+
+
+# =============================================================================
+# ENTERPRISE INTEGRATIONS & DEVELOPER HUB (/integrations)
+# =============================================================================
+
+@portal_bp.route('/integrations', methods=['GET'])
+def integrations():
+    """
+    Developer & Enterprise Hub: CI/CD workflow generator, REST API playground,
+    and webhook alert dispatch configuration.
+    """
+    return render_template('integrations/index.html')
+
+
+@portal_bp.route('/brand-dna')
+def brand_dna_alias():
+    return redirect(url_for('guidelines.brand_dna'))

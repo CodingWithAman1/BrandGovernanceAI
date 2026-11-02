@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block title %}Brand Voice DNA Profiler — BrandGuard AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-11 col-lg-12">
+
+    <!-- Header -->
+    <div class="text-center mb-4 fade-in-down">
+      <div class="d-inline-flex align-items-center gap-2 badge bg-primary bg-opacity-10 text-cyan border border-info border-opacity-25 px-3 py-1 rounded-pill small fw-bold mb-2">
+        <i class="bi bi-fingerprint text-cyan"></i> NEURAL BRAND CALIBRATION &bull; VOICE ARCHITECTURE
+      </div>
+      <h2 class="fw-bold mb-1" style="letter-spacing: -0.03em;">Brand Voice DNA Profiler</h2>
+      <p class="text-muted small mx-auto" style="max-width: 720px;">
+        Ingest unstructured brand manifestos, calibrate custom voice archetypes (Stripe Consultative, Apple Minimalist, Nike Challenger), and automatically synthesize quantifiable polarity vectors and enforceable brand rules.
+      </p>
+    </div>
+
+    <!-- Archetype Selector & Manifesto Form -->
+    <div class="bg-card card-glow-shimmer p-4 p-md-5 mb-4 shadow-sm border-cyber-glow fade-in-up stagger-1">
+      <form method="POST" action="{{ url_for('guidelines.brand_dna') }}">
+        <input type="hidden" name="action" value="analyze">
+        
+        <!-- Archetype Quick Chips -->
+        <label class="form-label fw-bold text-light small mb-2">
+          <i class="bi bi-palette2 text-warning me-1"></i> Quick Voice Archetype Presets:
+        </label>
+        <div class="row g-3 mb-4">
+          {% for key, arch in archetypes.items() %}
+          <div class="col-md-4">
+            <button type="button" class="btn btn-outline-secondary w-100 p-3 text-start rounded-3 border-opacity-30 h-100 d-flex flex-column justify-content-between {% if selected_archetype == key %}border-cyan bg-dark{% endif %}" onclick="selectArchetypePreset('{{ key }}', `{{ arch.sample }}`)">
+              <div>
+                <strong class="d-block text-white small mb-1">{{ arch.name }}</strong>
+                <span class="text-muted small" style="font-size: 0.74rem;">{{ arch.sample[:100] }}...</span>
+              </div>
+              <span class="text-cyan small mt-2 d-inline-block fw-semibold" style="font-size: 0.72rem;">Load Persona &rarr;</span>
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Manifesto Text Input -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label fw-bold text-light small mb-0">Brand Manifesto, Mission Statement, or Tone Guidelines</label>
+            <button type="button" class="btn btn-sm text-muted border-0 py-0" onclick="document.getElementById('manifestoText').value=''"><i class="bi bi-trash"></i> Clear</button>
+          </div>
+          <textarea name="manifesto_text" id="manifestoText" rows="6" class="form-control font-monospace p-3 text-light bg-dark border-secondary border-opacity-50" style="font-size: 0.88rem; line-height: 1.5;" placeholder="Paste your company manifesto, brand guidelines, or founder's letter here..." required>{{ input_text or '' }}</textarea>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-2 text-muted small">
+            <i class="bi bi-cpu text-info"></i>
+            <span>Analyzed via <strong>Google Gemini 3 Flash</strong> Neural Voice Profiler</span>
+          </div>
+
+          <button type="submit" class="btn btn-gradient-primary px-4 py-2 fw-bold rounded-pill shadow">
+            <i class="bi bi-stars me-2"></i> Extract Voice DNA &amp; Calibrate
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- DNA Profiler Results -->
+    {% if dna_profile %}
+    <div class="fade-in-up">
+      
+      <!-- Top Overview Card -->
+      <div class="bg-card p-4 border-cyber-glow shadow-sm mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3 pb-3 border-bottom border-secondary border-opacity-20">
+          <div>
+            <span class="badge bg-primary bg-opacity-20 text-cyan border border-primary border-opacity-30 px-2 py-1 small fw-bold mb-1">
+              <i class="bi bi-stars me-1"></i> {{ dna_profile.engine_used }}
+            </span>
+            <h4 class="fw-bold text-white mb-0 mt-1">{{ dna_profile.persona_name }}</h4>
+          </div>
+          <div class="text-md-end">
+            <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">DNA PROFILE STATUS</span>
+            <div class="text-emerald small fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Calibrated &amp; Ready</div>
+          </div>
+        </div>
+        <p class="text-light small mb-0" style="line-height: 1.6;">
+          {{ dna_profile.summary }}
+        </p>
+      </div>
+
+      <!-- 5 Voice Polarities Radar / Progress Bars -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+          <div class="bg-card p-4 border-cyber-glow shadow-sm h-100">
+            <h5 class="fw-bold text-white mb-3"><i class="bi bi-sliders text-cyan me-2"></i>Calibrated Voice Polarities</h5>
+            
+            {% set polarities = dna_profile.polarities %}
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small text-light mb-1">
+                <span>Authority &amp; Decisiveness</span>
+                <strong class="text-cyan">{{ polarities.authority or 85 }}%</strong>
+              </div>
+              <div class="progress bg-dark" style="height: 7px;">
+                <div class="progress-bar bg-info" style="width: {{ polarities.authority or 85 }}%;"></div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small text-light mb-1">
+                <span>Warmth &amp; Empathy</span>
+                <strong class="text-warning">{{ polarities.warmth or 70 }}%</strong>
+              </div>
+              <div class="progress bg-dark" style="height: 7px;">
+                <div class="progress-bar bg-warning" style="width: {{ polarities.warmth or 70 }}%;"></div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small text-light mb-1">
+                <span>Innovation &amp; Boldness</span>
+                <strong class="text-emerald">{{ polarities.innovation or 80 }}%</strong>
+              </div>
+              <div class="progress bg-dark" style="height: 7px;">
+                <div class="progress-bar bg-success" style="width: {{ polarities.innovation or 80 }}%;"></div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small text-light mb-1">
+                <span>Plainspoken Clarity</span>
+                <strong class="text-info">{{ polarities.plainspokenness or 90 }}%</strong>
+              </div>
+              <div class="progress bg-dark" style="height: 7px;">
+                <div class="progress-bar bg-primary" style="width: {{ polarities.plainspokenness or 90 }}%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="d-flex justify-content-between small text-light mb-1">
+                <span>Technical Rigor &amp; Depth</span>
+                <strong class="text-cyan">{{ polarities.technical_depth or 75 }}%</strong>
+              </div>
+              <div class="progress bg-dark" style="height: 7px;">
+                <div class="progress-bar bg-info" style="width: {{ polarities.technical_depth or 75 }}%;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Power Lexicons & Prohibited Clichés -->
+        <div class="col-lg-6">
+          <div class="bg-card p-4 border-cyber-glow shadow-sm h-100 d-flex flex-column justify-content-between">
+            <div>
+              <!-- Power Lexicon -->
+              <div class="mb-4">
+                <h6 class="fw-bold text-success mb-2"><i class="bi bi-shield-check me-1"></i> High-Resonance Power Lexicon:</h6>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for word in dna_profile.power_words %}
+                  <span class="badge bg-success bg-opacity-15 text-emerald border border-success border-opacity-30 px-3 py-2 rounded-pill small">
+                    {{ word }}
+                  </span>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Banned Phrases -->
+              <div>
+                <h6 class="fw-bold text-danger mb-2"><i class="bi bi-slash-circle me-1"></i> Prohibited Synthetic Clichés &amp; Superlatives:</h6>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for phrase in dna_profile.banned_phrases %}
+                  <span class="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30 px-3 py-2 rounded-pill small">
+                    <i class="bi bi-x me-1"></i>{{ phrase }}
+                  </span>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-top border-secondary border-opacity-20 text-muted small" style="font-size: 0.72rem;">
+              <i class="bi bi-info-circle me-1"></i> BrandGuard's deterministic calibrator flags these prohibited terms during pre-publication scanning.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-Generated Enforceable Rule Commit Card -->
+      <div class="bg-card p-4 p-md-5 border-cyber-glow shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-journal-plus text-warning fs-4"></i>
+            <div>
+              <h5 class="fw-bold text-white mb-0">Synthesized Brand Governance Rule</h5>
+              <span class="text-muted small" style="font-size: 0.74rem;">Ready to commit directly into the active BrandGuard Rulebook</span>
+            </div>
+          </div>
+          <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30 px-2 py-1 small">
+            ENFORCEABLE STANDARD
+          </span>
+        </div>
+
+        <form method="POST" action="{{ url_for('guidelines.brand_dna') }}">
+          <input type="hidden" name="action" value="save_rule">
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">Rule Title</label>
+              <input type="text" name="rule_title" class="form-control bg-dark text-white border-secondary border-opacity-50" value="{{ dna_profile.generated_rule_title }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">Recommended Replacement Phrasing</label>
+              <input type="text" name="replacement" class="form-control bg-dark text-white border-secondary border-opacity-50" value="{{ dna_profile.suggested_replacement }}">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">Rule Description</label>
+            <textarea name="rule_desc" rows="2" class="form-control bg-dark text-white border-secondary border-opacity-50">{{ dna_profile.generated_rule_description }}</textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label text-muted small text-uppercase fw-semibold" style="font-size: 0.70rem;">Forbidden Patterns (Comma Separated)</label>
+            <input type="text" name="banned_patterns" class="form-control bg-dark text-white border-secondary border-opacity-50" value="{{ dna_profile.banned_phrases | join(', ') }}">
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-2">
+            <span class="text-muted small" style="font-size: 0.74rem;">
+              <i class="bi bi-shield-lock me-1"></i> Requires Manager or Admin authorization to commit.
+            </span>
+            <button type="submit" class="btn btn-gradient-primary px-4 py-2 fw-bold rounded-pill shadow">
+              <i class="bi bi-plus-circle-fill me-2"></i> Commit Rule to Official Rulebook
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function selectArchetypePreset(key, sampleText) {
+    const area = document.getElementById('manifestoText');
+    if (area) {
+      area.value = sampleText;
+      area.focus();
+    }
+  }
+</script>
+{% endblock %}
