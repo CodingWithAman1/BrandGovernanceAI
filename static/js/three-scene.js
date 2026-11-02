@@ -217,13 +217,13 @@
     let previousMousePosition = { x: 0, y: 0 };
     let dragVelocity = { x: 0, y: 0 };
 
-    // Mouse movement parallax
+    // Mouse movement parallax (passive non-blocking)
     window.addEventListener('mousemove', (e) => {
       const normX = (e.clientX / window.innerWidth) * 2 - 1;
       const normY = (e.clientY / window.innerHeight) * 2 - 1;
       mouseX = normX * 0.45;
       mouseY = normY * 0.35;
-    });
+    }, { passive: true });
 
     // Drag to spin on the container
     container.style.cursor = 'grab';

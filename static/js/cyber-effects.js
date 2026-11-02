@@ -1,137 +1,27 @@
 /**
  * BrandGuard AI — Cyber Effects Engine
- * 1. Interactive Dual Cyber Cursor (Dot + Lagging Magnetic Glow Ring + Ripple)
- * 2. Ambient Constellation Particle Canvas
- * 3. Dynamic Interactive Toasts & Audio-Visual Feedback
+ * 1. Hardware-Accelerated Native Cursor (Zero-Latency)
+ * 2. High-Performance Ambient Constellation Canvas
+ * 3. Throttled 3D Card Parallax Tilt & Telemetry
  */
 
 (function () {
   'use strict';
 
   // =========================================================================
-  // 1. DUAL CYBER CURSOR ENGINE
+  // 1. CURSOR ENGINE (NATIVE HARDWARE ACCELERATED — ZERO LAG)
   // =========================================================================
   function initCyberCursor() {
-    // Only initialize on desktop / pointer-fine devices
-    if (!window.matchMedia('(pointer: fine)').matches) return;
-
+    // Rely exclusively on native OS hardware cursor for instantaneous 0ms response.
+    // Clean up any legacy custom cursor DOM nodes if present.
     const dot = document.getElementById('cursor-dot');
     const ring = document.getElementById('cursor-ring');
-    if (!dot || !ring) return;
-
-    let mouseX = -100;
-    let mouseY = -100;
-    let ringX = -100;
-    let ringY = -100;
-    let isVisible = false;
-    let isClicking = false;
-    let isHovering = false;
-
-    // Linear interpolation helper
-    const lerp = (start, end, factor) => start + (end - start) * factor;
-
-    // Track mouse movement
-    window.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      if (!isVisible) {
-        isVisible = true;
-        dot.style.opacity = '1';
-        ring.style.opacity = '1';
-        ringX = mouseX;
-        ringY = mouseY;
-      }
-
-      // Dot moves instantaneously
-      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-    });
-
-    // Detect mouse leaving window
-    document.addEventListener('mouseleave', () => {
-      isVisible = false;
-      dot.style.opacity = '0';
-      ring.style.opacity = '0';
-    });
-
-    document.addEventListener('mouseenter', () => {
-      isVisible = true;
-      dot.style.opacity = '1';
-      ring.style.opacity = '1';
-    });
-
-    // Click feedback
-    window.addEventListener('mousedown', (e) => {
-      isClicking = true;
-      ring.classList.add('cursor-clicking');
-      createClickRipple(e.clientX, e.clientY);
-    });
-
-    window.addEventListener('mouseup', () => {
-      isClicking = false;
-      ring.classList.remove('cursor-clicking');
-    });
-
-    // Hover detection over interactive elements
-    const interactiveSelectors = [
-      'a',
-      'button',
-      'input',
-      'textarea',
-      'select',
-      '.btn',
-      '.btn-sample-chip',
-      '.dropzone-container',
-      '.nav-link-custom',
-      '.bg-card-hover',
-      '.dropdown-item',
-      '.badge[role="button"]',
-      '[data-cursor-hover]'
-    ].join(',');
-
-    document.addEventListener('mouseover', (e) => {
-      if (e.target.closest(interactiveSelectors)) {
-        isHovering = true;
-        ring.classList.add('cursor-hovering');
-        dot.classList.add('dot-hovering');
-      }
-    });
-
-    document.addEventListener('mouseout', (e) => {
-      if (e.target.closest(interactiveSelectors)) {
-        isHovering = false;
-        ring.classList.remove('cursor-hovering');
-        dot.classList.remove('dot-hovering');
-      }
-    });
-
-    // Click ripple particle wave
-    function createClickRipple(x, y) {
-      const ripple = document.createElement('div');
-      ripple.className = 'cursor-click-ripple';
-      ripple.style.left = `${x}px`;
-      ripple.style.top = `${y}px`;
-      document.body.appendChild(ripple);
-
-      ripple.addEventListener('animationend', () => {
-        ripple.remove();
-      });
-    }
-
-    // High performance RAF loop for smooth ring trailing (lerp)
-    function renderCursor() {
-      if (isVisible) {
-        ringX = lerp(ringX, mouseX, 0.18);
-        ringY = lerp(ringY, mouseY, 0.18);
-        ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
-      }
-      requestAnimationFrame(renderCursor);
-    }
-    requestAnimationFrame(renderCursor);
+    if (dot) dot.remove();
+    if (ring) ring.remove();
   }
 
   // =========================================================================
-  // 2. AMBIENT CONSTELLATION PARTICLE CANVAS
+  // 2. AMBIENT CONSTELLATION PARTICLE CANVAS (LIGHTWEIGHT 60FPS)
   // =========================================================================
   function initAmbientParticles() {
     const canvas = document.getElementById('ambient-particles');
@@ -142,8 +32,8 @@
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Responsive particle count (fewer on small screens)
-    const particleCount = width < 768 ? 22 : 42;
+    // Optimized particle count for 120fps buttery performance
+    const particleCount = width < 768 ? 16 : 24;
     const particles = [];
     const colors = [
       'rgba(56, 189, 248, ',  // Electric Cyan
@@ -160,12 +50,12 @@
       reset(init = false) {
         this.x = Math.random() * width;
         this.y = init ? Math.random() * height : height + 10;
-        this.vx = (Math.random() - 0.5) * 0.45;
-        this.vy = -(Math.random() * 0.35 + 0.15); // drift gently upward
-        this.baseRadius = Math.random() * 1.8 + 0.8;
+        this.vx = (Math.random() - 0.5) * 0.35;
+        this.vy = -(Math.random() * 0.25 + 0.1);
+        this.baseRadius = Math.random() * 1.6 + 0.8;
         this.radius = this.baseRadius;
         this.colorPrefix = colors[Math.floor(Math.random() * colors.length)];
-        this.alpha = Math.random() * 0.45 + 0.2;
+        this.alpha = Math.random() * 0.4 + 0.2;
         this.pulseSpeed = Math.random() * 0.02 + 0.01;
         this.pulseAngle = Math.random() * Math.PI * 2;
       }
@@ -174,12 +64,10 @@
         this.x += this.vx;
         this.y += this.vy;
 
-        // Subtle pulsing size/alpha
         this.pulseAngle += this.pulseSpeed;
-        this.currentAlpha = this.alpha + Math.sin(this.pulseAngle) * 0.12;
-        this.currentAlpha = Math.max(0.1, Math.min(0.7, this.currentAlpha));
+        this.currentAlpha = this.alpha + Math.sin(this.pulseAngle) * 0.1;
+        this.currentAlpha = Math.max(0.1, Math.min(0.6, this.currentAlpha));
 
-        // Wrap around boundaries
         if (this.x < -20) this.x = width + 20;
         if (this.x > width + 20) this.x = -20;
         if (this.y < -20) {
@@ -192,22 +80,56 @@
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = `${this.colorPrefix}${this.currentAlpha})`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = `${this.colorPrefix}0.6)`;
         ctx.fill();
-        ctx.shadowBlur = 0; // reset
       }
     }
 
-    // Initialize particles
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
 
-    // Connect nearby particles with subtle glowing lines
+    // Connect nearby particles with subtle lines
     function drawConnections() {
-      const maxDist = 110;
+      const maxDist = 95;
       for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < maxDist) {
+            const lineAlpha = (1 - dist / maxDist) * 0.1;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(147, 197, 253, ${lineAlpha})`;
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    let animationFrameId;
+    function animate() {
+      if (document.hidden) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach((p) => {
+        p.update();
+        p.draw();
+      });
+
+      drawConnections();
+
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    animate();
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
@@ -513,7 +435,7 @@
   }
 
   // =========================================================================
-  // 5. 3D INTERACTIVE CARD PARALLAX TILT ENGINE
+  // 5. 3D INTERACTIVE CARD PARALLAX TILT ENGINE (THROTTLED WITH RAF)
   // =========================================================================
   function init3DCardTilt() {
     if (!window.matchMedia('(pointer: fine)').matches) return;
@@ -525,71 +447,49 @@
     tiltCards.forEach((card) => {
       card.classList.add('perspective-card');
 
-      let bounds;
-      function updateBounds() {
-        bounds = card.getBoundingClientRect();
-      }
+      let bounds = null;
+      let rafId = null;
 
       card.addEventListener('mouseenter', () => {
-        updateBounds();
-        card.style.transition = 'transform 0.12s ease-out, box-shadow 0.25s ease-out';
-      });
+        bounds = card.getBoundingClientRect();
+        card.style.transition = 'transform 0.1s ease-out';
+      }, { passive: true });
 
       card.addEventListener('mousemove', (e) => {
-        if (!bounds) updateBounds();
-        const mouseX = e.clientX - bounds.left;
-        const mouseY = e.clientY - bounds.top;
+        if (!bounds) bounds = card.getBoundingClientRect();
+        if (rafId) return; // Throttle to display refresh rate
 
-        const xPct = mouseX / bounds.width - 0.5;
-        const yPct = mouseY / bounds.height - 0.5;
+        rafId = requestAnimationFrame(() => {
+          rafId = null;
+          const mouseX = e.clientX - bounds.left;
+          const mouseY = e.clientY - bounds.top;
 
-        const tiltX = -yPct * 10;
-        const tiltY = xPct * 12;
+          const xPct = mouseX / bounds.width - 0.5;
+          const yPct = mouseY / bounds.height - 0.5;
 
-        card.style.transform = `perspective(1000px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translateZ(6px) scale3d(1.012, 1.012, 1.012)`;
-        card.style.setProperty('--sheen-x', `${mouseX}px`);
-        card.style.setProperty('--sheen-y', `${mouseY}px`);
-      });
+          const tiltX = -yPct * 8;
+          const tiltY = xPct * 10;
+
+          card.style.transform = `perspective(1000px) rotateX(${tiltX.toFixed(1)}deg) rotateY(${tiltY.toFixed(1)}deg) translateZ(4px) scale3d(1.01, 1.01, 1.01)`;
+          card.style.setProperty('--sheen-x', `${mouseX}px`);
+          card.style.setProperty('--sheen-y', `${mouseY}px`);
+        });
+      }, { passive: true });
 
       card.addEventListener('mouseleave', () => {
-        card.style.transition = 'transform 0.55s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.55s ease';
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+        bounds = null;
+        card.style.transition = 'transform 0.45s cubic-bezier(0.23, 1, 0.32, 1)';
         card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)';
-      });
+      }, { passive: true });
     });
   }
 
   // =========================================================================
-  // 6. MAGNETIC BUTTONS (SUBTLE ACCELERATION TOWARDS CURSOR)
-  // =========================================================================
-  function initMagneticButtons() {
-    if (!window.matchMedia('(pointer: fine)').matches) return;
-
-    const magneticElements = document.querySelectorAll(
-      '.btn-magnetic, .btn-gradient-primary, .btn-ai-glow, .ai-copilot-trigger, .btn-sample-chip'
-    );
-
-    magneticElements.forEach((btn) => {
-      btn.addEventListener('mousemove', (e) => {
-        const rect = btn.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-
-        btn.style.transform = `translate3d(${x * 0.18}px, ${y * 0.18}px, 0)`;
-      });
-
-      btn.addEventListener('mouseleave', () => {
-        btn.style.transition = 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
-        btn.style.transform = 'translate3d(0, 0, 0)';
-      });
-
-      btn.addEventListener('mouseenter', () => {
-        btn.style.transition = 'transform 0.08s ease-out';
-      });
-    });
-  }
-
-  // =========================================================================
-  // 7. DYNAMIC AUDIO EQUALIZER FREQUENCY BARS
+  // 6. DYNAMIC AUDIO EQUALIZER FREQUENCY BARS
   // =========================================================================
   function initEqualizerWaves() {
     const bars = document.querySelectorAll('.eq-bar');
@@ -600,16 +500,14 @@
         const h = Math.floor(Math.random() * 75) + 25;
         bar.style.height = `${h}%`;
       });
-    }, 180);
+    }, 250);
   }
 
   // Initialize once DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
-    initCyberCursor();
     initAmbientParticles();
     initAiCopilotDrawer();
     init3DCardTilt();
-    initMagneticButtons();
     initEqualizerWaves();
   });
 

@@ -17,10 +17,6 @@
 </head>
 <body class="d-flex flex-column min-vh-100" data-user-role="{% if current_user.is_authenticated %}{% if current_user.is_admin %}ADMIN{% elif current_user.role in ['REVIEWER', 'MANAGER'] %}REVIEWER{% else %}CLIENT{% endif %}{% else %}ANON{% endif %}">
 
-  <!-- Interactive Cyber Cursor (Dual Dot + Lagging Magnetic Ring) -->
-  <div id="cursor-dot" class="cursor-dot" aria-hidden="true"></div>
-  <div id="cursor-ring" class="cursor-glow-ring" aria-hidden="true"></div>
-
   <!-- Ambient Atmospheric Floating Orbs & Dynamic Particle Canvas -->
   <div class="ambient-background-layer" aria-hidden="true">
     <div class="ambient-orb orb-1"></div>
