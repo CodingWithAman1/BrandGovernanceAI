@@ -1,6 +1,6 @@
 /**
  * BrandGuard AI — Cyber Effects Engine
- * 1. Hardware-Accelerated Native Cursor (Zero-Latency)
+ * 1. Ultra-Responsive Hardware-Accelerated Cyber Cursor (0ms Lag)
  * 2. High-Performance Ambient Constellation Canvas
  * 3. Throttled 3D Card Parallax Tilt & Telemetry
  */
@@ -9,15 +9,101 @@
   'use strict';
 
   // =========================================================================
-  // 1. CURSOR ENGINE (NATIVE HARDWARE ACCELERATED — ZERO LAG)
+  // 1. ULTRA-RESPONSIVE HARDWARE-ACCELERATED CYBER CURSOR (0ms LAG)
   // =========================================================================
   function initCyberCursor() {
-    // Rely exclusively on native OS hardware cursor for instantaneous 0ms response.
-    // Clean up any legacy custom cursor DOM nodes if present.
-    const dot = document.getElementById('cursor-dot');
-    const ring = document.getElementById('cursor-ring');
-    if (dot) dot.remove();
-    if (ring) ring.remove();
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    const dot = document.getElementById('cyberCursorDot');
+    const ring = document.getElementById('cyberCursorRing');
+    if (!dot || !ring) return;
+
+    let targetX = -100;
+    let targetY = -100;
+    let ringX = -100;
+    let ringY = -100;
+    let isVisible = false;
+    let rafActive = false;
+
+    // Use pointermove: updates synchronously on physical mouse movement with zero latency
+    window.addEventListener('pointermove', (e) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+
+      if (!isVisible) {
+        isVisible = true;
+        dot.style.opacity = '1';
+        ring.style.opacity = '1';
+        ringX = targetX;
+        ringY = targetY;
+      }
+
+      // Dot moves locked 1:1 with hardware pointer (zero delay)
+      dot.style.transform = `translate3d(${targetX - 3}px, ${targetY - 3}px, 0)`;
+
+      if (!rafActive) {
+        rafActive = true;
+        requestAnimationFrame(renderRing);
+      }
+    }, { passive: true });
+
+    document.addEventListener('pointerleave', () => {
+      isVisible = false;
+      dot.style.opacity = '0';
+      ring.style.opacity = '0';
+    });
+
+    document.addEventListener('pointerenter', () => {
+      isVisible = true;
+      dot.style.opacity = '1';
+      ring.style.opacity = '1';
+    });
+
+    window.addEventListener('pointerdown', () => {
+      ring.classList.add('cursor-click');
+    }, { passive: true });
+
+    window.addEventListener('pointerup', () => {
+      ring.classList.remove('cursor-click');
+    }, { passive: true });
+
+    // Agile, snappy ring tracking (0.45 spring lerp factor — no sluggish trailing)
+    function renderRing() {
+      if (!isVisible) {
+        rafActive = false;
+        return;
+      }
+
+      ringX += (targetX - ringX) * 0.45;
+      ringY += (targetY - ringY) * 0.45;
+
+      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+
+      // Stop RAF when at rest to conserve GPU
+      const dist = Math.abs(targetX - ringX) + Math.abs(targetY - ringY);
+      if (dist > 0.15) {
+        requestAnimationFrame(renderRing);
+      } else {
+        rafActive = false;
+      }
+    }
+
+    // Hover state management
+    const hoverSelector = 'a, button, input, textarea, select, .btn, .btn-sample-chip, .dropzone-container, .nav-link-custom, .bg-card-hover, .dropdown-item, .badge[role="button"], [data-cursor-hover]';
+
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.closest(hoverSelector)) {
+        ring.classList.add('cursor-hover');
+        dot.classList.add('cursor-hover');
+      }
+    }, { passive: true });
+
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.closest(hoverSelector)) {
+        ring.classList.remove('cursor-hover');
+        dot.classList.remove('cursor-hover');
+      }
+    }, { passive: true });
   }
 
   // =========================================================================
@@ -505,6 +591,7 @@
 
   // Initialize once DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
+    initCyberCursor();
     initAmbientParticles();
     initAiCopilotDrawer();
     init3DCardTilt();

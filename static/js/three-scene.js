@@ -38,7 +38,7 @@
       powerPreference: 'high-performance'
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     // Clear previous canvas if any
@@ -163,7 +163,7 @@
     });
 
     // --- 3D Floating Particle Constellation ---
-    const particlesCount = 140;
+    const particlesCount = 45;
     const particleGeometry = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particlesCount * 3);
     const particleColors = new Float32Array(particlesCount * 3);
@@ -286,6 +286,13 @@
     });
     resizeObserver.observe(container);
 
+    // Viewport intersection observer to pause rendering when offscreen
+    let isVisibleInViewport = true;
+    const viewObserver = new IntersectionObserver((entries) => {
+      isVisibleInViewport = entries[0].isIntersecting;
+    }, { threshold: 0.05 });
+    viewObserver.observe(container);
+
     // =========================================================================
     // 5. ANIMATION LOOP (60 FPS WITH DAMPING & LEVITATION)
     // =========================================================================
@@ -295,7 +302,7 @@
     function animate() {
       animId = requestAnimationFrame(animate);
 
-      if (document.hidden) return;
+      if (document.hidden || !isVisibleInViewport) return;
 
       const elapsedTime = clock.getElapsedTime();
 
@@ -375,10 +382,9 @@
   }
 
   // =========================================================================
-  // 6. MINI 3D CORE FLOATING HUD WIDGET (BOTTOM CORNER)
+  // 6. MINI 3D CORE FLOATING HUD WIDGET (LIGHTWEIGHT CSS 3D COMPOSITOR)
   // =========================================================================
   function initMiniFloatingCore() {
-    // Only on desktop
     if (!window.matchMedia('(min-width: 992px)').matches) return;
 
     let miniContainer = document.getElementById('brandguard-mini-3d-hud');
@@ -387,14 +393,20 @@
       miniContainer.id = 'brandguard-mini-3d-hud';
       miniContainer.className = 'mini-3d-hud-container';
       miniContainer.innerHTML = `
-        <div class="mini-3d-hud-card" title="BrandGuard 3D Holographic Core (Interactive)">
-          <div class="mini-3d-canvas-wrap" id="mini3DCanvas"></div>
+        <div class="mini-3d-hud-card" title="BrandGuard 3D Holographic Core">
+          <div class="mini-3d-canvas-wrap">
+            <div class="css-gyro-core">
+              <div class="gyro-ring gyro-ring-1"></div>
+              <div class="gyro-ring gyro-ring-2"></div>
+              <div class="gyro-node"></div>
+            </div>
+          </div>
           <div class="mini-3d-hud-label">
             <span class="pulse-dot pulse-dot-cyan me-1"></span>
             <span class="hud-tag">3D CORE</span>
           </div>
           <div class="mini-3d-hud-stats">
-            <span class="hud-stat-item">60 FPS</span> &bull;
+            <span class="hud-stat-item text-success">OPTIMAL</span> &bull;
             <span class="hud-stat-item text-cyan">GYRO: ON</span>
           </div>
         </div>
@@ -402,48 +414,14 @@
       document.body.appendChild(miniContainer);
     }
 
-    const canvasWrap = document.getElementById('mini3DCanvas');
-    if (!canvasWrap) return;
-
-    // Small WebGL scene (80x80)
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.z = 4.8;
-
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(76, 76);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    canvasWrap.appendChild(renderer.domElement);
-
-    // Small Icosahedron + Ring
-    const geom = new THREE.IcosahedronGeometry(1.0, 1);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.85 });
-    const mesh = new THREE.Mesh(geom, mat);
-    scene.add(mesh);
-
-    const ringGeom = new THREE.TorusGeometry(1.5, 0.025, 8, 48);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x818cf8, transparent: true, opacity: 0.6 });
-    const ring = new THREE.Mesh(ringGeom, ringMat);
-    ring.rotation.x = Math.PI / 3;
-    scene.add(ring);
-
-    // Mini animation
-    function miniAnimate() {
-      requestAnimationFrame(miniAnimate);
-      if (document.hidden) return;
-      mesh.rotation.y += 0.015;
-      mesh.rotation.x += 0.008;
-      ring.rotation.z -= 0.02;
-      renderer.render(scene, camera);
-    }
-    miniAnimate();
-
-    // Click on mini core triggers a cool 3D burst toast / status inspection
     miniContainer.addEventListener('click', () => {
-      mesh.scale.set(1.3, 1.3, 1.3);
-      setTimeout(() => mesh.scale.set(1.0, 1.0, 1.0), 300);
+      const card = miniContainer.querySelector('.mini-3d-hud-card');
+      if (card) {
+        card.style.transform = 'scale(1.08)';
+        setTimeout(() => { card.style.transform = ''; }, 200);
+      }
       if (window.showToast) {
-        window.showToast('🛡️ 3D Neural Governance Core Active & Synchronized', 'info');
+        window.showToast('🛡️ 3D Governance Core Active & Hardware-Accelerated', 'info');
       }
     });
   }
